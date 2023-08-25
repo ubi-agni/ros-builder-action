@@ -1,0 +1,12 @@
+name: ROS buildfarm
+description: Github action to build .deb packages from ROS sources
+author: Robert Haschke
+branding:
+  icon: 'package'
+  color: 'green'
+
+runs:
+  # We need to go through JS to allow folding output generated from the shell script
+  # composite actions would create own foldings for each step
+  using: 'node16'
+  main: 'src/actions/main.js'

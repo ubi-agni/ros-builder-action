@@ -1,0 +1,9 @@
+repositories:
+  ros_environment:
+    type: git
+    url: https://github.com/ros-o/ros_environment.git
+    version: 348f78c92113ccb809ced887f7856a66f84f63ea
+  catkin:
+    type: git
+    url: https://github.com/ubi-agni/catkin
+    version: noetic-devel
