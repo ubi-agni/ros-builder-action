@@ -31,7 +31,7 @@ jobs:
         uses: ./
         with:
           ROS_DISTRO: one
-          SOURCES: .github/workflows/minimal.repos
+          ROS_SOURCES: .github/workflows/minimal.repos
 
       - name: Upload debs
         uses: actions/upload-artifact@v3

@@ -5,6 +5,54 @@ branding:
   icon: 'package'
   color: 'green'
 
+inputs:
+  # target names
+  ROS_DISTRO:
+    description: The ROS distribution codename to compile for
+    required: true
+  DEB_DISTRO:
+    description: The Debian/Ubuntu distribution codename to compile for
+    required: false
+
+  # ROS package selection
+  ROS_SOURCES:
+    description: Repos file with list of repositories to package
+    required: false
+    default: '*.repos'
+
+  # packages sources
+  EXTRA_DEB_SOURCES:
+    description: additional sources.list entries to add for package builds
+    required: false
+  EXTRA_ROSDEP_SOURCES:
+    description: Additional rosdep sources
+    required: false
+
+  # build options
+  EXTRA_SBUILD_CONFIG:
+    description: Additional sbuild.conf lines. For example EXTRA_REPOSITORIES or VERBOSE. See man sbuild.conf.
+    required: false
+  CONTINUE_ON_ERROR:
+    description: continue building packages once a package failed
+    required: false
+    default: false
+
+  # deploy options
+  BRANCH:
+    description: custom branch to push to. Default is DEB_DISTRO-ROS_DISTRO
+    required: false
+  GITHUB_TOKEN:
+    description: Set to deploy to BRANCH in the same repo
+    required: false
+  SQUASH_HISTORY:
+    description: If set to true, all previous commits on the target branch will be discarded.
+    required: false
+    default: true
+  PUSH_ON_ERROR:
+    description: push built packages into the repository if any package failed to build
+    required: false
+    default: false
+
 runs:
   # We need to go through JS to allow folding output generated from the shell script
   # composite actions would create own foldings for each step
