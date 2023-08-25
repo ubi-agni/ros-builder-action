@@ -61,14 +61,20 @@ function install_host_packages {
 }
 
 function create_chroot {
+  # http://127.0.0.1:3142 should be quoted by double quotes, but this leads to three-fold nested quotes!
+  # Using @ first and replacing them later with quotes via sed...
+  local acng_config_cmd='echo \"Acquire::http::Proxy @http://127.0.0.1:3142@;\" | tee /etc/apt/apt.conf.d/01acng'
+
   mkdir -p ~/.cache/sbuild
   # shellcheck disable=SC2016
-  mmdebstrap \
+  ici_cmd mmdebstrap \
     --variant=buildd --include=apt,ccache,ca-certificates,curl,python3-rosdep,python3-catkin-pkg \
     --customize-hook='chroot "$1" update-ccache-symlinks' \
     --customize-hook='chroot "$1" curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg' \
+    --customize-hook='chroot "$1" '"sh -c \"$acng_config_cmd\"" \
+    --customize-hook='chroot "$1" sed -i "s#@#\"#g" /etc/apt/apt.conf.d/01acng' \
     "$DEB_DISTRO" "$HOME/.cache/sbuild/$DEB_DISTRO-amd64.tar" \
-    "deb http://127.0.0.1:3142/azure.archive.ubuntu.com/ubuntu $DEB_DISTRO main universe" \
+    "deb http://azure.archive.ubuntu.com/ubuntu $DEB_DISTRO main universe" \
     "deb [arch=amd64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
 }
 
