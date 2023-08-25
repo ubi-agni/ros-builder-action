@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REPO_PATH: ~/debs
+      DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || '' }}
 
     steps:
       - uses: actions/checkout@v3
