@@ -36,11 +36,9 @@ function install_host_packages {
   local arch
   arch="arch=$(dpkg --print-architecture)"
 
-  ici_step "Install debian archive keys" ici_asroot apt-get install -yq debian-archive-keyring
-
   ici_start_fold "Define new packages sources"
-  echo "deb [$arch] http://deb.debian.org/debian testing main" | ici_cmd ici_asroot tee /etc/apt/sources.list.d/debian-testing.list
-  ici_cmd restrict_src_to_packages "release n=testing" "mmdebstrap sbuild"
+  ici_cmd ici_asroot add-apt-repository -y --no-update ppa:v-launchpad-jochen-sprickerhof-de/sbuild
+  ici_cmd restrict_src_to_packages "release o=v-launchpad-jochen-sprickerhof-de" "mmdebstrap sbuild"
 
   ici_cmd ici_asroot curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o "$ros_key_file"
   echo "deb [$arch signed-by=$ros_key_file] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | ici_cmd ici_asroot tee /etc/apt/sources.list.d/ros2-latest.list
