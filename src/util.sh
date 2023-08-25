@@ -367,14 +367,6 @@ function ici_get_log_cmd {
             ici_asroot)
                 echo -n "sudo "
                 ;;
-            ici_exec_in_workspace)
-                echo -n "( source $2/setup.bash && "
-                if [ "$3" != '.' ]; then
-                  echo -n "cd $3 && "
-                fi
-                shift 2
-                post="$post; )"
-                ;;
             ici_filter)
                 post=" | grep -E '$2' "
                 shift 1
@@ -434,7 +426,7 @@ function ici_label {
     local cmd; cmd=$(ici_get_log_cmd "$@")
     ici_log
     ici_color_output ${ANSI_BOLD} "$ $cmd"
-     "$@"
+    "$@"
 }
 
 function ici_cmd {
@@ -500,7 +492,7 @@ function ici_find_nonhidden {
 function ici_resolve_component {
   local label=$1
   local group=$2
-  for file in "${TARGET_REPO_PATH}/${!label}" "${ICI_SRC_PATH}/$group/${!label}.sh"; do
+  for file in "${ICI_SRC_PATH}/${!label}" "${ICI_SRC_PATH}/$group/${!label}.sh"; do
     if [ -f "$file" ]; then
       echo "$file"
       return
@@ -513,15 +505,6 @@ function ici_source_component {
   local script
   script=$(ici_resolve_component "$@")
   ici_guard source "$script"
-}
-
-function ici_check_builder {
-  ici_trace "$@"
-  [ -z "$BUILDER" ] || ici_resolve_component BUILDER builders > /dev/null
-}
-
-function ici_source_builder {
-  ici_source_component BUILDER builders
 }
 
 function ici_join_array {
