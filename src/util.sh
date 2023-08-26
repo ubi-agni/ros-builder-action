@@ -53,9 +53,9 @@ function ici_ansi_cleared_line {
 function ici_backtrace {
   if [ "$TRACE" = true ]; then
     ici_log
-    ici_color_output ${ANSI_MAGENTA} "TRACE:${BASH_SOURCE[2]#$ICI_SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
+    ici_color_output ${ANSI_MAGENTA} "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
     for ((i=3;i<${#BASH_SOURCE[@]};i++)); do
-        ici_color_output ${ANSI_MAGENTA} "   AT:${BASH_SOURCE[$i]#$ICI_SRC_PATH/}:${BASH_LINENO[$((i-1))]} ${FUNCNAME[$((i-1))]}"
+        ici_color_output ${ANSI_MAGENTA} "   AT:${BASH_SOURCE[$i]#$SRC_PATH/}:${BASH_LINENO[$((i-1))]} ${FUNCNAME[$((i-1))]}"
     done
   fi
 }
@@ -63,7 +63,7 @@ function ici_backtrace {
 function ici_trace {
   if [ "$TRACE" = true ]; then
     ici_log
-    ici_color_output ${ANSI_MAGENTA} "TRACE:${BASH_SOURCE[2]#$ICI_SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
+    ici_color_output ${ANSI_MAGENTA} "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
   fi
 }
 
@@ -96,6 +96,12 @@ function _sub_shell() (
   }
   eval "$*" || ici_exit
 )
+
+# usage echo "$*" | ici_pipe_into_chroot <chroot folder>
+function ici_pipe_into_chroot {
+  local folder=$1
+  cat -- | ici_asroot chroot "$folder" /bin/bash -- || ici_exit
+}
 
 function _label_hook() {
       ici_log
@@ -252,7 +258,7 @@ function ici_exit {
 
     ici_teardown "$exit_code"
 
-    if [ "$exit_code" == "$EXPECT_EXIT_CODE" ] ; then
+    if [ "$exit_code" == "${EXPECT_EXIT_CODE:-0}" ] ; then
         exit_code=0
     elif [ "$exit_code" == "0" ]; then # 0 was not expected
         exit_code=1
@@ -408,6 +414,13 @@ function ici_filter {
     return "$err"
 }
 
+# append new line(s) to a variable
+function ici_append {
+  local var=$1; shift
+  local value
+  value=$(echo -e "${!var:+${!var}\n}$*")
+  eval "$var=\"$value\""
+}
 
 function _ici_guard {
     local err=0
@@ -492,7 +505,7 @@ function ici_find_nonhidden {
 function ici_resolve_component {
   local label=$1
   local group=$2
-  for file in "${ICI_SRC_PATH}/${!label}" "${ICI_SRC_PATH}/$group/${!label}.sh"; do
+  for file in "${SRC_PATH}/${!label}" "${SRC_PATH}/$group/${!label}.sh"; do
     if [ -f "$file" ]; then
       echo "$file"
       return
@@ -551,8 +564,9 @@ function gha_warning {
 
 function  ici_start_fold() {
     if [ -n "$ICI_FOLD_NAME" ]; then
+        local old_name=$ICI_FOLD_NAME
         ici_end_fold
-        ici_warn "ici_start_fold: nested folds are not supported"
+        ici_warn "ici_start_fold: nested folds are not supported (still open: '$old_name')"
     fi
     ICI_FOLD_NAME=$1
     gha_cmd group "$ICI_FOLD_NAME"

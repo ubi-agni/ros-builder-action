@@ -33,32 +33,16 @@ function restrict_src_to_packages {
   gen_pin_entries "$@" | ici_asroot tee /etc/apt/preferences > /dev/null
 }
 
-function install_host_packages {
-  local ros_key_file="/usr/share/keyrings/ros-archive-keyring.gpg"
-  local arch
-  arch="arch=$(dpkg --print-architecture)"
-
-  ici_start_fold "Define new packages sources"
-  ici_cmd ici_asroot add-apt-repository -y --no-update ppa:v-launchpad-jochen-sprickerhof-de/sbuild
-  ici_cmd restrict_src_to_packages "release o=v-launchpad-jochen-sprickerhof-de" "mmdebstrap sbuild"
-
-  ici_cmd ici_asroot curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o "$ros_key_file"
-  echo "deb [$arch signed-by=$ros_key_file] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | ici_cmd ici_asroot tee /etc/apt/sources.list.d/ros2-latest.list
-
-  echo "$EXTRA_DEB_SOURCES" | ici_asroot tee /etc/apt/sources.list.d/1-custom-ros-deb-builder-repositories.list
-  ici_end_fold
-
-  echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-set-selections
-
-  ici_step "Update apt package list" ici_asroot apt-get -qq update
-
-  DEBIAN_FRONTEND=noninteractive ici_step "Install packages" ici_apt_install \
-    mmdebstrap sbuild devscripts debian-archive-keyring ccache curl apt-cacher-ng \
-    python3-pip python3-rosdep python3-vcstool python3-colcon-common-extensions
-
-  # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
-  ici_step "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
-  ici_step "rosdep init" ici_asroot rosdep init
+REPOS_LIST_FILE="/etc/apt/sources.list.d/ros-builder-repos.list"
+function configure_deb_repo {
+  ici_asroot /bin/bash -c "echo \"$1\" >> \"$REPOS_LIST_FILE\""
+}
+function configure_extra_deb_sources {
+  ici_asroot rm -f "$REPOS_LIST_FILE"
+  echo "$EXTRA_DEB_SOURCES" | while IFS= read -r line; do
+    ici_log "$line"
+    _ici_guard configure_deb_repo "$line"
+  done
 }
 
 function create_chroot {
@@ -105,21 +89,3 @@ function declare_extra_rosdep_sources {
     echo "yaml $source $ROS_DISTRO"
   done | ici_asroot tee /etc/ros/rosdep/sources.list.d/02-remote.list
 }
-
-ici_title "Install required packages on host system"
-install_host_packages
-ici_step "check apt-cacher-ng" service apt-cacher-ng status
-
-ici_step "Declare EXTRA_ROSDEP_SOURCES" declare_extra_rosdep_sources
-
-ici_title "Prepare build environment"
-ici_step "Create sbuild chroot" create_chroot
-
-ici_step "Configure ccache" ccache --zero-stats --max-size=10.0G
-# allow ccache access from sbuild
-chmod a+rX ~
-chmod -R a+rwX ~/.cache/ccache
-
-ici_step "Configure ~/.sbuildrc" configure_sbuildrc
-
-ici_step "Create \$REPO_PATH=$REPO_PATH" mkdir -p "$REPO_PATH"

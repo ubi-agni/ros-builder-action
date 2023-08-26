@@ -78,7 +78,7 @@ function build_source {
 
   prepare_ws "$ws_path" "$1"
   cd "$ws_path" || exit 1
-  ici_step "Register packages with rosdep" register_local_pkgs_with_rosdep
+  ici_step "Register new packages with rosdep" register_local_pkgs_with_rosdep
 
   local pkg_paths
   pkg_paths="$(colcon list --topological-order --paths-only)"
