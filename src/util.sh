@@ -532,6 +532,10 @@ function ici_make_temp_dir {
   ici_cleanup_later "$ici_make_temp_dir_res"
 }
 
+function ici_apt_install {
+    ici_cmd ici_filter "Setting up" ici_asroot apt-get -qq install -y --no-upgrade --no-install-recommends "$@"
+}
+
 function gha_cmd {
     local cmd=$1; shift
     echo -e "::$cmd::$*"

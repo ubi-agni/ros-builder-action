@@ -48,10 +48,9 @@ function install_host_packages {
 
   echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-set-selections
 
-  ici_step "Update apt package list" ici_asroot apt-get update -q
+  ici_step "Update apt package list" ici_asroot apt-get -qq update
 
-  DEBIAN_FRONTEND=noninteractive ici_step "Install packages" \
-    ici_asroot apt-get install -yq \
+  DEBIAN_FRONTEND=noninteractive ici_step "Install packages" ici_apt_install \
     mmdebstrap sbuild devscripts debian-archive-keyring ccache curl apt-cacher-ng \
     python3-pip python3-rosdep python3-vcstool python3-colcon-common-extensions
 
