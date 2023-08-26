@@ -37,6 +37,7 @@ EOF
 	assert_output "$expected"
 }
 
+# shellcheck disable=SC2030
 @test "ici_hook_on_appended_var" {
 	function ici_time_start() { true; }
 	function ici_time_end() { true; }
@@ -56,4 +57,48 @@ EOF
 EOF
 )
 	assert_output "$expected"
+}
+
+function test_filtering_helper {
+	local exit_code=$1
+	local expected_components=$2
+	local filter=${4:-xxx}
+	shift 2
+
+	local all; all=$(cat <<- EOF
+	good
+	bad
+EOF
+)
+	# shellcheck disable=SC2034,SC2155
+	local passed=$(echo "$all" | grep -E "$filter")
+	# shellcheck disable=SC2034
+	local error="stderr"
+	local expected=""
+	for var in $expected_components; do
+		ici_append expected "${!var}"
+	done
+
+	function sub_shell {
+		eval "$*"
+	}
+
+	run "$@" sub_shell "echo \"$all\"; echo \"stderr\" 1>&2; return $exit_code"
+	assert_output "$expected"
+	# shellcheck disable=SC2031
+	[ "$status" -eq "$exit_code" ]
+}
+@test "ici_quiet_true" {
+	test_filtering_helper 0 "" ici_quiet
+}
+@test "ici_quiet_false" {
+	test_filtering_helper 1 "all error" ici_quiet
+}
+@test "ici_filter_true" {
+	# stderr is dropped on success
+	test_filtering_helper 0 "passed" ici_filter "good"
+}
+@test "ici_filter_false" {
+	# order of stdout and stderr is changed due to extra filter step
+	test_filtering_helper 1 "error all" ici_filter "good"
 }

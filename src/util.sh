@@ -390,27 +390,33 @@ function ici_get_log_cmd {
     done
 }
 
+# only show output on failure, otherwise be quiet
 function ici_quiet {
     local out; out=$(mktemp)
     local err=0
     "$@" &> "$out" || err=$?
     if [ "$err" -ne 0 ]; then
         ici_redirect cat "$out"
-        rm -rf "$out"
     fi
-    rm -rf "$out"
+    rm -f "$out"
     return "$err"
 }
 
+# show full output on failure, otherwise filtered stdout
 function ici_filter {
     local filter=$1; shift
-    local out; out=$(mktemp)
-    "$@" | grep -E "$filter" | ici_redirect cat || true
+    local out; out=$(mktemp)   # stdout
+    local both; both=$(mktemp) # stdout+stderr
+    # redirect stdout+stderr to $both and stdout to $out
+    { "$@" 2>&1 2>&3 3>&- | tee "$out" 3>&-; } > "$both" 3>&1
+
     local err=${PIPESTATUS[0]}
     if [ "$err" -ne 0 ]; then
-        ici_redirect cat "$out"
+        ici_redirect cat "$both"
+    else
+        ici_redirect cat "$out" | grep -E "$filter"
     fi
-    rm -rf "$out"
+    rm -f "$out" "$both"
     return "$err"
 }
 
