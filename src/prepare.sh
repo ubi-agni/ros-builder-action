@@ -1,13 +1,27 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
 
-function add_pin_entry {
-  local src="$1"; shift
-  local pkg="$1"; shift
-  local priority
-  priority="${1:-1}"; shift
+# https://wiki.ubuntuusers.de/Apt-Pinning/#Einzelne-Pakete-aus-einem-Sammel-PPA-installieren
+function gen_pin_entries {
+  local src=$1
+  local enable=$2
 
-  cat << EOF | ici_asroot tee /etc/apt/preferences > /dev/null
+  # disable all packages from $src
+  gen_pin_entry "$src" "*" -1
+
+  # but allow updating of selected packages
+  for pkg in $enable; do
+    gen_pin_entry "$src" "$pkg" 500
+  done
+}
+
+function gen_pin_entry {
+  local src=$1
+  local pkg=$2
+  local priority
+  priority="${3:-1}"
+
+  cat <<- EOF
 
 Package: $pkg
 Pin: $src
@@ -15,20 +29,8 @@ Pin-Priority: $priority
 EOF
 }
 
-# https://wiki.ubuntuusers.de/Apt-Pinning/#Einzelne-Pakete-aus-einem-Sammel-PPA-installieren
 function restrict_src_to_packages {
-  local src
-  local enable
-  src=$1; shift
-  enable=$1; shift
-
-  # disable all packages from $src
-  add_pin_entry "$src" "*" -1
-
-  # but allow updating of selected packages
-  for pkg in $enable; do
-    add_pin_entry "$src" "$pkg" 500
-  done
+  gen_pin_entries "$@" | ici_asroot tee /etc/apt/preferences > /dev/null
 }
 
 function install_host_packages {
