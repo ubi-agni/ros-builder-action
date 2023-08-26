@@ -43,8 +43,10 @@ esac
 # sanity checks
 if debian-distro-info --all | grep -q "$DEB_DISTRO"; then
   export DISTRIBUTION=debian
+  export DISTRIBUTION_REPO=http://deb.debian.org/debian
 elif ubuntu-distro-info --all | grep -q "$DEB_DISTRO"; then
   export DISTRIBUTION=ubuntu
+  export DISTRIBUTION_REPO=http://azure.archive.ubuntu.com/ubuntu
 else
   echo "Unknown DEB_DISTRO: $DEB_DISTRO"
   exit 1

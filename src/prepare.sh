@@ -52,7 +52,7 @@ function install_host_packages {
 
   DEBIAN_FRONTEND=noninteractive ici_step "Install packages" \
     ici_asroot apt-get install -yq \
-    mmdebstrap sbuild devscripts ccache curl apt-cacher-ng \
+    mmdebstrap sbuild devscripts debian-archive-keyring ccache curl apt-cacher-ng \
     python3-pip python3-rosdep python3-vcstool python3-colcon-common-extensions
 
   # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
@@ -74,7 +74,7 @@ function create_chroot {
     --customize-hook='chroot "$1" '"sh -c \"$acng_config_cmd\"" \
     --customize-hook='chroot "$1" sed -i "s#@#\"#g" /etc/apt/apt.conf.d/01acng' \
     "$DEB_DISTRO" "$HOME/.cache/sbuild/$DEB_DISTRO-amd64.tar" \
-    "deb http://azure.archive.ubuntu.com/ubuntu $DEB_DISTRO main universe" \
+    "deb $DISTRIBUTION_REPO $DEB_DISTRO main universe" \
     "deb [arch=amd64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
 }
 

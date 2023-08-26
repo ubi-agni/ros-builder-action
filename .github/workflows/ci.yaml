@@ -25,17 +25,25 @@ jobs:
       REPO_PATH: ~/debs
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || '' }}
 
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [focal, jammy, bookworm ]
+        ROS_DISTRO: [one]
+
+    name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}
     steps:
       - uses: actions/checkout@v3
 
       - name: Run exposed action
         uses: ./
         with:
-          ROS_DISTRO: one
+          DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+          ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
           ROS_SOURCES: .github/workflows/minimal.repos
 
       - name: Upload debs
         uses: actions/upload-artifact@v3
         with:
-          name: debs
+          name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}.debs
           path: ${{ env.REPO_PATH }}
