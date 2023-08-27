@@ -45,7 +45,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: unittests
     env:
-      REPO_PATH: ~/debs
+      DEBS_PATH: ~/debs
+      REPO_PATH: ~/repo
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || '' }}
 
     strategy:
@@ -69,10 +70,15 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}.debs
-          path: ${{ env.REPO_PATH }}
+          path: ${{ env.DEBS_PATH }}
 
       - name: Run flat-repo action
         uses: ./flat-repo
+        with:
+          DEBS_PATH: ${{ env.DEBS_PATH }}
+          REPO_PATH: ${{ env.REPO_PATH }}
 
       - name: Run deploy action
         uses: ./deploy
+        with:
+          REPO_PATH: ${{ env.REPO_PATH }}

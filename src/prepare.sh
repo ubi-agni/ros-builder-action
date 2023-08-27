@@ -94,7 +94,7 @@ function generate_readme {
 	local branch=${GITHUB_REF}
 
 	# shellcheck disable=SC2006,2086
-  cat <<EOF > README.md
+  cat <<EOF > "$DEBS_PATH/README.md"
 		# Instructions
 
 		## Install

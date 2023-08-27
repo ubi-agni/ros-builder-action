@@ -21,12 +21,12 @@ EXTRA_SBUILD_OPTS="${EXTRA_SBUILD_OPTS:-} $(echo "$EXTRA_DEB_SOURCES" | sed -n '
 export DEB_BUILD_OPTIONS=nocheck  # don't build/run tests
 
 ## deploy options
+export DEBS_PATH
+DEBS_PATH=$(eval echo "${DEBS_PATH:-$HOME/debs}")
 export REPO_PATH
-REPO_PATH=$(eval echo "${REPO_PATH:-$HOME/debs}")
-export BRANCH=${INPUT_BRANCH:-${BRANCH:-${DEB_DISTRO}-${ROS_DISTRO}}}
+REPO_PATH=$(eval echo "${REPO_PATH:-$HOME/repo}")
+
 export GITHUB_TOKEN=${INPUT_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}
-export SQUASH_HISTORY=${INPUT_SQUASH_HISTORY:-${SQUASH_HISTORY:-true}}
-export PUSH_ON_ERROR=${INPUT_PUSH_ON_ERROR:-${PUSH_ON_ERROR:-false}}
 
 # configure shell debugging
 export DEBUG_BASH=${DEBUG_BASH:-false}

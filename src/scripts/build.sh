@@ -3,14 +3,14 @@
 
 function register_local_pkgs_with_rosdep {
   for pkg in $(colcon list --topological-order --names-only); do
-    cat << EOF >> "$REPO_PATH/local.yaml"
+    cat << EOF >> "$DEBS_PATH/local.yaml"
 $pkg:
   $DISTRIBUTION:
     - ros-one-$(echo "$pkg" | tr '_' '-')
 EOF
   done
 
-  echo "yaml file://$REPO_PATH/local.yaml $ROS_DISTRO" | \
+  echo "yaml file://$DEBS_PATH/local.yaml $ROS_DISTRO" | \
     ici_asroot tee /etc/ros/rosdep/sources.list.d/01-local.list
 
   ici_cmd rosdep update
@@ -57,8 +57,8 @@ function build_pkg {
   debchange -v "$version-$(date +%Y%m%d.%H%M)" -p -D "$DEB_DISTRO" -u high -m "Append timestamp when binarydeb was built."
 
   SBUILD_OPTS="--chroot-mode=unshare --no-clean-source --no-run-lintian --nolog \
-    --dpkg-source-opts=\"-Zgzip -z1 --format=1.0 -sn\" --build-dir=\"$REPO_PATH\" \
-    --extra-package=\"$REPO_PATH\" \
+    --dpkg-source-opts=\"-Zgzip -z1 --format=1.0 -sn\" --build-dir=\"$DEBS_PATH\" \
+    --extra-package=\"$DEBS_PATH\" \
     $EXTRA_SBUILD_OPTS"
   if ! ici_cmd eval sbuild "$SBUILD_OPTS"; then
     gha_error "sbuild failed for ${pkg_name}"

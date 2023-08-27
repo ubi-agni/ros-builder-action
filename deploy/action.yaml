@@ -14,22 +14,6 @@ inputs:
     description: The Debian/Ubuntu distribution codename to compile for
     required: false
 
-  # deploy options
-  BRANCH:
-    description: custom branch to push to. Default is DEB_DISTRO-ROS_DISTRO
-    required: false
-  GITHUB_TOKEN:
-    description: Set to deploy to BRANCH in the same repo
-    required: false
-  SQUASH_HISTORY:
-    description: If set to true, all previous commits on the target branch will be discarded.
-    required: false
-    default: true
-  PUSH_ON_ERROR:
-    description: push built packages into the repository if any package failed to build
-    required: false
-    default: false
-
 runs:
   # We need to go through JS to allow folding output generated from the shell script
   # composite actions would create own foldings for each step
