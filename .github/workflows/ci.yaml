@@ -71,5 +71,8 @@ jobs:
           name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}.debs
           path: ${{ env.REPO_PATH }}
 
+      - name: Run flat-repo action
+        uses: ./flat-repo
+
       - name: Run deploy action
         uses: ./deploy

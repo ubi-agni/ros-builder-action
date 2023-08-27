@@ -89,3 +89,23 @@ function declare_extra_rosdep_sources {
     echo "yaml $source $ROS_DISTRO"
   done | ici_asroot tee /etc/ros/rosdep/sources.list.d/02-remote.list
 }
+
+function generate_readme {
+	local branch=${GITHUB_REF}
+
+	# shellcheck disable=SC2006,2086
+  cat <<EOF > README.md
+		# Instructions
+
+		## Install
+
+		```bash
+		echo "deb [trusted=yes] @REPO_URL@ ./" | sudo tee /etc/apt/sources.list.d/$branch.list
+		sudo apt update
+
+		sudo apt install python3-rosdep
+		echo "yaml @REPO_URL@/local.yaml debian" | sudo tee /etc/ros/rosdep/sources.list.d/1-$branch.list
+		rosdep update
+		```
+EOF
+}

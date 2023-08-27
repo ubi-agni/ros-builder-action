@@ -50,3 +50,4 @@ chmod -R a+rwX ~/.cache/ccache
 ici_step "Configure ~/.sbuildrc" configure_sbuildrc
 
 ici_step "Create \$REPO_PATH=$REPO_PATH" mkdir -p "$REPO_PATH"
+ici_step "Generate README.md" generate_readme
