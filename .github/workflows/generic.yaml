@@ -1,0 +1,181 @@
+name: reusable workflow
+
+on:
+  # make this workflow reusable (and only so)
+  workflow_call:
+    inputs:
+      # target names
+      ROS_DISTRO:
+        type: string
+        description: ROS distribution codename to compile for
+        required: false # defaults to 'one'
+      DEB_DISTRO:
+        type: string
+        description: The Debian/Ubuntu distribution codename to compile for.
+        required: false  # defaults to 'lsb_release -cs'
+      ROS_SOURCES:
+        type: string
+        description: ROS sources to compile. See README.md for details.
+        required: false
+
+      # workflow control
+      CONTINUE_PREVIOUS_RUN:
+        type: boolean
+        description: Continue previous workflow run, skipping existing packages
+        required: false
+        default: false
+      BUILD_TIMEOUT:
+        type: number
+        description: Cancel build after this time, before github will do (minutes)
+        required: false
+        default: 340
+
+      # debian package repository options
+      EXTRA_DEB_SOURCES:
+        type: string
+        description: extra debian sources to add to sources.list
+        required: false
+      INSTALL_GPG_KEYS:
+        type: string
+        description: code to run for installing GPG keys (for use with EXTRA_DEB_SOURCES)
+        required: false
+      EXTRA_ROSDEP_SOURCES:
+        type: string
+        description: path to a rosdep-compatible yaml file specifying custom dependency mappings
+        required: false
+
+      # build options
+      EXTRA_SBUILD_CONFIG:
+        type: string
+        description: lines to add to ~/.sbuildrc
+        required: false
+      EXTRA_SBUILD_OPTS:
+        type: string
+        description: options to pass to sbuild on commandline
+        required: false
+      DEB_BUILD_OPTIONS:
+        type: string
+        description: options used debian/rules
+        required: false
+        default: nocheck
+      CONTINUE_ON_ERROR:
+        type: boolean
+        description: Continue building even if some packages already failed
+        required: false
+        default: false
+
+      # deploy options
+      DEBS_PATH:
+        type: string
+        description: path to store generated .debs in
+        required: false
+        default: ~/debs
+
+      REPO_PATH:
+        type: string
+        description: path to generate package repository in
+        required: false
+        default: ~/repo
+
+# Define environment variables from input, from configuration variables, or defaults - in this order!
+# https://docs.github.com/en/actions/learn-github-actions/variables#defining-configuration-variables-for-multiple-workflows
+env:
+  ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO }}
+  DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
+  ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
+  EXTRA_DEB_SOURCES: ${{ inputs.EXTRA_DEB_SOURCES || vars.EXTRA_DEB_SOURCES }}
+  INSTALL_GPG_KEYS: ${{ inputs.INSTALL_GPG_KEYS || vars.INSTALL_GPG_KEYS }}
+  EXTRA_ROSDEP_SOURCES: ${{ inputs.EXTRA_ROSDEP_SOURCES || vars.EXTRA_ROSDEP_SOURCES }}
+  EXTRA_SBUILD_CONFIG: ${{ inputs.EXTRA_SBUILD_CONFIG || vars.EXTRA_SBUILD_CONFIG }}
+  EXTRA_SBUILD_OPTS: ${{ inputs.EXTRA_SBUILD_OPTS || vars.EXTRA_SBUILD_OPTS }}
+  DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH }}
+  REPO_PATH: ${{ inputs.REPO_PATH || vars.REPO_PATH }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  debs:
+    runs-on: ubuntu-latest
+    name: build debs
+
+    env: # define common environment variables (cannot be passed from calling workflow)
+      CCACHE_PATH: ~/.cache/ccache
+      SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
+      DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download debs from previous run
+        uses: actions/download-artifact@v3
+        if: ${{ inputs.CONTINUE_PREVIOUS_RUN }}
+        with:
+          name: debs
+          path: ${{ env.DEBS_PATH }}
+
+      - name: Restore ccache
+        id: restore-ccache
+        uses: actions/cache/restore@v3
+        env:
+          CACHE_ID: "ccache-${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}\
+                           -${{ inputs.ROS_DISTRO || vars.ROS_DISTRO }}\
+                           -${{ hashFiles(inputs.ROS_SOURCES || vars.ROS_SOURCES) || inputs.ROS_SOURCES || vars.ROS_SOURCES }}"
+        with:
+          path: ${{ env.CCACHE_PATH }}
+          key: ${{ env.CACHE_ID }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ env.CACHE_ID }}
+
+      - name: Build .deb packages
+        uses: ubi-agni/ros-builder-action@main
+        timeout-minutes: ${{ inputs.BUILD_TIMEOUT || vars.BUILD_TIMEOUT }}
+        env:
+          CONTINUE_PREVIOUS_RUN: ${{ inputs.CONTINUE_PREVIOUS_RUN }}
+          CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR || vars.CONTINUE_ON_ERROR }}
+          DEB_BUILD_OPTIONS: ${{ inputs.DEB_BUILD_OPTIONS || vars.DEB_BUILD_OPTIONS }}
+
+      - name: Store ccache
+        uses: actions/cache/save@v3
+        if: always() # save cache on timeout or cancel too
+        with:
+          path: ${{ env.CCACHE_PATH }}
+          key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
+
+      - name: Upload debs
+        uses: actions/upload-artifact@v3
+        if: always() # upload on timeout or cancel too
+        with:
+          name: debs
+          path: ${{ env.DEBS_PATH }}
+          if-no-files-found: error
+
+  repo:
+    needs: debs
+    runs-on: ubuntu-latest
+    name: create repo
+
+    env: # define common environment variables (cannot be passed from calling workflow)
+      SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
+      DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
+
+    steps:
+      - name: Download debs from build
+        uses: actions/download-artifact@v3
+        with:
+          name: debs
+          path: ${{ env.DEBS_PATH }}
+
+      - name: Run flat-repo action
+        uses: ubi-agni/ros-builder-action/flat-repo@main
+
+      - name: Upload repo
+        uses: actions/upload-artifact@v3
+        if: always() # upload on timeout or cancel too
+        with:
+          name: repo
+          path: ${{ env.REPO_PATH }}
+          if-no-files-found: error

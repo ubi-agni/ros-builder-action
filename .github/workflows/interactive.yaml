@@ -1,0 +1,83 @@
+name: interactive
+
+on:
+  workflow_dispatch:
+    # The inputs should not define a default value.
+    # If they do, this value would be passed even if nothing is actually entered in the dialog,
+    # thus overriding any configuration variables set, which should be considered in this case.
+    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
+    inputs:
+      DEB_DISTRO:
+        type: string
+        required: true
+        description: 'Ubuntu/Debian distro:'
+        default: jammy
+      ROS_DISTRO:
+        type: string
+        required: true
+        description: 'ROS distribution codename:'
+        default: one
+      ROS_SOURCES:
+        type: string
+        description: ROS sources to compile. See README.md for details.
+        required: true
+        default: '*.repos'
+      PROCEED_FROM:
+        type: choice
+        description: Where to start building?
+        required: true
+        default: from scratch
+        options:
+          - from scratch
+          - from previous run
+          # - from deployment repo
+      DEPLOY_MODE:
+        type: choice
+        description: |
+          How to deploy?
+          Uses vars.DEPLOY_URL and secrets.DEPLOY_PRIVATE_KEY
+        required: true
+        default: skip
+        options:
+          - skip
+          - squash
+          - append
+      BRANCH:
+        type: string
+        description: 'Branch to use (<deb distro>-<ros distro>):'
+        required: false
+
+jobs:
+  build:
+    name: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || 'latest' }}-${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one'}}
+    uses: ubi-agni/ros-builder-action/.github/workflows/generic.yaml@main
+    with:
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
+      ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
+      ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
+      PROCEED_FROM: ${{ inputs.PROCEED_FROM || 'from scratch' }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ( inputs.DEPLOY_MODE != 'skip' ) && vars.DEPLOY_URL
+
+    env: # define common environment variables (cannot be passed from calling workflow)
+      SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
+      FOLDER: ${{ vars.REPO_PATH || '~/repo' }}
+      REPO: ${{ vars.DEPLOY_URL }}
+      BRANCH: ${{ inputs.BRANCH || format('{0}-{1}', inputs.DEB_DISTRO, inputs.ROS_DISTRO) }}
+
+    steps:
+      - name: Download repo from build
+        uses: actions/download-artifact@v3
+        with:
+          name: repo
+          path: ${{ env.FOLDER }}
+
+      - name: Deploy
+        uses: s0/git-publish-subdir-action@v2.6.0
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+          MESSAGE: "${{ inputs.DEB_DISTRO }}-${{ inputs.ROS_DISTRO }} build"
+          SQUASH_HISTORY: ${{ inputs.DEPLOY_MODE == 'squash' }}

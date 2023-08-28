@@ -1,12 +1,25 @@
 name: CI
 
 on:
+  workflow_dispatch:
+    inputs:
+      DEB_DISTRO:
+        type: string
+        required: false
+        description: 'Ubuntu/Debian distro:'
+        default: jammy
+      ROS_DISTRO:
+        type: string
+        required: false
+        description: 'ROS distribution codename:'
+        default: one
   push:
     branches: [ main ]
+    paths-ignore: [ '.github/**' ]
 
 env:
-  DEBS_PATH: ${{ vars.DEBS_PATH || '~/debs' }}
-  REPO_PATH: ${{ vars.REPO_PATH || '~/repo' }}
+  DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
+  REPO_PATH: ${{ inputs.REPO_PATH || vars.REPO_PATH || '~/repo' }}
   TERM: xterm  # needed for colored output of unittests
 
 concurrency:
@@ -70,7 +83,7 @@ jobs:
 
       - name: Run main action
         uses: ./
-        with:
+        env:
           DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
           ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
           ROS_SOURCES: .github/workflows/minimal.repos

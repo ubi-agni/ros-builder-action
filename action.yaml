@@ -18,7 +18,6 @@ inputs:
   ROS_SOURCES:
     description: Repos file with list of repositories to package
     required: false
-    default: '*.repos'
 
   # packages sources
   EXTRA_DEB_SOURCES:
@@ -35,7 +34,6 @@ inputs:
   CONTINUE_ON_ERROR:
     description: continue building packages once a package failed
     required: false
-    default: false
 
 runs:
   # We need to go through JS to allow folding output generated from the shell script

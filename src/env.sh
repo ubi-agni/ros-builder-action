@@ -5,28 +5,28 @@
 set -euo pipefail # exit script on errors
 
 ## target names
-export ROS_DISTRO=${INPUT_ROS_DISTRO:-one}
-export DEB_DISTRO=${INPUT_DEB_DISTRO:-$(lsb_release -cs)}
+export ROS_DISTRO=${ROS_DISTRO:-one}
+export DEB_DISTRO=${DEB_DISTRO:-$(lsb_release -cs)}
 
 ## package repository options
 export INSTALL_GPG_KEYS=${INSTALL_GPG_KEYS:-} # hook to install GPG keys
-export EXTRA_DEB_SOURCES=${INPUT_EXTRA_DEB_SOURCES:-${EXTRA_DEB_SOURCES:-}}
-export EXTRA_ROSDEP_SOURCES=${INPUT_EXTRA_ROSDEP_SOURCES:-${EXTRA_ROSDEP_SOURCES:-}}
+export EXTRA_DEB_SOURCES=${EXTRA_DEB_SOURCES:-}
+export EXTRA_ROSDEP_SOURCES=${EXTRA_ROSDEP_SOURCES:-}
 
 ## build options
-export ROS_SOURCES=${INPUT_ROS_SOURCES:-${ROS_SOURCES:-*.repos}}
-export EXTRA_SBUILD_CONFIG=${INPUT_EXTRA_SBUILD_CONFIG:-${EXTRA_SBUILD_CONFIG:-}}
-export CONTINUE_ON_ERROR=${INPUT_CONTINUE_ON_ERROR:-false}
-EXTRA_SBUILD_OPTS="${EXTRA_SBUILD_OPTS:-} $(echo "$EXTRA_DEB_SOURCES" | sed -n '/^ *$/ T; s/.*/--extra-repository="\0"/; p' | tr '\n' ' ')"
-export DEB_BUILD_OPTIONS=nocheck  # don't build/run tests
+export ROS_SOURCES=${ROS_SOURCES:-*.repos}
+export EXTRA_SBUILD_CONFIG=${EXTRA_SBUILD_CONFIG:-}
+export CONTINUE_ON_ERROR=${CONTINUE_ON_ERROR:-false}
+export EXTRA_SBUILD_OPTS=${EXTRA_SBUILD_OPTS:-}
+export DEB_BUILD_OPTIONS=${DEB_BUILD_OPTIONS:-nocheck}  # don't build/run tests
 
-## deploy options
+## deploy paths: 'eval echo ...' expands environment variables
 export DEBS_PATH
-DEBS_PATH=$(eval echo "${DEBS_PATH:-$HOME/debs}")
+DEBS_PATH=$(eval echo "${DEBS_PATH}")
 export REPO_PATH
-REPO_PATH=$(eval echo "${REPO_PATH:-$HOME/repo}")
+REPO_PATH=$(eval echo "${REPO_PATH}")
 
-export GITHUB_TOKEN=${INPUT_GITHUB_TOKEN:-${GITHUB_TOKEN:-}}
+export GITHUB_TOKEN=${GITHUB_TOKEN:-}
 
 # configure shell debugging
 export DEBUG_BASH=${DEBUG_BASH:-false}
