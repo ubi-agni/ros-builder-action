@@ -2,9 +2,12 @@ name: CI
 
 on:
   push:
+    branches: [ main ]
 
 env:
-  TERM: xterm
+  DEBS_PATH: ${{ vars.DEBS_PATH || '~/debs' }}
+  REPO_PATH: ${{ vars.REPO_PATH || '~/repo' }}
+  TERM: xterm  # needed for colored output of unittests
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -49,16 +52,17 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     needs: unittests
-    env:
-      DEBS_PATH: ~/debs
-      REPO_PATH: ~/repo
-      DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || '' }}
 
     strategy:
       fail-fast: false
       matrix:
         DEB_DISTRO: [focal, jammy, bookworm ]
         ROS_DISTRO: [one]
+
+    env:
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+      DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
 
     name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}
     steps:
@@ -75,15 +79,14 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}.debs
-          path: ${{ env.DEBS_PATH }}
+          path: $DEBS_PATH
 
       - name: Run flat-repo action
         uses: ./flat-repo
-        with:
-          DEBS_PATH: ${{ env.DEBS_PATH }}
-          REPO_PATH: ${{ env.REPO_PATH }}
 
-      - name: Run deploy action
-        uses: ./deploy
+      - name: Upload repo
+        uses: actions/upload-artifact@v3
         with:
-          REPO_PATH: ${{ env.REPO_PATH }}
+          name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}
+          path: ${{ env.REPO_PATH }} # upload cannot interpret $REPO_PATH
+          if-no-files-found: error

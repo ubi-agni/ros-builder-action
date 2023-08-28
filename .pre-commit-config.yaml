@@ -35,9 +35,3 @@ repos:
         language: system
         files: \.(sh|bats)$
         args: ["-x"]
-      - id: unittests
-        name: unittests
-        entry: ./test/bats/bin/bats
-        language: system
-        files: \.bats$
-        args: ["--formatter", "pretty"]
