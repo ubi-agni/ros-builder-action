@@ -570,17 +570,21 @@ function gha_warning {
 
 function  ici_start_fold() {
     if [ -n "$ICI_FOLD_NAME" ]; then
-        local old_name=$ICI_FOLD_NAME
+        # report error _within_ the previous fold
+        ici_warn "ici_start_fold: nested folds are not supported (still open: '$ICI_FOLD_NAME')"
         ici_end_fold
-        ici_warn "ici_start_fold: nested folds are not supported (still open: '$old_name')"
     fi
     ICI_FOLD_NAME=$1
     gha_cmd group "$ICI_FOLD_NAME"
 }
 
 function  ici_end_fold() {
-    gha_cmd endgroup
-    ICI_FOLD_NAME=
+    if [ -z "$ICI_FOLD_NAME" ]; then
+        ici_warn "spurious call to ici_end_fold"
+    else
+        gha_cmd endgroup
+        ICI_FOLD_NAME=
+    fi
 }
 
 function ici_report_result() {
