@@ -91,7 +91,9 @@ EOF
 		ici_append expected "${!var}"
 	done
 
-	run "-$exit_code" "$@" sub_shell "echo \"$all\"; echo \"stderr\" 1>&2; return $exit_code"
+	# shellcheck disable=SC2016
+	local cmd='echo "$all"; echo "stderr" 1>&2; return $exit_code'
+	run "-$exit_code" "$@" sub_shell "$cmd"
 	assert_output "$expected"
 }
 @test "ici_quiet_true" {
@@ -105,7 +107,8 @@ EOF
 	test_filtering_helper 0 "passed" ici_filter "good"
 }
 @test "ici_filter_false" {
-	# order of stdout and stderr is changed due to extra filter step
+	# order of stdout and stderr might change due to extra filter step
+	test_filtering_helper 1 "all error" ici_filter "good" || \
 	test_filtering_helper 1 "error all" ici_filter "good"
 }
 
