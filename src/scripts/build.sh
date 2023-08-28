@@ -22,7 +22,7 @@ function prepare_ws {
 
   rm -rf "$ws_path"
   mkdir -p "$ws_path"
-  ici_step "Import ROS sources into workspace" vcs import --recursive --input "$src" "$ws_path"
+  ici_timed "Import ROS sources into workspace" vcs import --recursive --input "$src" "$ws_path"
 }
 
 function build_pkg {
@@ -78,7 +78,7 @@ function build_source {
 
   prepare_ws "$ws_path" "$1"
   cd "$ws_path" || exit 1
-  ici_step "Register new packages with rosdep" register_local_pkgs_with_rosdep
+  ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
 
   local pkg_paths
   pkg_paths="$(colcon list --topological-order --paths-only)"
@@ -87,7 +87,7 @@ function build_source {
   total="$(echo "$pkg_paths" | wc -l)"
 
   for pkg_path in $pkg_paths; do
-    if ! ici_step "Building package $count/$total: $pkg_path" build_pkg "$pkg_path"; then
+    if ! ici_timed "Building package $count/$total: $pkg_path" build_pkg "$pkg_path"; then
       test "$CONTINUE_ON_ERROR" = false && exit 1 || FAIL_EVENTUALLY=1
     fi
     count=$((count + 1))

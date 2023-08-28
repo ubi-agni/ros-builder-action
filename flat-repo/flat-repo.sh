@@ -8,6 +8,6 @@ function move_files {
 	mv README.md ./*.deb ./*.yaml "$REPO_PATH/"
 }
 
-ici_step "Move files from $DEBS_PATH to $REPO_PATH" move_files
+ici_timed "Move files from $DEBS_PATH to $REPO_PATH" move_files
 ici_cmd apt-ftparchive packages . > Packages
 ici_cmd apt-ftparchive release . > Release
