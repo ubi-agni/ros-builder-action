@@ -6,6 +6,7 @@
 function setup {
 	load 'test_helper/bats-support/load'
 	load 'test_helper/bats-assert/load'
+	bats_require_minimum_version 1.10.0
 
 	# Get the containing directory of this file ($BATS_TEST_FILENAME)
 	# Use that instead of ${BASH_SOURCE[0]} as the latter points to the bats executable!
@@ -14,6 +15,19 @@ function setup {
 
 	# shellcheck source=src/env.sh
 	source "${SRC_PATH}/env.sh"
+}
+
+# wrapper around bats' run() to increment __ici_top_level beforehand
+# This is needed for all functions that eventually call ici_teardown,
+# i.e. ici_step, ici_hook, ici_exit, etc.
+function ici_run {
+	__ici_top_level=$((__ici_top_level+1))
+	run "$@"
+	__ici_top_level=$((__ici_top_level-1))
+}
+
+function sub_shell {
+	eval "$*"
 }
 
 @test "ici_append" {
@@ -27,8 +41,7 @@ function setup {
 	ici_append VAR "$TWO_LINE_VAR"
 	run echo "$VAR"
 
-	local expected
-	expected=$(cat <<-EOF
+	local expected; expected=$(cat <<-EOF
 	first line
 	second line
 	third line
@@ -47,10 +60,9 @@ EOF
 	local HOOK="echo 1st line"
 	ici_append HOOK "echo 2nd line"
 	ici_append HOOK "echo 3rd line"
-	run ici_hook HOOK
+	ici_run ici_hook HOOK
 
-	local expected
-	expected=$(cat <<-EOF
+	local expected; expected=$(cat <<-EOF
 	1st line
 	2nd line
 	3rd line
@@ -79,14 +91,10 @@ EOF
 		ici_append expected "${!var}"
 	done
 
-	function sub_shell {
-		eval "$*"
-	}
-
-	run "$@" sub_shell "echo \"$all\"; echo \"stderr\" 1>&2; return $exit_code"
+	# shellcheck disable=SC2016
+	local cmd='echo "$all"; echo "stderr" 1>&2; return $exit_code'
+	run "-$exit_code" "$@" sub_shell "$cmd"
 	assert_output "$expected"
-	# shellcheck disable=SC2031
-	[ "$status" -eq "$exit_code" ]
 }
 @test "ici_quiet_true" {
 	test_filtering_helper 0 "" ici_quiet
@@ -99,6 +107,88 @@ EOF
 	test_filtering_helper 0 "passed" ici_filter "good"
 }
 @test "ici_filter_false" {
-	# order of stdout and stderr is changed due to extra filter step
+	# order of stdout and stderr might change due to extra filter step
+	test_filtering_helper 1 "all error" ici_filter "good" || \
 	test_filtering_helper 1 "error all" ici_filter "good"
+}
+
+# bats test_tags=folding
+@test "folding_success" {
+	# shellcheck disable=SC2034
+	local HOOK="echo successful"
+	local expected; expected=$(cat <<EOF
+::group::HOOK
+
+[1m$ ( echo successful; )[0m
+successful
+[32m[32m'HOOK' returned with code '0' after 0 min 0 sec[0m
+::endgroup::
+EOF
+)
+	ici_run ici_hook HOOK
+	assert_output "$expected"
+}
+
+# bats test_tags=folding
+@test "folding_failure" {
+	local HOOK="echo failure; false;"
+	local expected; expected=$(cat <<EOF
+::group::HOOK
+
+[1m$ ( echo failure; false;; )[0m
+failure
+::error::Failure in 'HOOK' (exit code: 1)
+[31m[31m'HOOK' returned with code '1' after 0 min 0 sec[0m
+::endgroup::
+EOF
+)
+	ici_run -1 ici_hook HOOK
+	assert_output "$expected"
+
+	# exit yields same result as false
+	local sed_cmd='s/false/exit 1; echo "never reached"/'
+	HOOK=$(echo "$HOOK" | sed "$sed_cmd")
+	expected=$(echo "$expected" | sed "$sed_cmd")
+
+	ici_run -1 ici_hook HOOK
+	assert_output "$expected"
+}
+
+# bats test_tags=folding
+@test "folding_cleanup" {
+	local tmps=()
+	for i in 1 2 3; do
+		local tmp; tmp=$(mktemp)
+		[ -f "$tmp" ]             # file should exist
+		ici_cleanup_later "$tmp"  # register file for removal during ici_teardown
+		tmps+=("$tmp")
+	done
+
+	local HOOK="false"
+	ici_run -1 ici_hook HOOK
+
+	for tmp in "${tmps[@]}"; do
+		[ ! -f "$tmp" ]           # file should be deleted by now
+	done
+}
+
+# bats test_tags=folding
+@test folding_double_start_fold {
+	local HOOK; HOOK="ici_start_fold test; ici_start_fold test; ici_end_fold"
+	local expected; expected=$(cat <<EOF
+::group::test
+[33mici_start_fold: nested folds are not supported (still open: 'test')[0m
+::endgroup::
+::group::test
+::endgroup::
+EOF
+)
+	run eval "$HOOK"
+	assert_output "$expected"
+}
+# bats test_tags=folding
+@test folding_double_end_fold {
+	local HOOK; HOOK="ici_start_fold test; ici_end_fold; ici_end_fold"
+	run eval "$HOOK"
+	echo "$output" | grep -q "spurious call to ici_end_fold"
 }

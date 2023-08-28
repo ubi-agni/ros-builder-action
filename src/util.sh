@@ -211,33 +211,40 @@ function ici_timed {
 }
 
 function ici_teardown {
+    # don't run teardown code within subshells, but only at top level
     if [  "$BASH_SUBSHELL" -le "$__ici_top_level" ]; then
         local exit_code=$1
-        trap - EXIT # Reset signal handler since the shell is about to exit.
+        local called_from_signal_handler; called_from_signal_handler=${2:-false}
+
+        # Reset signal handler since the shell is about to exit.
+        [ "$called_from_signal_handler" == true ] && trap - EXIT
 
         local cleanup=()
         # shellcheck disable=SC2016
         IFS=: command eval 'cleanup=(${_CLEANUP})'
         for c in "${cleanup[@]}"; do
-          ici_warn Cleaning up "${c/#\~/$HOME}"
           rm -rf "${c/#\~/$HOME}"
         done
 
-        local location=$ICI_FOLD_NAME
         # end fold/timing if needed
         if [ -n "$ICI_FOLD_NAME" ]; then
             local color_wrap=${ANSI_GREEN}
             if [ "$exit_code" -ne "0" ]; then color_wrap=${ANSI_RED}; fi  # Red color for errors
+            gha_error "Failure in '$ICI_FOLD_NAME' (exit code: $exit_code)"
             if [ -n "$ICI_START_TIME" ]; then
               ici_time_end "$color_wrap" "$exit_code"
             else
               ici_end_fold "$ICI_FOLD_NAME"
             fi
+        else
+            gha_error "Failure with exit code: $exit_code"
         fi
-        ici_error "Failure $(test -n "$location" && echo "in $location")"
 
-        exec {__ici_log_fd}>&-
-        exec {__ici_err_fd}>&-
+        if [ "$called_from_signal_handler" = true ]; then
+            # These will fail if ici_setup was not called
+            exec {__ici_log_fd}>&-
+            exec {__ici_err_fd}>&-
+        fi
     fi
 }
 
@@ -247,7 +254,7 @@ function ici_trap_exit {
     ici_warn "terminated unexpectedly with exit code '$exit_code'"
     TRACE=true ici_backtrace "$@"
     exit_code=143
-    ici_teardown "$exit_code"
+    ici_teardown "$exit_code" true
     exit "$exit_code"
 }
 
@@ -265,7 +272,6 @@ function ici_trap_exit {
 function ici_exit {
     local exit_code=${1:-$?}
     ici_backtrace "$@"
-
     ici_teardown "$exit_code"
 
     if [ "$exit_code" == "${EXPECT_EXIT_CODE:-0}" ] ; then
@@ -580,17 +586,21 @@ function gha_warning {
 
 function  ici_start_fold() {
     if [ -n "$ICI_FOLD_NAME" ]; then
-        local old_name=$ICI_FOLD_NAME
+        # report error _within_ the previous fold
+        ici_warn "ici_start_fold: nested folds are not supported (still open: '$ICI_FOLD_NAME')"
         ici_end_fold
-        ici_warn "ici_start_fold: nested folds are not supported (still open: '$old_name')"
     fi
     ICI_FOLD_NAME=$1
     gha_cmd group "$ICI_FOLD_NAME"
 }
 
 function  ici_end_fold() {
-    gha_cmd endgroup
-    ICI_FOLD_NAME=
+    if [ -z "$ICI_FOLD_NAME" ]; then
+        ici_warn "spurious call to ici_end_fold"
+    else
+        gha_cmd endgroup
+        ICI_FOLD_NAME=
+    fi
 }
 
 function gha_report_result() {
