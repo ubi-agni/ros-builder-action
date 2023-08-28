@@ -207,15 +207,18 @@ function ici_step {
 }
 
 function ici_teardown {
+    # don't run teardown code within subshells, but only at top level
     if [  "$BASH_SUBSHELL" -le "$__ici_top_level" ]; then
         local exit_code=$1
-        trap - EXIT # Reset signal handler since the shell is about to exit.
+        local called_from_signal_handler; called_from_signal_handler=${2:-false}
+
+        # Reset signal handler since the shell is about to exit.
+        [ "$called_from_signal_handler" == true ] && trap - EXIT
 
         local cleanup=()
         # shellcheck disable=SC2016
         IFS=: command eval 'cleanup=(${_CLEANUP})'
         for c in "${cleanup[@]}"; do
-          ici_warn Cleaning up "${c/#\~/$HOME}"
           rm -rf "${c/#\~/$HOME}"
         done
 
@@ -226,8 +229,11 @@ function ici_teardown {
             test -n "$ICI_START_TIME" && ici_time_end "" "$color_wrap" "$exit_code"
         fi
 
-        exec {__ici_log_fd}>&-
-        exec {__ici_err_fd}>&-
+        if [ "$called_from_signal_handler" = true ]; then
+            # These will fail if ici_setup was not called
+            exec {__ici_log_fd}>&-
+            exec {__ici_err_fd}>&-
+        fi
     fi
 }
 
@@ -237,7 +243,7 @@ function ici_trap_exit {
     ici_warn "terminated unexpectedly with exit code '$exit_code'"
     TRACE=true ici_backtrace "$@"
     exit_code=143
-    ici_teardown "$exit_code"
+    ici_teardown "$exit_code" true
     exit "$exit_code"
 }
 
@@ -255,7 +261,6 @@ function ici_trap_exit {
 function ici_exit {
     local exit_code=${1:-$?}
     ici_backtrace "$@"
-
     ici_teardown "$exit_code"
 
     if [ "$exit_code" == "${EXPECT_EXIT_CODE:-0}" ] ; then
