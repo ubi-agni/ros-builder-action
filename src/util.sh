@@ -121,7 +121,7 @@ function ici_hook() {
   local script_embed=${!name_embed:-}
 
   if [ -n "$script" ] || [ -n "$script_embed" ] ; then
-    ici_time_start "" "$1"
+    ici_time_start "$1"
 
     if [ -n "$script" ]; then
       _label_hook "( $script; )"
@@ -134,7 +134,7 @@ function ici_hook() {
       ici_set_u
     fi
 
-    ici_time_end ""
+    ici_time_end
   fi
 }
 
@@ -155,11 +155,8 @@ function ici_hook() {
 #######################################
 
 function ici_time_start {
-    local hook_id=$1; shift
-    ici_hook "before_$hook_id" || ici_exit
     if [ "$DEBUG_BASH" ] && [ "$DEBUG_BASH" == true ]; then set +x; fi
     ICI_START_TIME=$(date -u +%s%N)
-
     ici_start_fold "$1"
     if [ "$DEBUG_BASH" ] && [ "$DEBUG_BASH" == true ]; then set -x; fi
 }
@@ -180,7 +177,6 @@ function ici_time_start {
 #######################################
 function ici_time_end {
     if [ "$DEBUG_BASH" ] && [ "$DEBUG_BASH" == true ]; then set +x; fi
-    local hook_id=$1; shift
     local color_wrap=${1:-${ANSI_GREEN}}
     local exit_code=${2:-$?}
     local name=$ICI_FOLD_NAME
@@ -191,19 +187,27 @@ function ici_time_end {
 
     ici_log -en "\e[${color_wrap}m"  # just set color, no output
     ici_color_output "$color_wrap" "'$name' returned with code '${exit_code}' after $(( elapsed_seconds / 60 )) min $(( elapsed_seconds % 60 )) sec"
-    test -n "$hook_id" && ici_report_result "$hook_id" "${exit_code}"
     ici_end_fold "$name"
 
     ICI_START_TIME=
     if [ "$DEBUG_BASH" ] && [ "$DEBUG_BASH" == true ]; then set -x; fi
-    ici_hook "after_$hook_id" || ici_exit
 }
 
+# Execute command via ici_timed, running BEFORE_* and AFTER_* hooks and reporting the result
 function ici_step {
-    local name=$1; shift
-    ici_time_start "" "$name"
+    local id=$1
+    ici_hook "before_$id" || ici_exit
+    ici_timed "$@" || ici_exit
+    gha_report_result "$id" "${exit_code}"
+    ici_hook "after_$id" || ici_exit
+}
+
+# Execute command folding and timing it
+function ici_timed {
+    local title=$1; shift
+    ici_time_start "$title"
     "$@" || ici_exit
-    ici_time_end ""
+    ici_time_end
 }
 
 function ici_teardown {
@@ -219,12 +223,18 @@ function ici_teardown {
           rm -rf "${c/#\~/$HOME}"
         done
 
-        # end fold if needed
+        local location=$ICI_FOLD_NAME
+        # end fold/timing if needed
         if [ -n "$ICI_FOLD_NAME" ]; then
             local color_wrap=${ANSI_GREEN}
             if [ "$exit_code" -ne "0" ]; then color_wrap=${ANSI_RED}; fi  # Red color for errors
-            test -n "$ICI_START_TIME" && ici_time_end "" "$color_wrap" "$exit_code"
+            if [ -n "$ICI_START_TIME" ]; then
+              ici_time_end "$color_wrap" "$exit_code"
+            else
+              ici_end_fold "$ICI_FOLD_NAME"
+            fi
         fi
+        ici_error "Failure $(test -n "$location" && echo "in $location")"
 
         exec {__ici_log_fd}>&-
         exec {__ici_err_fd}>&-
@@ -583,7 +593,7 @@ function  ici_end_fold() {
     ICI_FOLD_NAME=
 }
 
-function ici_report_result() {
+function gha_report_result() {
     echo "$1=$2" >> "${GITHUB_OUTPUT:-/dev/null}"
 }
 
