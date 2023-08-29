@@ -91,21 +91,21 @@ function declare_extra_rosdep_sources {
 }
 
 function generate_readme {
-	local branch=${GITHUB_REF}
+	local branch="${DEB_DISTRO}-${ROS_DISTRO}"
 
 	# shellcheck disable=SC2006,2086
-  cat <<EOF > "$DEBS_PATH/README.md"
+  cat <<-EOF > "$DEBS_PATH/README.md"
 		# Instructions
 
 		## Install
 
-		```bash
+		\`\`\`bash
 		echo "deb [trusted=yes] @REPO_URL@ ./" | sudo tee /etc/apt/sources.list.d/$branch.list
 		sudo apt update
 
 		sudo apt install python3-rosdep
 		echo "yaml @REPO_URL@/local.yaml debian" | sudo tee /etc/ros/rosdep/sources.list.d/1-$branch.list
 		rosdep update
-		```
+		\`\`\`
 EOF
 }
