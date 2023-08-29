@@ -90,22 +90,42 @@ function declare_extra_rosdep_sources {
   done | ici_asroot tee /etc/ros/rosdep/sources.list.d/02-remote.list
 }
 
+function repository_url {
+  local url=$1
+  local branch=$2
+
+  [ "$url" == "self" ] && url="https://github.com/$GITHUB_REPOSITORY"
+  if [[ $url =~ ([^:]+):([^#]+) ]]; then
+    local repo=${BASH_REMATCH[2]}
+    local scheme=${BASH_REMATCH[1]}
+
+    # strip off trailing .git from $repo
+    repo=${repo%.git}
+    case "$scheme" in
+      github | gh | git@github.com)
+        echo "https://raw.githubusercontent.com/$repo/$branch"
+        ;;
+      'git+file'*|'git+http'*|'git+ssh'*|'https'*|'http'*)
+        # ensure that $repo starts with github.com
+        if [[ $repo =~ ^//github.com/ ]]; then
+          echo "https://raw.githubusercontent.com/${repo#//github.com/}/$branch"
+        else
+          gha_error "Only github.com repositories are supported."
+        fi
+        ;;
+      *)
+        gha_error "Unsupported scheme '$scheme' in URL '$url'."
+        ;;
+    esac
+  else
+    gha_error "Could not parse URL '$url'. It does not match the expected pattern: <scheme>:<resource>#<version>."
+  fi
+}
+
 function generate_readme {
-	local branch="${DEB_DISTRO}-${ROS_DISTRO}"
+  local url; url=$(repository_url "$1" "$2")
 
-	# shellcheck disable=SC2006,2086
-  cat <<-EOF > "$DEBS_PATH/README.md"
-		# Instructions
-
-		## Install
-
-		\`\`\`bash
-		echo "deb [trusted=yes] @REPO_URL@ ./" | sudo tee /etc/apt/sources.list.d/$branch.list
-		sudo apt update
-
-		sudo apt install python3-rosdep
-		echo "yaml @REPO_URL@/local.yaml debian" | sudo tee /etc/ros/rosdep/sources.list.d/1-$branch.list
-		rosdep update
-		\`\`\`
-EOF
+  sed -e "s|@REPO_URL@|$url|g" \
+      -e "s|@DISTRO_NAME@|$DEB_DISTRO-$ROS_DISTRO|g" \
+      "$SRC_PATH/README.md.in"
 }

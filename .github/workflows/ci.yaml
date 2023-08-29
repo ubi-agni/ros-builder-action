@@ -76,6 +76,9 @@ jobs:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
       ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
+      # These two are needed for the flat-repo generation
+      DEPLOY_URL: ${{ vars.DEPLOY_URL || 'self' }}
+      BRANCH: ${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}-CI
 
     name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}
     steps:

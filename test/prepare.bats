@@ -11,6 +11,8 @@ function setup {
 	# Use that instead of ${BASH_SOURCE[0]} as the latter points to the bats executable!
 	DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
 	SRC_PATH=$(realpath "$DIR/../src")
+	DEBS_PATH=${DEBS_PATH:-~/debs}
+	REPO_PATH=${REPO_PATH:-~/repo}
 
 	# shellcheck source=src/env.sh
 	source "${SRC_PATH}/env.sh"
@@ -43,4 +45,17 @@ function setup {
 EOF
 )
 	assert_output "$expected"
+}
+
+
+@test "parse_repository_url" {
+	GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-ubi-agni/ros-repo}
+	local repo=$GITHUB_REPOSITORY
+	local b="branch"
+
+	run repository_url self $b
+	assert_output "https://raw.githubusercontent.com/$repo/$b"
+
+	run repository_url "git@github.com:$repo.git" $b
+	assert_output "https://raw.githubusercontent.com/$repo/$b"
 }

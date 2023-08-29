@@ -50,4 +50,3 @@ chmod -R a+rwX ~/.cache/ccache
 ici_timed "Configure ~/.sbuildrc" configure_sbuildrc
 
 ici_timed "Create \$DEBS_PATH=$DEBS_PATH" mkdir -p "$DEBS_PATH"
-ici_timed "Generate README.md" generate_readme

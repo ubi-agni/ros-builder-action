@@ -71,6 +71,15 @@ on:
         description: path to generate package repository in
         required: false
 
+      DEPLOY_URL:
+        type: string
+        description: repository URL for deployment
+        required: false
+      BRANCH:
+        type: string
+        description: branch to use for deployment
+        required: false
+
 # Define environment variables from input, from configuration variables, or defaults - in this order!
 # All inputs (declared above) are deliberately optional and don't provide an explicit default.
 # Thus, if an input is not explicitly provided, we can fall back to the configuration variable here (var.* context).
@@ -157,10 +166,15 @@ jobs:
     needs: debs
     runs-on: ubuntu-latest
     name: create repo
+    if: (inputs.DEPLOY_URL || vars.DEPLOY_URL) && (inputs.DEPLOY_URL != 'skip')
 
     env: # define common environment variables (cannot be passed from calling workflow)
       SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
+      DEPLOY_URL:: ${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
+      BRANCH: "${{ inputs.BRANCH || \
+        format('{0}-{1}', inputs.DEB_DISTRO || vars.DEB_DISTRO || 'jammy', \
+                          inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one') }}"
 
     steps:
       - name: Download debs from build

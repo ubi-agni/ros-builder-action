@@ -1,0 +1,12 @@
+# Instructions
+
+## Install
+
+```bash
+echo "deb [trusted=yes] @REPO_URL@ ./" | sudo tee /etc/apt/sources.list.d/@DISTRO_NAME@.list
+sudo apt update
+
+sudo apt install python3-rosdep
+echo "yaml @REPO_URL@/local.yaml debian" | sudo tee /etc/ros/rosdep/sources.list.d/1-@DISTRO_NAME@.list
+rosdep update
+```

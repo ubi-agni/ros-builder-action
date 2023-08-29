@@ -27,6 +27,7 @@ jobs:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
       ROS_DISTRO: one
       PROCEED_FROM: ${{ github.run_attempt == '1' && 'from scratch' || 'from previous run' }}
+      DEPLOY_URL: skip
 
   desktop:
     needs: robot
@@ -36,6 +37,7 @@ jobs:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
       ROS_DISTRO: one
       PROCEED_FROM: from previous run
+      DEPLOY_URL: skip
 
   desktop-full:
     needs: desktop
@@ -45,6 +47,7 @@ jobs:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
       ROS_DISTRO: one
       PROCEED_FROM: from previous run
+      DEPLOY_URL: skip
 
   deploy:
     needs: desktop-full

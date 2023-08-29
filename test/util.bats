@@ -12,6 +12,8 @@ function setup {
 	# Use that instead of ${BASH_SOURCE[0]} as the latter points to the bats executable!
 	DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )"
 	SRC_PATH=$(realpath "$DIR/../src")
+	DEBS_PATH=${DEBS_PATH:-~/debs}
+	REPO_PATH=${REPO_PATH:-~/repo}
 
 	# shellcheck source=src/env.sh
 	source "${SRC_PATH}/env.sh"
