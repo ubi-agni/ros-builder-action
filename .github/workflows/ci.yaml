@@ -92,7 +92,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}.debs
-          path: $DEBS_PATH
+          path: ${{ env.DEBS_PATH }}
 
       - name: Run flat-repo action
         uses: ./flat-repo
