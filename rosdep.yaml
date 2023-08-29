@@ -1,0 +1,3 @@
+libogre-dev:
+  debian: [libogre-1.12-dev]
+  ubuntu: [libogre-1.12-dev]

@@ -1,0 +1,72 @@
+name: splitted
+
+on:
+  workflow_dispatch:
+    inputs:
+      DEB_DISTRO:
+        type: string
+        required: true
+        description: 'Ubuntu/Debian distro:'
+        default: jammy
+      DEPLOY_MODE:
+        type: choice
+        description: |
+          How to deploy?
+        required: true
+        default: skip
+        options:
+          - skip
+          - squash
+          - append
+
+jobs:
+  robot:
+    uses: ubi-agni/ros-builder-action/.github/workflows/generic.yaml@main
+    with:
+      ROS_SOURCES: 1-robot.repos
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
+      ROS_DISTRO: one
+      PROCEED_FROM: ${{ github.run_attempt == '1' && 'from scratch' || 'from previous run' }}
+
+  desktop:
+    needs: robot
+    uses: ubi-agni/ros-builder-action/.github/workflows/generic.yaml@main
+    with:
+      ROS_SOURCES: 2-desktop.repos
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
+      ROS_DISTRO: one
+      PROCEED_FROM: from previous run
+
+  desktop-full:
+    needs: desktop
+    uses: ubi-agni/ros-builder-action/.github/workflows/generic.yaml@main
+    with:
+      ROS_SOURCES: 3-desktop-full.repos
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
+      ROS_DISTRO: one
+      PROCEED_FROM: from previous run
+
+  deploy:
+    needs: desktop-full
+    runs-on: ubuntu-latest
+    if: ( inputs.DEPLOY_MODE != 'skip' ) && vars.DEPLOY_URL
+
+    env: # define common environment variables (cannot be passed from calling workflow)
+      SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
+      FOLDER: ${{ vars.REPO_PATH || '~/repo' }}
+      REPO: ${{ vars.DEPLOY_URL }}
+      BRANCH: ${{ inputs.BRANCH || format('{0}-{1}', inputs.DEB_DISTRO, inputs.ROS_DISTRO) }}
+
+    steps:
+      - name: Download repo from build
+        uses: actions/download-artifact@v3
+        with:
+          name: repo
+          path: ${{ env.FOLDER }}
+
+      - name: Deploy
+        uses: s0/git-publish-subdir-action@v2.6.0
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+          MESSAGE: "${{ inputs.DEB_DISTRO }}-${{ inputs.ROS_DISTRO }} build"
+          SQUASH_HISTORY: ${{ inputs.DEPLOY_MODE == 'squash' }}
