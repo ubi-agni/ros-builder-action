@@ -8,6 +8,8 @@ SRC_PATH="$(realpath "$DIR_THIS/..")"
 # shellcheck source=src/env.sh
 source "$SRC_PATH/env.sh"
 
+ici_setup
+
 ici_start_fold "Variables"
 cat <<EOF
 ROS_DISTRO=$ROS_DISTRO
@@ -28,3 +30,5 @@ ici_end_fold
 
 # shellcheck source=main.sh
 source "$1"
+
+ici_teardown

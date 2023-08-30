@@ -16,6 +16,8 @@ on:
   push:
     branches: [ main ]
     paths-ignore: [ '.github/**' ]
+  pull_request:
+    branches: [ main ]
 
 env:
   DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
