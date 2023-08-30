@@ -4,7 +4,7 @@
 // This is needed as we can't pass arguments from action.yaml
 
 'use strict';
-var { spawnSync } = require('child_process');
+var { spawn } = require('child_process');
 
 // extract basename of current source file
 var name = __filename.split('/').pop().split('.').shift();
@@ -19,10 +19,21 @@ do {
 } while (true);
 
 // run generic.sh passing the action .sh script as an argument
-var r = spawnSync(path + '/src/scripts/generic.sh',
+var child = spawn(path + '/src/scripts/generic.sh',
   [__dirname + '/' + name + '.sh'], { stdio: 'inherit' });
 
-if (r.error) {
-  throw r.error;
+// forward SIGINT to child process
+process.on('SIGINT', function () {
+  console.log("Termination requested.")
+  child.kill('SIGTERM');
+});
+
+// wait for child process to exit
+await new Promise((resolve) => {
+  child.on('exit', resolve)
+})
+
+if (child.error) {
+  throw child.error;
 }
-process.exit(r.status !== null ? r.status : 1);
+process.exit(child.status !== null ? child.status : 1);
