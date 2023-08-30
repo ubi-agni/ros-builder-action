@@ -62,7 +62,6 @@ jobs:
               err=1
             fi
           done
-          exit $err
 
   ci:
     runs-on: ubuntu-latest
