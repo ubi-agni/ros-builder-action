@@ -19,12 +19,14 @@ _CLEANUP=""
 __ici_log_fd=1
 __ici_err_fd=2
 __ici_top_level=0
+__ici_setup_called=false
 
 function ici_setup {
     trap 'ici_trap_exit' EXIT # install exit handler
     exec {__ici_log_fd}>&1
     exec {__ici_err_fd}>&2
     __ici_top_level=$BASH_SUBSHELL
+    __ici_setup_called=true
 }
 
 function ici_redirect {
@@ -213,11 +215,10 @@ function ici_timed {
 function ici_teardown {
     # don't run teardown code within subshells, but only at top level
     if [  "$BASH_SUBSHELL" -le "$__ici_top_level" ]; then
-        local exit_code=$1
-        local called_from_signal_handler; called_from_signal_handler=${2:-false}
+        local exit_code=${1:-0}
 
         # Reset signal handler since the shell is about to exit.
-        [ "$called_from_signal_handler" == true ] && trap - EXIT
+        [ "$__ici_setup_called" == true ] && trap - EXIT
 
         local cleanup=()
         # shellcheck disable=SC2016
@@ -236,15 +237,16 @@ function ici_teardown {
             else
               ici_end_fold "$ICI_FOLD_NAME"
             fi
-        else
+        elif [ "$exit_code" -ne "0" ]; then
             gha_error "Failure with exit code: $exit_code"
         fi
 
-        if [ "$called_from_signal_handler" = true ]; then
+        if [ "$__ici_setup_called" = true ]; then
             # These will fail if ici_setup was not called
             exec {__ici_log_fd}>&-
             exec {__ici_err_fd}>&-
         fi
+        __ici_setup_called=false
     fi
 }
 
@@ -254,7 +256,7 @@ function ici_trap_exit {
     ici_warn "terminated unexpectedly with exit code '$exit_code'"
     TRACE=true ici_backtrace "$@"
     exit_code=143
-    ici_teardown "$exit_code" true
+    ici_teardown "$exit_code"
     exit "$exit_code"
 }
 

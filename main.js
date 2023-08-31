@@ -4,25 +4,37 @@
 // This is needed as we can't pass arguments from action.yaml
 
 'use strict';
-var { spawnSync } = require('child_process');
 
-// extract basename of current source file
-var name = __filename.split('/').pop().split('.').shift();
+// find paths of generic.sh and action .sh script
+function script_paths() {
+  // extract basename of current source file
+  var name = __filename.split('/').pop().split('.').shift();
 
-// traverse up to root folder of project (containing main.js)
-var path = __dirname;
-do {
-  if (require('fs').existsSync(path + '/main.js')) {
-    break;
-  }
-  path = path.split('/').slice(0, -1).join('/');
-} while (true);
-
-// run generic.sh passing the action .sh script as an argument
-var r = spawnSync(path + '/src/scripts/generic.sh',
-  [__dirname + '/' + name + '.sh'], { stdio: 'inherit' });
-
-if (r.error) {
-  throw r.error;
+  // traverse up to root folder of project (containing main.js)
+  var path = __dirname;
+  do {
+    if (require('fs').existsSync(path + '/main.js')) {
+      break;
+    }
+    path = path.split('/').slice(0, -1).join('/');
+  } while (true);
+  return [path + '/src/scripts/generic.sh', __dirname + '/' + name + '.sh'];
 }
-process.exit(r.status !== null ? r.status : 1);
+
+var [generic, action] = script_paths();
+var child = require('child_process').spawn(generic, [action], { stdio: 'inherit' });
+
+// kill child on signals SIGINT and SIGTERM
+function handle(signal) {
+  child.kill();
+}
+process.on('SIGINT', handle);
+process.on('SIGTERM', handle);
+
+// keep process running
+setInterval(function () { }, 10000);
+
+// exit if child exits
+child.on('exit', function (exit_code, signal) {
+  process.exit(exit_code !== null ? exit_code : 143);
+});

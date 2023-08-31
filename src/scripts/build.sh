@@ -104,4 +104,4 @@ function build_all_sources {
 
 FAIL_EVENTUALLY=0
 build_all_sources
-exit $FAIL_EVENTUALLY
+return $FAIL_EVENTUALLY
