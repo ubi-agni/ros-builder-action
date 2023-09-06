@@ -20,6 +20,8 @@ export CONTINUE_ON_ERROR=${CONTINUE_ON_ERROR:-false}
 export EXTRA_SBUILD_OPTS=${EXTRA_SBUILD_OPTS:-}
 export DEB_BUILD_OPTIONS=${DEB_BUILD_OPTIONS:-nocheck}  # don't build/run tests
 
+export SKIP_EXISTING=${SKIP_EXISTING:-false}
+
 ## deploy paths: 'eval echo ...' expands environment variables
 export DEBS_PATH
 DEBS_PATH=$(eval echo "${DEBS_PATH}")

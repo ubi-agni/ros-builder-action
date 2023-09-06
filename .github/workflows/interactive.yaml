@@ -19,18 +19,13 @@ on:
         default: one
       ROS_SOURCES:
         type: string
-        description: ROS sources to compile. See README.md for details.
+        description: 'ROS sources to compile:'
         required: true
         default: '*.repos'
-      PROCEED_FROM:
-        type: choice
-        description: Where to start building?
-        required: true
-        default: from scratch
-        options:
-          - from scratch
-          - from previous run
-          # - from deployment repo
+      SKIP_EXISTING:
+        type: boolean
+        description: Skip building packages already existing in the repository
+        required: false
       DEPLOY_MODE:
         type: choice
         description: |
@@ -47,6 +42,9 @@ on:
         description: 'Branch to use (<deb distro>-<ros distro>):'
         required: false
 
+env:
+  BRANCH: ${{ inputs.BRANCH || format('{0}-{1}', inputs.DEB_DISTRO, inputs.ROS_DISTRO) }}
+
 jobs:
   build:
     name: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || 'latest' }}-${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one'}}
@@ -55,7 +53,9 @@ jobs:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
       ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
       ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
-      PROCEED_FROM: ${{ inputs.PROCEED_FROM || 'from scratch' }}
+      # proceed from existing debs artifact if run_attempt > 1
+      DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
+      SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false}}
 
   deploy:
     needs: build
@@ -66,7 +66,6 @@ jobs:
       SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
       FOLDER: ${{ vars.DEBS_PATH || '~/debs' }}
       REPO: ${{ vars.DEPLOY_URL }}
-      BRANCH: ${{ inputs.BRANCH || format('{0}-{1}', inputs.DEB_DISTRO, inputs.ROS_DISTRO) }}
 
     steps:
       - name: Download debs from build

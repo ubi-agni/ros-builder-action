@@ -37,12 +37,12 @@ REPOS_LIST_FILE="/etc/apt/sources.list.d/ros-builder-repos.list"
 function configure_deb_repo {
   ici_asroot /bin/bash -c "echo \"$1\" >> \"$REPOS_LIST_FILE\""
 }
-function configure_extra_deb_sources {
+function configure_extra_host_sources {
   ici_asroot rm -f "$REPOS_LIST_FILE"
-  echo "$EXTRA_DEB_SOURCES" | while IFS= read -r line; do
+  while IFS= read -r line; do
     ici_log "$line"
     _ici_guard configure_deb_repo "$line"
-  done
+  done <<< "$EXTRA_HOST_SOURCES"
 }
 
 function create_chroot {
@@ -55,17 +55,28 @@ function create_chroot {
   # Using @ first and replacing them later with quotes via sed...
   local acng_config_cmd='echo \"Acquire::http::Proxy @http://127.0.0.1:3142@;\" | tee /etc/apt/apt.conf.d/01acng'
 
+  local chroot_folder="/var/cache/sbuild-chroot"
   # shellcheck disable=SC2016
   ici_cmd ici_asroot mmdebstrap \
     --variant=buildd --include=apt,ccache,ca-certificates,curl,build-essential,debhelper,fakeroot,cmake,python3-rosdep,python3-catkin-pkg \
     --customize-hook='chroot "$1" curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg' \
     --customize-hook='chroot "$1" '"sh -c \"$acng_config_cmd\"" \
     --customize-hook='chroot "$1" sed -i "s#@#\"#g" /etc/apt/apt.conf.d/01acng' \
-    "$DEB_DISTRO" "/var/cache/sbuild-chroot" \
+    "$DEB_DISTRO" "$chroot_folder" \
     "deb $DISTRIBUTION_REPO $DEB_DISTRO main universe" \
     "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
 
-  # Write schroot config
+  ici_log
+  ici_color_output "${ANSI_BOLD}" "Add extra debian package sources"
+  while IFS= read -r line; do
+    echo "$line"
+    cat <<- EOF | ici_pipe_into_chroot "$chroot_folder"
+    echo "$line" >> "$REPOS_LIST_FILE"
+EOF
+  done <<< "$EXTRA_DEB_SOURCES"
+
+  ici_log
+  ici_color_output "${ANSI_BOLD}" "Write schroot config"
   cat <<- EOF | ici_asroot tee /etc/schroot/chroot.d/sbuild
 [sbuild]
 groups=root,sbuild
@@ -76,7 +87,8 @@ directory=/var/cache/sbuild-chroot
 union-type=overlay
 EOF
 
-  # Add mount points to sbuild's fstab
+  ici_log
+  ici_color_output "${ANSI_BOLD}" "Add mount points to sbuild's fstab"
   cat <<- EOF | ici_asroot tee -a /etc/schroot/sbuild/fstab
 $CCACHE_DIR  /build/ccache   none    rw,bind         0       0
 $DEBS_PATH   /build/repo     none    rw,bind         0       0
@@ -100,6 +112,16 @@ function create_ws {
   rm -rf src
   mkdir src
   vcs import --recursive --input "$src" src
+}
+
+function load_local_yaml {
+  while IFS= read -r line; do
+    url=$(echo "$line" | sed -n 's#deb\s\(\[[^]]*\]\)\?\s\([^ ]*\).*#\2#p')
+    if curl -sfL "$url/local.yaml" -o /tmp/local.yaml ; then
+      echo "$url/local.yaml"
+      cat /tmp/local.yaml >> "$DEBS_PATH/local.yaml"
+    fi
+  done <<< "$EXTRA_DEB_SOURCES"
 }
 
 function declare_extra_rosdep_sources {
@@ -151,5 +173,6 @@ function generate_readme {
 
   sed -e "s|@REPO_URL@|$url|g" \
       -e "s|@DISTRO_NAME@|$DEB_DISTRO-$ROS_DISTRO|g" \
-      "$SRC_PATH/README.md.in"
+      "$SRC_PATH/README.md.in" \
+      > "$DEBS_PATH/README.md"
 }

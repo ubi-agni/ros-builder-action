@@ -1,12 +1,16 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
 
+function deb_pkg_name {
+  echo "ros-$ROS_DISTRO-$(echo "$1" | tr '_' '-')"
+}
+
 function register_local_pkgs_with_rosdep {
   for pkg in $(colcon list --topological-order --names-only); do
     cat << EOF >> "$DEBS_PATH/local.yaml"
 $pkg:
   $DISTRIBUTION:
-    - ros-one-$(echo "$pkg" | tr '_' '-')
+    - $(deb_pkg_name "$pkg")
 EOF
   done
 
@@ -33,18 +37,29 @@ function update_repo {
   cd "$old_path" || return 1
 }
 
+function pkg_exists {
+  local version; version=$(apt-cache policy "$(deb_pkg_name "$1")" | sed -n 's#^\s*Candidate:\s\(.*\)#\1#p')
+  if [ "$SKIP_EXISTING" == "true" ] && [ -n "$version" ] && [ "$version" != "(none)" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 function build_pkg {
   local old_path=$PWD
   local pkg_path=$1
   local pkg_name
 
-  test -f "$pkg_path/CATKIN_IGNORE" && echo "Skipped" && return
-  test -f "$pkg_path/COLCON_IGNORE" && echo "Skipped" && return
+  test -f "$pkg_path/CATKIN_IGNORE" && echo "Skipped (CATKIN_IGNORE)" && return
+  test -f "$pkg_path/COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
 
   cd "$pkg_path" || return 1
   trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
 
   pkg_name="$(colcon list --topological-order --names-only)"
+
+  pkg_exists "$pkg_name" && echo "Skipped (already built)" && return
 
   if ! ici_cmd bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO"; then
     gha_error "bloom-generate failed for ${pkg_name}"
