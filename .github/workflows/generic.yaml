@@ -66,11 +66,6 @@ on:
         description: path to store generated .debs in
         required: false
 
-      REPO_PATH:
-        type: string
-        description: path to generate package repository in
-        required: false
-
       DEPLOY_URL:
         type: string
         description: repository URL for deployment
@@ -95,7 +90,6 @@ env:
   EXTRA_ROSDEP_SOURCES: ${{ inputs.EXTRA_ROSDEP_SOURCES || vars.EXTRA_ROSDEP_SOURCES }}
 
   DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
-  REPO_PATH: ${{ inputs.REPO_PATH || vars.REPO_PATH || '~/repo' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -158,36 +152,4 @@ jobs:
         with:
           name: debs
           path: ${{ env.DEBS_PATH }}
-          if-no-files-found: error
-
-  repo:
-    needs: debs
-    runs-on: ubuntu-latest
-    name: create repo
-    if: (inputs.DEPLOY_URL || vars.DEPLOY_URL) && (inputs.DEPLOY_URL != 'skip')
-
-    env: # define common environment variables (cannot be passed from calling workflow)
-      SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
-      DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
-      DEPLOY_URL:: ${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
-      BRANCH: "${{ inputs.BRANCH || \
-        format('{0}-{1}', inputs.DEB_DISTRO || vars.DEB_DISTRO || 'jammy', \
-                          inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one') }}"
-
-    steps:
-      - name: Download debs from build
-        uses: actions/download-artifact@v3
-        with:
-          name: debs
-          path: ${{ env.DEBS_PATH }}
-
-      - name: Run flat-repo action
-        uses: ubi-agni/ros-builder-action/flat-repo@main
-
-      - name: Upload repo
-        uses: actions/upload-artifact@v3
-        if: always() # upload on timeout or cancel too
-        with:
-          name: repo
-          path: ${{ env.REPO_PATH }}
           if-no-files-found: error

@@ -23,8 +23,6 @@ export DEB_BUILD_OPTIONS=${DEB_BUILD_OPTIONS:-nocheck}  # don't build/run tests
 ## deploy paths: 'eval echo ...' expands environment variables
 export DEBS_PATH
 DEBS_PATH=$(eval echo "${DEBS_PATH}")
-export REPO_PATH
-REPO_PATH=$(eval echo "${REPO_PATH}")
 
 export GITHUB_TOKEN=${GITHUB_TOKEN:-}
 

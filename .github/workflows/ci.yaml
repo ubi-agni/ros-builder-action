@@ -21,7 +21,6 @@ on:
 
 env:
   DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
-  REPO_PATH: ${{ inputs.REPO_PATH || vars.REPO_PATH || '~/repo' }}
   TERM: xterm  # needed for colored output of unittests
 
 concurrency:
@@ -96,15 +95,5 @@ jobs:
       - name: Upload debs
         uses: actions/upload-artifact@v3
         with:
-          name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}.debs
-          path: ${{ env.DEBS_PATH }}
-
-      - name: Run flat-repo action
-        uses: ./flat-repo
-
-      - name: Upload repo
-        uses: actions/upload-artifact@v3
-        with:
           name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}
-          path: ${{ env.REPO_PATH }} # upload cannot interpret $REPO_PATH
-          if-no-files-found: error
+          path: ${{ env.DEBS_PATH }}

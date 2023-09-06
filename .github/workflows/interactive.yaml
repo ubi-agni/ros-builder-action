@@ -64,15 +64,15 @@ jobs:
 
     env: # define common environment variables (cannot be passed from calling workflow)
       SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
-      FOLDER: ${{ vars.REPO_PATH || '~/repo' }}
+      FOLDER: ${{ vars.DEBS_PATH || '~/debs' }}
       REPO: ${{ vars.DEPLOY_URL }}
       BRANCH: ${{ inputs.BRANCH || format('{0}-{1}', inputs.DEB_DISTRO, inputs.ROS_DISTRO) }}
 
     steps:
-      - name: Download repo from build
+      - name: Download debs from build
         uses: actions/download-artifact@v3
         with:
-          name: repo
+          name: debs
           path: ${{ env.FOLDER }}
 
       - name: Deploy
