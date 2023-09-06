@@ -57,7 +57,7 @@ function create_chroot {
 
   # shellcheck disable=SC2016
   ici_cmd ici_asroot mmdebstrap \
-    --variant=buildd --include=apt,ccache,ca-certificates,curl,python3-rosdep,python3-catkin-pkg \
+    --variant=buildd --include=apt,ccache,ca-certificates,curl,build-essential,debhelper,fakeroot,cmake,python3-rosdep,python3-catkin-pkg \
     --customize-hook='chroot "$1" curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg' \
     --customize-hook='chroot "$1" '"sh -c \"$acng_config_cmd\"" \
     --customize-hook='chroot "$1" sed -i "s#@#\"#g" /etc/apt/apt.conf.d/01acng' \
