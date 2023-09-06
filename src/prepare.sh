@@ -79,6 +79,7 @@ EOF
   # Add mount points to sbuild's fstab
   cat <<- EOF | ici_asroot tee -a /etc/schroot/sbuild/fstab
 $CCACHE_DIR  /build/ccache   none    rw,bind         0       0
+$DEBS_PATH   /build/repo     none    rw,bind         0       0
 EOF
 }
 
@@ -141,7 +142,12 @@ function repository_url {
 }
 
 function generate_readme {
-  local url; url=$(repository_url "$1" "$2")
+  local url
+  if [ -n "$1" ] && [ -n "$2" ]; then
+    url=$(repository_url "$1" "$2")
+  else
+    url="@REPO_URL@"
+  fi
 
   sed -e "s|@REPO_URL@|$url|g" \
       -e "s|@DISTRO_NAME@|$DEB_DISTRO-$ROS_DISTRO|g" \

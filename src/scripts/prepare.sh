@@ -53,3 +53,5 @@ ici_timed "Create sbuild chroot" create_chroot
 ici_timed "Configure ~/.sbuildrc" configure_sbuildrc
 
 ici_timed "Create \$DEBS_PATH=$DEBS_PATH" mkdir -p "$DEBS_PATH"
+
+ici_timed "Generate README.md" generate_readme "${DEPLOY_URL:-}" "${BRANCH:-}" > README.md

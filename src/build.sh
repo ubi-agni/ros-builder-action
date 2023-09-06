@@ -25,7 +25,16 @@ function prepare_ws {
   ici_timed "Import ROS sources into workspace" vcs import --recursive --input "$src" "$ws_path"
 }
 
+function update_repo {
+  local old_path=$PWD
+  cd "$DEBS_PATH" || return 1
+  apt-ftparchive packages . > Packages
+  apt-ftparchive release  . > Release
+  cd "$old_path" || return 1
+}
+
 function build_pkg {
+  local old_path=$PWD
   local pkg_path=$1
   local pkg_name
 
@@ -33,12 +42,12 @@ function build_pkg {
   test -f "$pkg_path/COLCON_IGNORE" && echo "Skipped" && return
 
   cd "$pkg_path" || return 1
+  trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
 
   pkg_name="$(colcon list --topological-order --names-only)"
 
   if ! ici_cmd bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO"; then
     gha_error "bloom-generate failed for ${pkg_name}"
-    cd - || return 1
     return 1
   fi
 
@@ -56,19 +65,18 @@ function build_pkg {
   version=$( ( git describe --tag --match "*[0-9]*" 2>/dev/null || echo 0 ) | sed 's@^[^0-9]*@@;s@-g[0-9a-f]*$@@')
   debchange -v "$version-$(date +%Y%m%d.%H%M)" -p -D "$DEB_DISTRO" -u high -m "Append timestamp when binarydeb was built."
 
+  ici_cmd update_repo
   SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog \
     --dpkg-source-opts=\"-Zgzip -z1 --format=1.0 -sn\" \
     --build-dir=\"$DEBS_PATH\" \
-    --extra-package=\"$DEBS_PATH\" \
+    --extra-repository=\"deb [trusted=yes] file:///build/repo ./\" \
     $EXTRA_SBUILD_OPTS"
   if ! ici_cmd eval sudo sbuild "$SBUILD_OPTS"; then
     gha_error "sbuild failed for ${pkg_name}"
-    cd - || return 1
     return 1
   fi
 
   ici_cmd ccache -sv
-  cd - || return 1
 }
 
 function build_source {
