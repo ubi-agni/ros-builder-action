@@ -107,14 +107,12 @@ jobs:
     name: build debs
 
     env: # define common environment variables (cannot be passed from calling workflow)
-      CCACHE_PATH: ~/.cache/ccache
+      CCACHE_DIR: /home/runner/ccache
       SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Download debs from previous run
         uses: actions/download-artifact@v3
@@ -131,7 +129,7 @@ jobs:
                            -${{ inputs.ROS_DISTRO || vars.ROS_DISTRO }}\
                            -${{ hashFiles(inputs.ROS_SOURCES || vars.ROS_SOURCES) || inputs.ROS_SOURCES || vars.ROS_SOURCES }}"
         with:
-          path: ${{ env.CCACHE_PATH }}
+          path: ${{ env.CCACHE_DIR }}
           key: ${{ env.CACHE_ID }}-${{ github.run_id }}
           restore-keys: |
             ${{ env.CACHE_ID }}
@@ -151,7 +149,7 @@ jobs:
         uses: actions/cache/save@v3
         if: always() # save cache on timeout or cancel too
         with:
-          path: ${{ env.CCACHE_PATH }}
+          path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
 
       - name: Upload debs

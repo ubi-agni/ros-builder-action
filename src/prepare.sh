@@ -46,21 +46,40 @@ function configure_extra_deb_sources {
 }
 
 function create_chroot {
+  if [ -d /var/cache/sbuild-chroot ] && [ -f /etc/schroot/chroot.d/sbuild ]; then
+    echo "chroot already exists"
+    return
+  fi
+
   # http://127.0.0.1:3142 should be quoted by double quotes, but this leads to three-fold nested quotes!
   # Using @ first and replacing them later with quotes via sed...
   local acng_config_cmd='echo \"Acquire::http::Proxy @http://127.0.0.1:3142@;\" | tee /etc/apt/apt.conf.d/01acng'
 
-  mkdir -p ~/.cache/sbuild
   # shellcheck disable=SC2016
-  ici_cmd mmdebstrap \
+  ici_cmd ici_asroot mmdebstrap \
     --variant=buildd --include=apt,ccache,ca-certificates,curl,python3-rosdep,python3-catkin-pkg \
-    --customize-hook='chroot "$1" update-ccache-symlinks' \
     --customize-hook='chroot "$1" curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg' \
     --customize-hook='chroot "$1" '"sh -c \"$acng_config_cmd\"" \
     --customize-hook='chroot "$1" sed -i "s#@#\"#g" /etc/apt/apt.conf.d/01acng' \
-    "$DEB_DISTRO" "$HOME/.cache/sbuild/$DEB_DISTRO-amd64.tar" \
+    "$DEB_DISTRO" "/var/cache/sbuild-chroot" \
     "deb $DISTRIBUTION_REPO $DEB_DISTRO main universe" \
-    "deb [arch=amd64 signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
+    "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
+
+  # Write schroot config
+  cat <<- EOF | ici_asroot tee /etc/schroot/chroot.d/sbuild
+[sbuild]
+groups=root,sbuild
+root-groups=root,sbuild
+profile=sbuild
+type=directory
+directory=/var/cache/sbuild-chroot
+union-type=overlay
+EOF
+
+  # Add mount points to sbuild's fstab
+  cat <<- EOF | ici_asroot tee -a /etc/schroot/sbuild/fstab
+$CCACHE_DIR  /build/ccache   none    rw,bind         0       0
+EOF
 }
 
 function configure_sbuildrc {
@@ -68,9 +87,8 @@ function configure_sbuildrc {
   cat << EOF | tee ~/.sbuildrc
 \$build_environment = { 'CCACHE_DIR' => '/build/ccache' };
 \$path = '/usr/lib/ccache:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games';
-\$build_path = "/build/package/";
 \$dsc_dir = "package";
-\$unshare_bind_mounts = [ { directory => "$HOME/.cache/ccache", mountpoint => '/build/ccache' } ];
+\$build_path = "/build/package/";
 $EXTRA_SBUILD_CONFIG
 EOF
 }

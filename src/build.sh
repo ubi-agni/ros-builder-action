@@ -56,11 +56,12 @@ function build_pkg {
   version=$( ( git describe --tag --match "*[0-9]*" 2>/dev/null || echo 0 ) | sed 's@^[^0-9]*@@;s@-g[0-9a-f]*$@@')
   debchange -v "$version-$(date +%Y%m%d.%H%M)" -p -D "$DEB_DISTRO" -u high -m "Append timestamp when binarydeb was built."
 
-  SBUILD_OPTS="--chroot-mode=unshare --no-clean-source --no-run-lintian --nolog \
-    --dpkg-source-opts=\"-Zgzip -z1 --format=1.0 -sn\" --build-dir=\"$DEBS_PATH\" \
+  SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog \
+    --dpkg-source-opts=\"-Zgzip -z1 --format=1.0 -sn\" \
+    --build-dir=\"$DEBS_PATH\" \
     --extra-package=\"$DEBS_PATH\" \
     $EXTRA_SBUILD_OPTS"
-  if ! ici_cmd eval sbuild "$SBUILD_OPTS"; then
+  if ! ici_cmd eval sudo sbuild "$SBUILD_OPTS"; then
     gha_error "sbuild failed for ${pkg_name}"
     cd - || return 1
     return 1

@@ -9,7 +9,8 @@ ici_title "Install required packages on host system"
 ## Add required apt gpg keys and sources
 # Jochen's ppa for mmdebstrap, sbuild
 ici_append INSTALL_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D8A3751519274DEF"
-ici_append EXTRA_DEB_SOURCES "deb http://ppa.launchpad.net/v-launchpad-jochen-sprickerhof-de/sbuild/ubuntu $(lsb_release -cs) main"
+ici_append EXTRA_DEB_SOURCES "deb http://ppa.launchpad.net/v-launchpad-jochen-sprickerhof-de/sbuild/ubuntu jammy main"
+ici_cmd restrict_src_to_packages "release o=v-launchpad-jochen-sprickerhof-de" "mmdebstrap sbuild"
 
 # ROS for python3-rosdep, python3-vcstool, python3-colcon-*
 ros_key_file="/usr/share/keyrings/ros-archive-keyring.gpg"
@@ -20,7 +21,6 @@ ici_append EXTRA_DEB_SOURCES "deb [signed-by=$ros_key_file] http://packages.ros.
 ici_hook INSTALL_GPG_KEYS
 ici_timed "Configure EXTRA_DEB_SOURCES" configure_extra_deb_sources
 
-ici_cmd restrict_src_to_packages "release o=v-launchpad-jochen-sprickerhof-de" "mmdebstrap sbuild"
 ici_timed "Update apt package list" ici_asroot apt-get -qq update
 
 # Configure apt-cacher-ng
@@ -28,7 +28,7 @@ echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-
 
 # Install packages on host
 DEBIAN_FRONTEND=noninteractive ici_timed "Install packages" ici_apt_install \
-	mmdebstrap sbuild devscripts debian-archive-keyring ccache curl apt-cacher-ng \
+	mmdebstrap sbuild schroot devscripts libdistro-info-perl ccache curl apt-cacher-ng \
 	python3-pip python3-rosdep python3-vcstool python3-colcon-common-extensions
 
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
@@ -39,13 +39,16 @@ ici_timed "check apt-cacher-ng" service apt-cacher-ng status
 
 ici_timed "Declare EXTRA_ROSDEP_SOURCES" declare_extra_rosdep_sources
 
-ici_title "Prepare build environment"
-ici_timed "Create sbuild chroot" create_chroot
 
+ici_title "Prepare build environment"
+
+export CCACHE_DIR="${CCACHE_DIR:-$HOME/ccache}"
 ici_timed "Configure ccache" ccache --zero-stats --max-size=10.0G
 # allow ccache access from sbuild
 chmod a+rX ~
-chmod -R a+rwX ~/.cache/ccache
+chmod -R a+rwX "$CCACHE_DIR"
+
+ici_timed "Create sbuild chroot" create_chroot
 
 ici_timed "Configure ~/.sbuildrc" configure_sbuildrc
 
