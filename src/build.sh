@@ -81,12 +81,8 @@ function build_pkg {
   debchange -v "$version-$(date +%Y%m%d.%H%M)" -p -D "$DEB_DISTRO" -u high -m "Append timestamp when binarydeb was built."
 
   ici_cmd update_repo
-  SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog \
-    --dpkg-source-opts=\"-Zgzip -z1 --format=1.0 -sn\" \
-    --build-dir=\"$DEBS_PATH\" \
-    --extra-repository=\"deb [trusted=yes] file:///build/repo ./\" \
-    $EXTRA_SBUILD_OPTS"
-  if ! ici_cmd eval sudo sbuild "$SBUILD_OPTS"; then
+  SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog $EXTRA_SBUILD_OPTS"
+  if ! ici_cmd sg sbuild -c "sbuild $SBUILD_OPTS"; then # run with sbuild group permissions
     gha_error "sbuild failed for ${pkg_name}"
     return 1
   fi

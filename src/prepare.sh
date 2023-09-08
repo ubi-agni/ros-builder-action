@@ -102,6 +102,9 @@ function configure_sbuildrc {
 \$path = '/usr/lib/ccache:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games';
 \$dsc_dir = "package";
 \$build_path = "/build/package/";
+\$build_dir = "$DEBS_PATH";
+\$dpkg_source_opts = ["-Zgzip", "-z1", "--format=1.0", "-sn"];
+\$extra_repositories = ["deb [trusted=yes] file:///build/repo ./"];
 $EXTRA_SBUILD_CONFIG
 EOF
 }

@@ -47,12 +47,12 @@ ici_timed "Download existing rosdep declarations" load_local_yaml
 
 export CCACHE_DIR="${CCACHE_DIR:-$HOME/ccache}"
 ici_timed "Configure ccache" ccache --zero-stats --max-size=10.0G
-# allow ccache access from sbuild
-chmod a+rX ~
-chmod -R a+rwX "$CCACHE_DIR"
 
 ici_timed "Create sbuild chroot" create_chroot
 
 ici_timed "Configure ~/.sbuildrc" configure_sbuildrc
 
 ici_timed "Generate README.md" generate_readme "${DEPLOY_URL:-}" "${BRANCH:-}"
+
+# Add user to group sbuild
+ici_asroot usermod -a -G sbuild "$USER"
