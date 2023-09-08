@@ -89,6 +89,14 @@ function build_pkg {
   fi
 
   ici_cmd ccache -sv
+
+  if [ "$INSTALL_TO_CHROOT" == "true" ]; then
+    ici_color_output "${ANSI_BOLD}" "Install package within chroot"
+    # shellcheck disable=SC2012
+    cat <<- EOF | ici_pipe_into_schroot sbuild-rw
+      apt install --no-install-recommends -q -y \$(ls -1 -t /build/repo/"$(deb_pkg_name "$pkg_name")"*.deb | head -1)
+EOF
+  fi
 }
 
 function build_source {

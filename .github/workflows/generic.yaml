@@ -32,6 +32,10 @@ on:
         description: Continue building from previous debs artifact?
         required: true
         default: false
+      INSTALL_TO_CHROOT:
+        type: boolean
+        description: Incrementally install built packages within the chroot?
+        required: false
       BUILD_TIMEOUT:
         type: number
         description: Cancel build after this time, before github will do (minutes)
@@ -148,6 +152,7 @@ jobs:
           DEB_BUILD_OPTIONS: ${{ inputs.DEB_BUILD_OPTIONS || vars.DEB_BUILD_OPTIONS || 'nocheck' }}
           CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR || vars.CONTINUE_ON_ERROR || false }}
           SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false }}
+          INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
 
       - name: Store ccache
         uses: actions/cache/save@v3

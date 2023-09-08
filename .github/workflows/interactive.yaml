@@ -30,6 +30,10 @@ on:
         type: boolean
         description: Skip existing packages?
         required: false
+      INSTALL_TO_CHROOT:
+        type: boolean
+        description: Incrementally fill chroot?
+        required: false
       DEPLOY_MODE:
         type: choice
         description: How to deploy?
@@ -59,6 +63,7 @@ jobs:
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
       SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false}}
+      INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
 
   deploy:
     needs: build

@@ -67,15 +67,6 @@ function create_chroot {
     "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
 
   ici_log
-  ici_color_output "${ANSI_BOLD}" "Add extra debian package sources"
-  while IFS= read -r line; do
-    echo "$line"
-    cat <<- EOF | ici_pipe_into_chroot "$chroot_folder"
-    echo "$line" >> "$REPOS_LIST_FILE"
-EOF
-  done <<< "$EXTRA_DEB_SOURCES"
-
-  ici_log
   ici_color_output "${ANSI_BOLD}" "Write schroot config"
   cat <<- EOF | ici_asroot tee /etc/schroot/chroot.d/sbuild
 [sbuild]
@@ -83,9 +74,12 @@ groups=root,sbuild
 root-groups=root,sbuild
 profile=sbuild
 type=directory
-directory=/var/cache/sbuild-chroot
+directory=$chroot_folder
 union-type=overlay
 EOF
+  # sbuild-rw: writable sbuild
+  sed -e 's#\(union-type\)=overlay#\1=none#' -e 's#\[sbuild\]#[sbuild-rw]#'\
+    /etc/schroot/chroot.d/sbuild | ici_asroot tee /etc/schroot/chroot.d/sbuild-rw
 
   ici_log
   ici_color_output "${ANSI_BOLD}" "Add mount points to sbuild's fstab"
@@ -93,6 +87,19 @@ EOF
 $CCACHE_DIR  /build/ccache   none    rw,bind         0       0
 $DEBS_PATH   /build/repo     none    rw,bind         0       0
 EOF
+
+  ici_log
+  ici_color_output "${ANSI_BOLD}" "Add extra debian package sources"
+  while IFS= read -r line; do
+    echo "$line"
+    cat <<- EOF | ici_pipe_into_schroot sbuild-rw
+    echo "$line" >> "$REPOS_LIST_FILE"
+EOF
+  done <<< "$EXTRA_DEB_SOURCES"
+
+  ici_log
+  ici_color_output "${ANSI_BOLD}" "apt-get update in chroot"
+  echo "apt-get update" | ici_pipe_into_schroot sbuild-rw
 }
 
 function configure_sbuildrc {

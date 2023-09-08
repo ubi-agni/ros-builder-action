@@ -22,6 +22,7 @@ export EXTRA_SBUILD_OPTS=${EXTRA_SBUILD_OPTS:-}
 export DEB_BUILD_OPTIONS=${DEB_BUILD_OPTIONS:-nocheck}  # don't build/run tests
 
 export SKIP_EXISTING=${SKIP_EXISTING:-false}
+export INSTALL_TO_CHROOT=${INSTALL_TO_CHROOT:-false}
 
 ## deploy paths: 'eval echo ...' expands environment variables
 export DEBS_PATH

@@ -99,10 +99,9 @@ function _sub_shell() (
   eval "$*" || ici_exit
 )
 
-# usage echo "$*" | ici_pipe_into_chroot <chroot folder>
-function ici_pipe_into_chroot {
-  local folder=$1
-  cat -- | ici_asroot chroot "$folder" /bin/bash -- || ici_exit
+# usage echo "$*" | ici_pipe_into_schroot <schroot name>
+function ici_pipe_into_schroot {
+  cat -- | ici_asroot schroot -c "$1" --directory / /bin/bash -- || ici_exit
 }
 
 function _label_hook() {
