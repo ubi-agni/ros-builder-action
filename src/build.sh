@@ -6,7 +6,8 @@ function deb_pkg_name {
 }
 
 function register_local_pkgs_with_rosdep {
-  for pkg in $(colcon list --topological-order --names-only); do
+  #shellcheck disable=SC2086
+  for pkg in $(colcon list --topological-order --names-only $COLCON_PKG_SELECTION); do
     cat << EOF >> "$DEBS_PATH/local.yaml"
 $pkg:
   $DISTRIBUTION:
@@ -101,7 +102,8 @@ function build_source {
   ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
 
   local pkg_paths
-  pkg_paths="$(colcon list --topological-order --paths-only)"
+  #shellcheck disable=SC2086
+  pkg_paths="$(colcon list --topological-order --paths-only $COLCON_PKG_SELECTION)"
   local count=1
   local total
   total="$(echo "$pkg_paths" | wc -l)"

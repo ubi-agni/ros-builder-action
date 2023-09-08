@@ -17,6 +17,10 @@ on:
         type: string
         description: ROS sources to compile. See README.md for details.
         required: false
+      COLCON_PKG_SELECTION:
+        type: string
+        description: colcon package selection arguments
+        required: false
 
       # workflow control
       SKIP_EXISTING:
@@ -138,6 +142,7 @@ jobs:
         # leave some time for the remaining steps too (github cancels the job after 360 minutes)
         timeout-minutes: ${{ inputs.BUILD_TIMEOUT || vars.BUILD_TIMEOUT || 340 }}
         env:
+          COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
           EXTRA_SBUILD_CONFIG: ${{ inputs.EXTRA_SBUILD_CONFIG || vars.EXTRA_SBUILD_CONFIG }}
           EXTRA_SBUILD_OPTS: ${{ inputs.EXTRA_SBUILD_OPTS || vars.EXTRA_SBUILD_OPTS }}
           DEB_BUILD_OPTIONS: ${{ inputs.DEB_BUILD_OPTIONS || vars.DEB_BUILD_OPTIONS || 'nocheck' }}

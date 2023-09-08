@@ -22,15 +22,17 @@ on:
         description: 'ROS sources to compile:'
         required: true
         default: '*.repos'
+      COLCON_PKG_SELECTION:
+        type: string
+        description: 'colcon package selection:'
+        required: false
       SKIP_EXISTING:
         type: boolean
-        description: Skip building packages already existing in the repository
+        description: Skip existing packages?
         required: false
       DEPLOY_MODE:
         type: choice
-        description: |
-          How to deploy?
-          Uses vars.DEPLOY_URL and secrets.DEPLOY_PRIVATE_KEY
+        description: How to deploy?
         required: true
         default: skip
         options:
@@ -39,7 +41,7 @@ on:
           - append
       BRANCH:
         type: string
-        description: 'Branch to use (<deb distro>-<ros distro>):'
+        description: 'Branch to use:'
         required: false
 
 env:
@@ -53,6 +55,7 @@ jobs:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
       ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
       ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
+      COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
       SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false}}

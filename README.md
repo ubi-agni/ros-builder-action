@@ -27,6 +27,7 @@ variable               | type    | default                   | semantics
 `ROS_DISTRO`           | string  | one                       | ROS distribution codename to compile for
 `DEB_DISTRO`           | string  | jammy                     | The Debian/Ubuntu distribution codename to compile for.
 `ROS_SOURCES`          | string  | `*.repos`                 | [ROS sources to compile](#what-to-build)
+`COLCON_PKG_SELECTION` | string  | ``                        | [colcon package selectio argument(s)](#where-to-start-building-from)
 `SKIP_EXISTING`        | boolean | false                     | [Skip (re)building packages already existing in the repository](#where-to-start-building-from)
 `DOWNLOAD_DEBS`        | boolean | false                     | [Continue building from previous debs artifact?](#where-to-start-building-from)
 `BUILD_TIMEOUT`        | number  | 340                       | Cancel build after this time, before github will do (minutes)
@@ -47,6 +48,12 @@ variable               | type    | default                   | semantics
 Building a complete ROS distro from scratch takes a lot of time, often more than allowed by github actions (6h). For this reason, it is possible to continue a build either from a previous build (downloading an existing `debs` artifact) or from an existing repository. For the former, set the input `DOWNLOAD_DEBS=true`, for the latter add the repository to `EXTRA_DEB_SOURCES`. In both cases, set the variable/input `SKIP_EXISTING=true` to actually skip building of already existing packages.
 
 The example workflow [splitted.yaml](.github/workflows/splitted.yaml) uses `DOWNLOAD_DEBS` to build a large ROS distro from several `.repos` files.
+
+Specifying `COLCON_PKG_SELECTION` allows to limit the build to a subset of packages via [colcon package selection options](https://colcon.readthedocs.io/en/released/reference/package-selection-arguments.html). For example:
+- To rebuild a specific package and all its downstream dependencies:  
+  `--packages-above-and-dependencies <pkg ...>`
+- To rebuild a single package (only use if ABI/API hasn't changed):  
+  `--packages-select <pkg ...>`
 
 ### What to build?
 
