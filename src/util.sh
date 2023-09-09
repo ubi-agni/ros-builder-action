@@ -197,9 +197,11 @@ function ici_time_end {
 # Execute command via ici_timed, running BEFORE_* and AFTER_* hooks and reporting the result
 function ici_step {
     local id=$1
+    local exit_code=0
     ici_hook "before_$id" || ici_exit
-    ici_timed "$@" || ici_exit
+    ici_timed "$id" "$@" || exit_code=$?
     gha_report_result "$id" "${exit_code}"
+    [ "$exit_code" -ne 0 ] && ici_exit "$exit_code"
     ici_hook "after_$id" || ici_exit
 }
 
