@@ -1,0 +1,92 @@
+name: reusable deploy workflow
+
+on:
+  # make this workflow reusable (and only so)
+  workflow_call:
+    inputs:
+      DEPLOY_URL:
+        type: string
+        description: Where to deploy?
+        required: false
+
+      CONTENT_MODE:
+        type: string
+        description: |
+          How to handle existing packages?
+          - replace
+          - add      (keep existing packages)
+          - newer    (keep existing, but remove older versions)
+        required: false
+      PUSH_MODE:
+        type: string
+        description: push | amend | squash
+        required: false
+
+      DEBS_PATH:
+        type: string
+        description: path to store generated .debs in
+        required: false
+
+      COMMIT_NAME:
+        type: string
+        description: user name for commit
+        required: false
+      COMMIT_EMAIL:
+        type: string
+        description: user email for commit
+        required: false
+      MESSAGE:
+        type: string
+        description: Commit message
+        required: false
+
+    secrets:
+      SSH_PRIVATE_KEY:
+        description: SSH private key to use for deployment
+        required: false
+      TOKEN:
+        description: github token for pushing to own repo
+        required: false
+
+# Define environment variables from input, from configuration variables, or defaults - in this order!
+# All inputs (declared above) are deliberately optional and don't provide an explicit default.
+# Thus, if an input is not explicitly provided, we can fall back to the configuration variable here (var.* context).
+# This variable context originates from the _calling_ workflow. Finally, a hard-coded default is given.
+# https://docs.github.com/en/actions/learn-github-actions/variables#defining-configuration-variables-for-multiple-workflows
+env:
+  DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
+
+concurrency:
+  group: ${{ github.workflow }}-deploy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: inputs.DEPLOY_URL || vars.DEPLOY_URL
+    env:
+      DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download debs artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: debs
+          path: ${{ env.DEBS_PATH }}
+
+      - name: Deploy to ${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
+        run: |
+          echo "Cloning and running deploy script"
+          git clone --branch main --depth 1 https://github.com/ubi-agni/ros-builder-action.git $RUNNER_TEMP/ros-builder-action
+          $RUNNER_TEMP/ros-builder-action/src/scripts/generic.sh $RUNNER_TEMP/ros-builder-action/src/scripts/deploy.sh
+        env:
+          DEPLOY_URL: ${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
+          TOKEN: ${{ secrets.TOKEN || secrets.GITHUB_TOKEN }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          CONTENT_MODE: ${{ inputs.CONTENT_MODE || vars.CONTENT_MODE || 'newer' }}
+          PUSH_MODE: ${{ inputs.PUSH_MODE || vars.PUSH_MODE || 'push' }}
+          MESSAGE: ${{ inputs.MESSAGE || 'deploy' }}
+          COMMIT_NAME: ${{ inputs.COMMIT_NAME || github.actor }}
+          COMMIT_EMAIL: ${{ inputs.COMMIT_EMAIL || format('{0}@users.noreply.github.com', github.actor) }}

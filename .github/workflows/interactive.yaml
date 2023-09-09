@@ -7,6 +7,7 @@ on:
     # thus overriding any configuration variables set, which should be considered in this case.
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
     inputs:
+      # target distro
       DEB_DISTRO:
         type: string
         required: true
@@ -17,6 +18,8 @@ on:
         required: true
         description: 'ROS distribution codename:'
         default: one
+
+      # source selection
       ROS_SOURCES:
         type: string
         description: 'ROS sources to compile:'
@@ -26,35 +29,40 @@ on:
         type: string
         description: 'colcon package selection:'
         required: false
-      SKIP_EXISTING:
+
+      # build flow control
+      CONTINUE_BUILD:
         type: boolean
-        description: Skip existing packages?
+        description: Continue previous build?
+        required: true
+        default: true
+      CONTINUE_ON_ERROR:
+        type: boolean
+        description: Continue on build errors?
         required: false
+        default: true
+      # Installing built packages to chroot speeds up downstream builds?
       INSTALL_TO_CHROOT:
         type: boolean
         description: Incrementally fill chroot?
         required: false
-      DEPLOY_MODE:
+
+      # deployment options
+      PUSH_MODE:
         type: choice
-        description: How to deploy?
+        description: Push to DEPLOY_URL?
         required: true
         default: skip
         options:
           - skip
+          - push
+          - amend
           - squash
-          - append
-      BRANCH:
-        type: string
-        description: 'Branch to use:'
-        required: false
-
-env:
-  BRANCH: ${{ inputs.BRANCH || format('{0}-{1}', inputs.DEB_DISTRO, inputs.ROS_DISTRO) }}
 
 jobs:
   build:
     name: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || 'latest' }}-${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one'}}
-    uses: ubi-agni/ros-builder-action/.github/workflows/generic.yaml@main
+    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
     with:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
       ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
@@ -62,29 +70,21 @@ jobs:
       COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
-      SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false}}
+      SKIP_EXISTING: ${{ inputs.CONTINUE_BUILD }}
+      CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
       INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
-    if: ( inputs.DEPLOY_MODE != 'skip' ) && vars.DEPLOY_URL
-
-    env: # define common environment variables (cannot be passed from calling workflow)
-      SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
-      FOLDER: ${{ vars.DEBS_PATH || '~/debs' }}
-      REPO: ${{ vars.DEPLOY_URL }}
-
-    steps:
-      - name: Download debs from build
-        uses: actions/download-artifact@v3
-        with:
-          name: debs
-          path: ${{ env.FOLDER }}
-
-      - name: Deploy
-        uses: s0/git-publish-subdir-action@v2.6.0
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-          MESSAGE: "${{ inputs.DEB_DISTRO }}-${{ inputs.ROS_DISTRO }} build"
-          SQUASH_HISTORY: ${{ inputs.DEPLOY_MODE == 'squash' }}
+    if: always() && ( inputs.PUSH_MODE != 'skip' ) && vars.DEPLOY_URL
+    uses: ubi-agni/ros-builder-action/.github/workflows/deploy.yaml@main
+    with:
+      # content mode: 'add' if continueing build, 'replace' otherwise
+      CONTENT_MODE: ${{ inputs.CONTINUE_BUILD && 'add' || 'replace' }}
+      # default push mode: 'push' if continueing build, 'squash' otherwise
+      PUSH_MODE: ${{ inputs.PUSH_MODE || vars.PUSH_MODE || (inputs.CONTINUE_BUILD && 'push' || 'squash') }}
+      MESSAGE: "${{ needs.build.outputs.LATEST_PACKAGE \
+        && format('build up to {0}', needs.build.outputs.LATEST_PACKAGE) \
+        || format('{0}-{1}', inputs.DEB_DISTRO || vars.DEB_DISTRO, inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one') }}"
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}

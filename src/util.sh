@@ -570,6 +570,17 @@ function ici_make_temp_dir {
   ici_cleanup_later "$ici_make_temp_dir_res"
 }
 
+# parse a URL of the form <scheme>:<resource>[#<fragment>]
+function ici_parse_url {
+    if [[ $1 =~ ([^:]+):([^#]+)(#.+)? ]]; then
+        export URL_SCHEME=${BASH_REMATCH[1]}
+        export URL_RESOURCE=${BASH_REMATCH[2]}
+        export URL_FRAGMENT="${BASH_REMATCH[3]#"#"}"
+    else
+        return 1
+    fi
+}
+
 function ici_apt_install {
     ici_cmd ici_filter "Setting up" ici_asroot apt-get -qq install -y --no-upgrade --no-install-recommends "$@"
 }

@@ -45,16 +45,3 @@ EOF
 )
 	assert_output "$expected"
 }
-
-
-@test "parse_repository_url" {
-	GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-ubi-agni/ros-repo}
-	local repo=$GITHUB_REPOSITORY
-	local b="branch"
-
-	run repository_url self $b
-	assert_output "https://raw.githubusercontent.com/$repo/$b"
-
-	run repository_url "git@github.com:$repo.git" $b
-	assert_output "https://raw.githubusercontent.com/$repo/$b"
-}

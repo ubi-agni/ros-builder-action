@@ -193,3 +193,12 @@ EOF
 	run eval "$HOOK"
 	echo "$output" | grep -q "spurious call to ici_end_fold"
 }
+
+@test "ici_parse_url" {
+	run -1 ici_parse_url invalid
+
+	ici_parse_url git@github.com:user/repo#branch
+	output=$URL_SCHEME; assert_output "git@github.com"
+	output=$URL_RESOURCE; assert_output "user/repo"
+	output=$URL_FRAGMENT; assert_output "branch"
+}

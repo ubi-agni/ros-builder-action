@@ -52,7 +52,7 @@ ici_timed "Create sbuild chroot" create_chroot
 
 ici_timed "Configure ~/.sbuildrc" configure_sbuildrc
 
-ici_timed "Generate README.md" generate_readme "${DEPLOY_URL:-}" "${BRANCH:-}"
+ici_cmd cp "$SRC_PATH/README.md.in" "$DEBS_PATH"
 
 # Add user to group sbuild
 ici_asroot usermod -a -G sbuild "$USER"

@@ -89,6 +89,7 @@ function build_pkg {
   fi
 
   ici_cmd ccache -sv
+  gha_report_result "LATEST_PACKAGE" "$pkg_name"
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output "${ANSI_BOLD}" "Install package within chroot"

@@ -2,25 +2,13 @@ name: CI
 
 on:
   workflow_dispatch:
-    inputs:
-      DEB_DISTRO:
-        type: string
-        required: false
-        description: 'Ubuntu/Debian distro:'
-        default: jammy
-      ROS_DISTRO:
-        type: string
-        required: false
-        description: 'ROS distribution codename:'
-        default: one
+  pull_request:
   push:
     branches: [ main ]
-    paths-ignore: [ '.github/**' ]
-  pull_request:
-    branches: [ main ]
+    paths-ignore: [ '*.repos' ]
 
 env:
-  DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
+  DEBS_PATH: ${{ vars.DEBS_PATH || '~/debs' }}
   TERM: xterm  # needed for colored output of unittests
 
 concurrency:
@@ -28,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pre-commit:
+  sanity:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -72,14 +60,14 @@ jobs:
       matrix:
         DEB_DISTRO: [focal, jammy, bookworm ]
         ROS_DISTRO: [one]
+        include:
+          - DEB_DISTRO: jammy
+            UPLOAD_DEBS: true
 
     env:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
       ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
-      # These two are needed for the flat-repo generation
-      DEPLOY_URL: ${{ vars.DEPLOY_URL || 'self' }}
-      BRANCH: ${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}-CI
 
     name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}
     steps:
@@ -93,7 +81,17 @@ jobs:
           ROS_SOURCES: .github/workflows/minimal.repos
 
       - name: Upload debs
+        if: matrix.UPLOAD_DEBS
         uses: actions/upload-artifact@v3
         with:
-          name: minimal-${{ matrix.DEB_DISTRO }}-${{ matrix.ROS_DISTRO }}
+          name: debs
           path: ${{ env.DEBS_PATH }}
+
+  deploy:
+    needs: ci
+    uses: ubi-agni/ros-builder-action/.github/workflows/deploy.yaml@main
+    with:
+      DEPLOY_URL: self#ci
+      CONTENT_MODE: replace
+      PUSH_MODE: squash
+      MESSAGE: deployment test

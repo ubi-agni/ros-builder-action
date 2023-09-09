@@ -2,18 +2,27 @@
 
 This repository provides actions and resusable workflows helping to build Debian packages from ROS package sources.
 
-### workflow [generic.yaml](.github/workflows/generic.yaml)
+### Reusable workflows [build.yaml](.github/workflows/build.yaml) + [deploy.yaml](.github/workflows/deploy.yaml)
 
-This workflow is intended for reuse by an external repository to build a custom list of ROS packages. Resulting `.debs` are provided as a build artifact and can be uploaded to a repository server subsequently.
+These workflows are intended for reuse by an external repository to build a custom list of ROS packages. The `build` workflow stores created `.debs` as an artifact that can be manually downloaded or automatically uploaded to a repository server (via the `deploy` workflow) subsequently.
 
 A simple usage example looks like this:
 
 ```yaml
 jobs:
   build:
-    uses: ubi-agni/ros-builder-action/.github/workflows/generic.yaml@main
+    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
     with:
       ROS_SOURCES: '*.repos'
+
+  deploy:
+    needs: build
+    if: always()
+    uses: ubi-agni/ros-builder-action/.github/workflows/deploy.yaml@main
+    with:
+      DEPLOY_URL: ${{ vars.DEPLOY_URL || 'self' }}
+      TOKEN: ${{ secrets.GITHUB_TOKEN }}                  # used for own repo
+      SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}  # used for other repo
 ```
 
 More complex usage examples can be found in [interactive.yaml](.github/workflows/interactive.yaml) or [splitted.yaml](.github/workflows/splitted.yaml).
@@ -39,9 +48,7 @@ variable               | type    | default                   | semantics
 `DEB_BUILD_OPTIONS`    | string  | nocheck                   | options used debian/rules
 `CONTINUE_ON_ERROR`    | boolean | false                     | Continue building even if some packages already failed
 `DEBS_PATH`            | string  | ~/debs                    | path to store generated .debs in
-`REPO_PATH`            | string  | ~/repo                    | path to generate package repository in
 `DEPLOY_URL`           | string  |                           | repository URL for deployment
-`BRANCH`               | string  | `$DEB_DISTRO-$ROS_DISTRO` | branch to use for deployment
 
 ### Where to start building from?
 
@@ -58,3 +65,9 @@ Specifying `COLCON_PKG_SELECTION` allows to limit the build to a subset of packa
 ### What to build?
 
 `ROS_SOURCES` specifies a (space-separated) list of inputs suitable for `vcs import`.
+
+### Where to deploy?
+
+The built packages can be deployed to a flat Debian repository, for example on a github branch.
+The easiest way to do so is to specify `DEPLOY_URL=self`, causing deployment to the active github repository into the branch `$DEB_DISTRO-$ROS-DISTRO`.
+However, you can also specify another github repo.

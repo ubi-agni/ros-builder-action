@@ -1,4 +1,4 @@
-name: reusable workflow
+name: reusable build workflow
 
 on:
   # make this workflow reusable (and only so)
@@ -73,20 +73,16 @@ on:
         description: Continue building even if some packages already failed
         required: false
 
-      # deploy options
       DEBS_PATH:
         type: string
         description: path to store generated .debs in
         required: false
 
-      DEPLOY_URL:
-        type: string
-        description: repository URL for deployment
-        required: false
-      BRANCH:
-        type: string
-        description: branch to use for deployment
-        required: false
+    outputs:
+      LATEST_PACKAGE:
+        description: Name of the latest package built
+        value: ${{ jobs.debs.outputs.LATEST_PACKAGE }}
+
 
 # Define environment variables from input, from configuration variables, or defaults - in this order!
 # All inputs (declared above) are deliberately optional and don't provide an explicit default.
@@ -105,15 +101,17 @@ env:
   DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   debs:
     runs-on: ubuntu-latest
     name: build debs
+    outputs:
+      LATEST_PACKAGE: ${{ steps.build.outputs.LATEST_PACKAGE }}
 
-    env: # define common environment variables (cannot be passed from calling workflow)
+    env: # define common environment variables
       CCACHE_DIR: /home/runner/ccache
       SEGMENT_DOWNLOAD_TIMEOUT_MINS: 10
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
@@ -143,6 +141,7 @@ jobs:
 
       - name: Build .deb packages
         uses: ubi-agni/ros-builder-action@main
+        id: build
         # leave some time for the remaining steps too (github cancels the job after 360 minutes)
         timeout-minutes: ${{ inputs.BUILD_TIMEOUT || vars.BUILD_TIMEOUT || 340 }}
         env:
