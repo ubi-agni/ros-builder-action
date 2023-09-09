@@ -55,6 +55,18 @@ case $ROS_DISTRO in
 		;;
 esac
 
+# set ROS environment variables
+case $ROS_DISTRO in
+	noetic|one)
+		export export ROS_VERSION=1
+		;;
+	*)
+		export export ROS_VERSION=2
+		;;
+esac
+export ROS_PYTHON_VERSION=3
+
+
 if debian-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION=debian
 	export DISTRIBUTION_REPO=http://deb.debian.org/debian
