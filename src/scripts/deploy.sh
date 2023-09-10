@@ -47,9 +47,7 @@ function deploy_git {
 	if [ "$CONTENT_MODE" != "replace" ]; then
 		# restore files
 		if [ $fetch_error -eq 0 ]; then
-			while IFS= read -r line; do
-				files+=("$line")
-			done < <(git status --porcelain | sed -n 's#^ D \(.*\)#\1#p')
+			mapfile -t files < <(git status --porcelain | sed -n 's#^ D \(.*\)#\1#p')
 			ici_cmd git restore --source=FETCH_HEAD "${files[@]}"
 		fi
 
@@ -100,7 +98,7 @@ function deploy_github {
 	local git_url
 
 	# configure git
-	if [ "$GITHUB_ACTIONS" = "true" ]; then
+	if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
 		git config --global init.defaultBranch main
 		git config --global user.name "$COMMIT_NAME"
 		git config --global user.email "$COMMIT_EMAIL"

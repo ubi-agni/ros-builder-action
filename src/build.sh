@@ -7,7 +7,7 @@ function deb_pkg_name {
 
 function register_local_pkgs_with_rosdep {
   #shellcheck disable=SC2086
-  for pkg in $(colcon list --topological-order --names-only $COLCON_PKG_SELECTION); do
+  for pkg in "${PKG_NAMES[@]}"; do
     cat << EOF >> "$DEBS_PATH/local.yaml"
 $pkg:
   $DISTRIBUTION:
@@ -50,18 +50,15 @@ function pkg_exists {
 
 function build_pkg {
   local old_path=$PWD
-  local pkg_path=$1
-  local pkg_name
+  local pkg_name=$1
+  local pkg_path=$2
 
   test -f "$pkg_path/CATKIN_IGNORE" && echo "Skipped (CATKIN_IGNORE)" && return
   test -f "$pkg_path/COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
+  pkg_exists "$pkg_name" && echo "Skipped (already built)" && return
 
   cd "$pkg_path" || return 1
   trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
-
-  pkg_name="$(colcon list --topological-order --names-only)"
-
-  pkg_exists "$pkg_name" && echo "Skipped (already built)" && return
 
   if ! ici_label bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO"; then
     gha_error "bloom-generate failed for ${pkg_name}"
@@ -109,23 +106,27 @@ function build_source {
 
   prepare_ws "$ws_path" "$1"
   cd "$ws_path" || exit 1
+
+  # determine list of packages (names + folders)
+  PKG_NAMES=()
+  PKG_FOLDERS=()
+  #shellcheck disable=SC2034,SC2086
+  while read -r name folder dummy; do
+    PKG_NAMES+=("$name")
+    PKG_FOLDERS+=("$folder")
+  done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
+
   ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
 
-  local pkg_paths
-  #shellcheck disable=SC2086
-  pkg_paths="$(colcon list --topological-order --paths-only $COLCON_PKG_SELECTION)"
-  local count=1
-  local total
-  total="$(echo "$pkg_paths" | wc -l)"
-
-  for pkg_path in $pkg_paths; do
-    ici_time_start "Building package $count/$total: $pkg_path"
-    if ! build_pkg "$pkg_path"; then
-      test "$?" = 2 && gha_error "Unknown failure building package $pkg_path"
+  local total="${#PKG_NAMES[@]}"
+  for (( idx=0; idx < total; idx++ )); do
+    ici_time_start "Building package $((idx+1))/$total: ${PKG_NAMES[$idx]}"
+    if ! build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}"; then
+      # exit code 2 indicates not-yet handled failure
+      test "$?" = 2 && gha_error "Unknown failure building package ${PKG_NAMES[$idx]}"
       test "$CONTINUE_ON_ERROR" = false && ici_exit 1 || FAIL_EVENTUALLY=1
     fi
     ici_time_end
-    count=$((count + 1))
   done
 
   cd "$old_path" || exit 1

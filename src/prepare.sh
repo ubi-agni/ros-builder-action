@@ -121,7 +121,7 @@ function create_ws {
 
   rm -rf src
   mkdir src
-  vcs import --recursive --input "$src" src
+  vcs import --recursive --shallow --input "$src" src
 }
 
 function load_local_yaml {
