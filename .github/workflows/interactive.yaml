@@ -1,4 +1,5 @@
 name: interactive
+run-name: "interactive: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}-${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one'}} ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}"
 
 on:
   workflow_dispatch:
