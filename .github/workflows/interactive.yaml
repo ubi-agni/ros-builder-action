@@ -52,7 +52,7 @@ on:
         type: choice
         description: Push to DEPLOY_URL?
         required: true
-        default: skip
+        default: push
         options:
           - skip
           - push
