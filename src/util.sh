@@ -214,10 +214,10 @@ function ici_timed {
 }
 
 function ici_teardown {
+    local exit_code=${1:-$?}
+
     # don't run teardown code within subshells, but only at top level
     if [  "$BASH_SUBSHELL" -le "$__ici_top_level" ]; then
-        local exit_code=${1:-0}
-
         # Reset signal handler since the shell is about to exit.
         [ "$__ici_setup_called" == true ] && trap - EXIT
 
