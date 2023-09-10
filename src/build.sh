@@ -14,6 +14,7 @@ $pkg:
     - $(deb_pkg_name "$pkg")
 EOF
   done
+  "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/local.yaml"
 
   echo "yaml file://$DEBS_PATH/local.yaml $ROS_DISTRO" | \
     ici_asroot tee /etc/ros/rosdep/sources.list.d/01-local.list
