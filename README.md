@@ -40,7 +40,7 @@ variable               | type    | default                   | semantics
 `SKIP_EXISTING`        | boolean | false                     | [Skip (re)building packages already existing in the repository](#where-to-start-building-from)
 `DOWNLOAD_DEBS`        | boolean | false                     | [Continue building from previous debs artifact?](#where-to-start-building-from)
 `BUILD_TIMEOUT`        | number  | 340                       | Cancel build after this time, before github will do (minutes)
-`EXTRA_DEB_SOURCES`    | string  |                           | Extra debian sources to add to sources.list
+`EXTRA_DEB_SOURCES`    | string  |                           | Extra debian sources to use in host and sbuild chroot
 `INSTALL_GPG_KEYS`     | string  |                           | code to run for installing GPG keys (for use with EXTRA_DEB_SOURCES)
 `EXTRA_ROSDEP_SOURCES` | string  |                           | path to a rosdep-compatible yaml file specifying custom dependency mappings
 `EXTRA_SBUILD_CONFIG`  | string  |                           | lines to add to ~/.sbuildrc
@@ -52,7 +52,8 @@ variable               | type    | default                   | semantics
 
 ### Where to start building from?
 
-Building a complete ROS distro from scratch takes a lot of time, often more than allowed by github actions (6h). For this reason, it is possible to continue a build either from a previous build (downloading an existing `debs` artifact) or from an existing repository. For the former, set the input `DOWNLOAD_DEBS=true`, for the latter add the repository to `EXTRA_DEB_SOURCES`. In both cases, set the variable/input `SKIP_EXISTING=true` to actually skip building of already existing packages.
+Building a complete ROS distro from scratch takes a lot of time, often more than allowed by github actions (6h). For this reason, it is possible to continue a build either from a previous build (downloading an existing `debs` artifact) or from an existing repository. For the former, set the input `DOWNLOAD_DEBS=true`, for the latter add the deploy repository to `EXTRA_DEB_SOURCES`. Note that this variable supports shell variable expansion, i.e. you can use `$DEB_DISTRO` and/or `$ROS_DISTRO` to generically specify the deploy repository across different builds.
+In both cases, set the variable/input `SKIP_EXISTING=true` to actually skip building of already existing packages.
 
 The example workflow [splitted.yaml](.github/workflows/splitted.yaml) uses `DOWNLOAD_DEBS` to build a large ROS distro from several `.repos` files.
 

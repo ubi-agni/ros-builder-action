@@ -34,14 +34,10 @@ function restrict_src_to_packages {
 }
 
 REPOS_LIST_FILE="/etc/apt/sources.list.d/ros-builder-repos.list"
-function configure_deb_repo {
-  ici_asroot /bin/bash -c "echo \"$1\" >> \"$REPOS_LIST_FILE\""
-}
 function configure_extra_host_sources {
   ici_asroot rm -f "$REPOS_LIST_FILE"
   while IFS= read -r line; do
-    ici_log "$line"
-    _ici_guard configure_deb_repo "$line"
+    eval echo "$line" | ici_asroot tee -a "$REPOS_LIST_FILE"
   done <<< "$EXTRA_HOST_SOURCES"
 }
 
@@ -91,9 +87,9 @@ EOF
   ici_log
   ici_color_output "${ANSI_BOLD}" "Add extra debian package sources"
   while IFS= read -r line; do
-    echo "$line"
+    eval echo "$line"
     cat <<- EOF | ici_pipe_into_schroot sbuild-rw
-    echo "$line" >> "$REPOS_LIST_FILE"
+    eval echo "$line" >> "$REPOS_LIST_FILE"
 EOF
   done <<< "$EXTRA_DEB_SOURCES"
 
@@ -126,7 +122,7 @@ function create_ws {
 
 function load_local_yaml {
   while IFS= read -r line; do
-    url=$(echo "$line" | sed -n 's#deb\s\(\[[^]]*\]\)\?\s\([^ ]*\).*#\2#p')
+    url=$(eval echo "$line" | sed -n 's#deb\s\(\[[^]]*\]\)\?\s\([^ ]*\).*#\2#p')
     if curl -sfL "$url/local.yaml" -o /tmp/local.yaml ; then
       echo "$url/local.yaml"
       cat /tmp/local.yaml >> "$DEBS_PATH/local.yaml"
