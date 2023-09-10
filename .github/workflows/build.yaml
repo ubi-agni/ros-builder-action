@@ -122,6 +122,7 @@ jobs:
       - name: Download debs from previous run
         uses: actions/download-artifact@v3
         if: inputs.DOWNLOAD_DEBS
+        continue-on-error: true
         with:
           name: debs
           path: ${{ env.DEBS_PATH }}
