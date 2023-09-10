@@ -63,7 +63,7 @@ function build_pkg {
 
   pkg_exists "$pkg_name" && echo "Skipped (already built)" && return
 
-  if ! ici_cmd bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO"; then
+  if ! ici_label bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO"; then
     gha_error "bloom-generate failed for ${pkg_name}"
     return 1
   fi
@@ -82,14 +82,14 @@ function build_pkg {
   version=$( ( git describe --tag --match "*[0-9]*" 2>/dev/null || echo 0 ) | sed 's@^[^0-9]*@@;s@-g[0-9a-f]*$@@')
   debchange -v "$version-$(date +%Y%m%d.%H%M)" -p -D "$DEB_DISTRO" -u high -m "Append timestamp when binarydeb was built."
 
-  ici_cmd update_repo
+  ici_label update_repo || return 2
   SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog $EXTRA_SBUILD_OPTS"
-  if ! ici_cmd sg sbuild -c "sbuild $SBUILD_OPTS"; then # run with sbuild group permissions
+  if ! ici_label sg sbuild -c "sbuild $SBUILD_OPTS"; then # run with sbuild group permissions
     gha_error "sbuild failed for ${pkg_name}"
     return 1
   fi
 
-  ici_cmd ccache -sv
+  ici_label ccache -sv || return 2
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
@@ -119,9 +119,12 @@ function build_source {
   total="$(echo "$pkg_paths" | wc -l)"
 
   for pkg_path in $pkg_paths; do
-    if ! ici_timed "Building package $count/$total: $pkg_path" build_pkg "$pkg_path"; then
-      test "$CONTINUE_ON_ERROR" = false && exit 1 || FAIL_EVENTUALLY=1
+    ici_time_start "Building package $count/$total: $pkg_path"
+    if ! build_pkg "$pkg_path"; then
+      test "$?" = 2 && gha_error "Unknown failure building package $pkg_path"
+      test "$CONTINUE_ON_ERROR" = false && ici_exit 1 || FAIL_EVENTUALLY=1
     fi
+    ici_time_end
     count=$((count + 1))
   done
 
