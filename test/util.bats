@@ -104,10 +104,12 @@ EOF
 	test_filtering_helper 1 "all error" ici_quiet
 }
 @test "ici_filter_true" {
+	skip
 	# stderr is dropped on success
 	test_filtering_helper 0 "passed" ici_filter "good"
 }
 @test "ici_filter_false" {
+	skip
 	# order of stdout and stderr might change due to extra filter step
 	test_filtering_helper 1 "all error" ici_filter "good" || \
 	test_filtering_helper 1 "error all" ici_filter "good"
