@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2023, Robert Haschke
 
+ici_setup_vars "${VERBOSE:-}" "${DEFAULT_QUIET_CONFIG[@]}"
+
 ici_start_fold "Variables"
 cat <<EOF
 ROS_DISTRO=$ROS_DISTRO

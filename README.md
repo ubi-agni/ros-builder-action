@@ -31,24 +31,34 @@ More complex usage examples can be found in [interactive.yaml](.github/workflows
 
 The build process is controlled by several environment variables. Usually, those environment variables are inititialized from inputs, [repository variables](https://docs.github.com/en/actions/learn-github-actions/variables), or the given default value - in that order.
 
-variable               | type    | default                   | semantics
------------------------|---------|---------------------------|----------------------------------------------------------------------------
-`ROS_DISTRO`           | string  | one                       | ROS distribution codename to compile for
-`DEB_DISTRO`           | string  | jammy                     | The Debian/Ubuntu distribution codename to compile for.
-`ROS_SOURCES`          | string  | `*.repos`                 | [ROS sources to compile](#what-to-build)
-`COLCON_PKG_SELECTION` | string  | ``                        | [colcon package selectio argument(s)](#where-to-start-building-from)
-`SKIP_EXISTING`        | boolean | false                     | [Skip (re)building packages already existing in the repository](#where-to-start-building-from)
-`DOWNLOAD_DEBS`        | boolean | false                     | [Continue building from previous debs artifact?](#where-to-start-building-from)
-`BUILD_TIMEOUT`        | number  | 340                       | Cancel build after this time, before github will do (minutes)
-`EXTRA_DEB_SOURCES`    | string  |                           | Extra debian sources to use in host and sbuild chroot
-`INSTALL_GPG_KEYS`     | string  |                           | code to run for installing GPG keys (for use with EXTRA_DEB_SOURCES)
-`EXTRA_ROSDEP_SOURCES` | string  |                           | path to a rosdep-compatible yaml file specifying custom dependency mappings
-`EXTRA_SBUILD_CONFIG`  | string  |                           | lines to add to ~/.sbuildrc
-`EXTRA_SBUILD_OPTS`    | string  |                           | options to pass to sbuild on commandline
-`DEB_BUILD_OPTIONS`    | string  | nocheck                   | options used debian/rules
-`CONTINUE_ON_ERROR`    | boolean | false                     | Continue building even if some packages already failed
-`DEBS_PATH`            | string  | ~/debs                    | path to store generated .debs in
-`DEPLOY_URL`           | string  |                           | repository URL for deployment
+variable               | type   | default   | semantics
+-----------------------|--------|-----------|---------------------------------------------------------------------
+`ROS_DISTRO`           | string | one       | ROS distribution codename to compile for
+`DEB_DISTRO`           | string | jammy     | The Debian/Ubuntu distribution codename to compile for.
+`ROS_SOURCES`          | string | `*.repos` | [ROS sources to compile](#what-to-build)
+`COLCON_PKG_SELECTION` | string |           | [colcon package selectio argument(s)](#where-to-start-building-from)
+|<td colspan=3>**Workflow control**</td>
+`SKIP_EXISTING`        | boolean | false    | [Skip (re)building packages already existing in the repository](#where-to-start-building-from)
+`DOWNLOAD_DEBS`        | boolean | false    | [Continue building from previous debs artifact?](#where-to-start-building-from)
+`BUILD_TIMEOUT`        | number  | 340      | Cancel build after this time, before github will do (minutes)
+`CONTINUE_ON_ERROR`    | boolean | false    | Continue building even if some packages already failed
+|<td colspan=3>**Package source options**</td>
+`EXTRA_DEB_SOURCES`    | string  |          | Extra debian sources to use in host and sbuild chroot
+`INSTALL_GPG_KEYS`     | string  |          | code to run for installing GPG keys (for use with EXTRA_DEB_SOURCES)
+`EXTRA_ROSDEP_SOURCES` | string  |          | path to a rosdep-compatible yaml file specifying custom dependency mappings
+|<td colspan=3>**Package source options**</td>
+`EXTRA_SBUILD_CONFIG`  | string  |          | lines to add to ~/.sbuildrc
+`EXTRA_SBUILD_OPTS`    | string  |          | options to pass to sbuild on commandline
+`DEB_BUILD_OPTIONS`    | string  | nocheck  | options used debian/rules
+|<td colspan=3>**Deployment variables**</td>
+`DEBS_PATH`            | string  | ~/debs   | path to store generated .debs in
+`DEPLOY_URL`           | string  |          | repository URL for deployment
+`TOKEN`                | secret  | secrets.GITHUB_TOKEN | github token for pushing to own repo
+`SSH_PRIVATE_KEY`      | secret  |                      | ssh private key for pushing to an external repo
+|<td colspan=3>**Debugging options**</td>
+`VERBOSE`              | string  |          | verboseness for all (value true) or selected steps (bloom sbuild apt ccache)
+`TRACE`                | boolean | false    | Enable function tracing
+`DEBUG_BASH`           | boolean | false    | Enable bash debugging (`set -x`) and tracing
 
 ### Where to start building from?
 

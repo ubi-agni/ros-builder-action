@@ -60,7 +60,7 @@ function build_pkg {
   cd "$pkg_path" || return 1
   trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
 
-  ici_label bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
+  ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
 
   if [ "$pkg_name" = "catkin" ]; then
     # Enable CATKIN_INSTALL_INTO_PREFIX_ROOT for catkin package
@@ -74,19 +74,20 @@ function build_pkg {
   # strip any leading non digits as they are not part of the version number
   # strip a potential trailing -g<sha>
   version=$( ( git describe --tag --match "*[0-9]*" 2>/dev/null || echo 0 ) | sed 's@^[^0-9]*@@;s@-g[0-9a-f]*$@@')
-  debchange -v "$version-$(date +%Y%m%d.%H%M)" -p -D "$DEB_DISTRO" -u high -m "Append timestamp when binarydeb was built."
+  debchange -v "$version-$(date +%Y%m%d.%H%M)" --preserve --force-distribution "$DEB_DISTRO" \
+    --urgency high -m "Append timestamp when binarydeb was built."
 
   ici_label update_repo || return 1
   SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog $EXTRA_SBUILD_OPTS"
-  ici_label sg sbuild -c "sbuild $SBUILD_OPTS" || return 3
+  ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 3
 
-  ici_label ccache -sv || return 1
+  "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output "${ANSI_BOLD}" "Install package within chroot"
     # shellcheck disable=SC2012
-    cat <<- EOF | ici_pipe_into_schroot sbuild-rw
+    cat <<- EOF | "${APT_QUIET[@]}" ici_pipe_into_schroot sbuild-rw
       apt install --no-install-recommends -q -y \$(ls -1 -t /build/repo/"$(deb_pkg_name "$pkg_name")"*.deb | head -1)
 EOF
   fi

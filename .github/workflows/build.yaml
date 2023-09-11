@@ -40,6 +40,10 @@ on:
         type: number
         description: Cancel build after this time, before github will do (minutes)
         required: false
+      VERBOSE:
+        type: string
+        description: "steps to run verbosely: sbuild ccache bloom"
+        required: false
 
       # debian package repository options
       EXTRA_DEB_SOURCES:
@@ -153,6 +157,7 @@ jobs:
           CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR || vars.CONTINUE_ON_ERROR || false }}
           SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false }}
           INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
+          VERBOSE: ${{ inputs.VERBOSE || vars.VERBOSE || '' }}
 
       - name: Store ccache
         uses: actions/cache/save@v3

@@ -202,3 +202,25 @@ EOF
 	output=$URL_RESOURCE; assert_output "user/repo"
 	output=$URL_FRAGMENT; assert_output "branch"
 }
+
+@test "ici_setup_vars_quiet" {
+	ici_setup_vars "" "${DEFAULT_QUIET_CONFIG[@]}"
+	[ "${#BLOOM_QUIET[@]}" = 1 ] && [ "${BLOOM_QUIET[0]}" = ici_quiet ]
+	[ "${#SBUILD_QUIET[@]}" = 1 ] && [ "${SBUILD_QUIET[0]}" = ici_quiet ]
+	[ "${#CCACHE_QUIET[@]}" = 1 ] && [ "${CCACHE_QUIET[0]}" = ici_quiet ]
+	[ "${#APT_QUIET[@]}" = 2 ] && [ "${APT_QUIET[0]}" = ici_filter ] && [ "${APT_QUIET[1]}" = "Setting up" ]
+}
+@test "ici_setup_vars_verbose" {
+	ici_setup_vars "true" "${DEFAULT_QUIET_CONFIG[@]}"
+	[ "${#BLOOM_QUIET[@]}" = 0 ]
+	[ "${#SBUILD_QUIET[@]}" = 0 ]
+	[ "${#CCACHE_QUIET[@]}" = 0 ]
+	[ "${#APT_QUIET[@]}" = 0 ]
+}
+@test "ici_setup_vars_selected" {
+	ici_setup_vars "bloom sbuild ccache apt" "${DEFAULT_QUIET_CONFIG[@]}"
+	[ "${#BLOOM_QUIET[@]}" = 0 ]
+	[ "${#SBUILD_QUIET[@]}" = 0 ]
+	[ "${#CCACHE_QUIET[@]}" = 0 ]
+	[ "${#APT_QUIET[@]}" = 0 ]
+}

@@ -603,8 +603,27 @@ function ici_parse_url {
     fi
 }
 
+# define defaults to disable verbose output for individual build steps
+# format: filter:variable:default
+export DEFAULT_QUIET_CONFIG=( \
+	"bloom:BLOOM_QUIET:ici_quiet" \
+	"sbuild:SBUILD_QUIET:ici_quiet" \
+	"ccache:CCACHE_QUIET:ici_quiet" \
+	"apt:APT_QUIET:ici_filter \"Setting up\"" \
+)
+function ici_setup_vars {
+  local filters=$1; shift
+  for spec in "$@"; do
+    IFS=: read -r filter variable default <<< "$spec"
+    if [ "$filters" = true ] || [[ "$filters" == *"$filter"* ]]; then
+      default=""
+    fi
+    eval "export ${variable}=($default)"
+  done
+}
+
 function ici_apt_install {
-    ici_cmd ici_filter "Setting up" ici_asroot apt-get -qq install -y --no-upgrade --no-install-recommends "$@"
+    ici_asroot apt-get -qq install -y --no-upgrade --no-install-recommends "$@"
 }
 
 function gha_cmd {

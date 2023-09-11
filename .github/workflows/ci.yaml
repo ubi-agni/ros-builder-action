@@ -55,6 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: unittests
     name: "ci: ${{ matrix.DEB_DISTRO }}, ${{ matrix.ROS_SOURCES }}\
+            ${{ matrix.VERBOSE && format(', verbose={0}', matrix.VERBOSE) || '' }}\
             ${{ matrix.CONTINUE_ON_ERROR && ', cont-on-err' || '' }}"
 
     strategy:
@@ -62,10 +63,10 @@ jobs:
       matrix:
         DEB_DISTRO: [ jammy, bookworm ]
         include:
-          - { ROS_SOURCES: good.repos } # set defaults
+          - { ROS_SOURCES: good.repos, VERBOSE: false } # set defaults
           # override/add settings for specific distros
-          - { DEB_DISTRO: jammy, UPLOAD_DEBS: true }
-          - { DEB_DISTRO: bookworm }
+          - { DEB_DISTRO: jammy, UPLOAD_DEBS: true, VERBOSE: true }
+          - { DEB_DISTRO: bookworm, VERBOSE: bloom }
           - { DEB_DISTRO: focal, ROS_SOURCES: broken.repos, EXPECT_EXIT_CODE: 2, CONTINUE_ON_ERROR: false }
           - { DEB_DISTRO: focal, ROS_SOURCES: broken.repos, EXPECT_EXIT_CODE: 1, CONTINUE_ON_ERROR: true }
 
@@ -82,6 +83,7 @@ jobs:
         env:
           ROS_SOURCES: .github/workflows/${{ matrix.ROS_SOURCES }}
           INSTALL_TO_CHROOT: true
+          VERBOSE: ${{ matrix.VERBOSE }}
           CONTINUE_ON_ERROR: ${{ matrix.CONTINUE_ON_ERROR || false }}
           EXPECT_EXIT_CODE: ${{ matrix.EXPECT_EXIT_CODE || 0 }}
 
