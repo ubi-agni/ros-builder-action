@@ -26,7 +26,7 @@ var child = require('child_process').spawn(generic, [action], { stdio: 'inherit'
 
 // kill child on signals SIGINT and SIGTERM
 function handle(signal) {
-  child.kill();
+  child.kill(signal);
 }
 process.on('SIGINT', handle);
 process.on('SIGTERM', handle);

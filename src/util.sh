@@ -22,7 +22,13 @@ __ici_top_level=0
 __ici_setup_called=false
 
 function ici_setup {
-    trap 'ici_trap_exit' EXIT # install exit handler
+    # shellcheck disable=SC2064
+    trap "ici_trap_exit $((128 + $(kill -l INT)))" INT # install interrupt handler
+    # shellcheck disable=SC2064
+    trap "ici_trap_exit $((128 + $(kill -l TERM)))" TERM # install interrupt handler
+
+    trap "ici_trap_exit" EXIT # install exit handler
+
     exec {__ici_log_fd}>&1
     exec {__ici_err_fd}>&2
     __ici_top_level=$BASH_SUBSHELL
@@ -177,10 +183,12 @@ function ici_time_start {
 #   (None)
 #######################################
 function ici_time_end {
+    local exit_code=${1:-0}
     if [ "$DEBUG_BASH" ] && [ "$DEBUG_BASH" == true ]; then set +x; fi
-    local color_wrap=${1:-${ANSI_GREEN}}
-    local exit_code=${2:-$?}
+
     local name=$ICI_FOLD_NAME
+    local color_wrap=${ANSI_GREEN}
+    if [ "$exit_code" -ne "0" ]; then color_wrap=${ANSI_RED}; fi  # Red color for errors
 
     if [ -z "$ICI_START_TIME" ]; then ici_warn "[ici_time_end] var ICI_START_TIME is not set. You need to call ici_time_start in advance. Returning."; return; fi
     local end_time; end_time=$(date -u +%s%N)
@@ -214,7 +222,7 @@ function ici_timed {
 }
 
 function ici_teardown {
-    local exit_code=${1:-$?}
+    local exit_code=${1:-$?}; shift || true
 
     # don't run teardown code within subshells, but only at top level
     if [  "$BASH_SUBSHELL" -le "$__ici_top_level" ]; then
@@ -230,16 +238,24 @@ function ici_teardown {
 
         # end fold/timing if needed
         if [ -n "$ICI_FOLD_NAME" ]; then
-            local color_wrap=${ANSI_GREEN}
-            if [ "$exit_code" -ne "0" ]; then color_wrap=${ANSI_RED}; fi  # Red color for errors
-            gha_error "Failure in '$ICI_FOLD_NAME' (exit code: $exit_code)"
+            if [ -n "$*" ]; then # issue custom error message
+              "$@" || true
+            else # issue default error message
+              gha_error "Failure with exit code: $exit_code (in '$ICI_FOLD_NAME')"
+            fi
+
+            # close (timed) fold
             if [ -n "$ICI_START_TIME" ]; then
-              ici_time_end "$color_wrap" "$exit_code"
+              ici_time_end "$exit_code"
             else
               ici_end_fold "$ICI_FOLD_NAME"
             fi
-        elif [ "$exit_code" -ne "0" ]; then
-            gha_error "Failure with exit code: $exit_code"
+        elif [ "$exit_code" -ne 0 ]; then
+            if [ -n "$*" ]; then # issue custom error message
+              "$@" || true
+            else # issue default error message
+              gha_error "Failure with exit code: $exit_code"
+            fi
         fi
 
         if [ "$__ici_setup_called" = true ]; then
@@ -254,10 +270,16 @@ function ici_teardown {
 function ici_trap_exit {
     local exit_code=${1:-$?}
 
-    ici_warn "terminated unexpectedly with exit code '$exit_code'"
+    local msg
+    if [ "$exit_code" -gt "128" ]; then
+        msg="Terminating on signal $(kill -l $((exit_code - 128)))"
+    else
+        msg="Unexpected failure with exit code '$exit_code'"
+    fi
+    [ -n "$ICI_FOLD_NAME" ] && msg+=" (in '$ICI_FOLD_NAME')"
+
     TRACE=true ici_backtrace "$@"
-    exit_code=143
-    ici_teardown "$exit_code"
+    ici_teardown "$exit_code" gha_error "$msg"
     exit "$exit_code"
 }
 
@@ -269,13 +291,15 @@ function ici_trap_exit {
 #   ICI_FOLD_NAME (from ici_time_start, read-only)
 # Arguments:
 #   exit_code (default: $?)
+#   command args ... (optional command, passed to ici_teardown, to generate custom error message)
 # Returns:
 #   (None)
 #######################################
 function ici_exit {
     local exit_code=${1:-$?}
     ici_backtrace "$@"
-    ici_teardown "$exit_code"
+    shift || true
+    ici_teardown "$exit_code" "$@"
 
     if [ "$exit_code" == "${EXPECT_EXIT_CODE:-0}" ] ; then
         exit_code=0

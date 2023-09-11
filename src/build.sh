@@ -60,10 +60,7 @@ function build_pkg {
   cd "$pkg_path" || return 1
   trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
 
-  if ! ici_label bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO"; then
-    gha_error "bloom-generate failed for ${pkg_name}"
-    return 1
-  fi
+  ici_label bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
 
   if [ "$pkg_name" = "catkin" ]; then
     # Enable CATKIN_INSTALL_INTO_PREFIX_ROOT for catkin package
@@ -79,14 +76,11 @@ function build_pkg {
   version=$( ( git describe --tag --match "*[0-9]*" 2>/dev/null || echo 0 ) | sed 's@^[^0-9]*@@;s@-g[0-9a-f]*$@@')
   debchange -v "$version-$(date +%Y%m%d.%H%M)" -p -D "$DEB_DISTRO" -u high -m "Append timestamp when binarydeb was built."
 
-  ici_label update_repo || return 2
+  ici_label update_repo || return 1
   SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog $EXTRA_SBUILD_OPTS"
-  if ! ici_label sg sbuild -c "sbuild $SBUILD_OPTS"; then # run with sbuild group permissions
-    gha_error "sbuild failed for ${pkg_name}"
-    return 1
-  fi
+  ici_label sg sbuild -c "sbuild $SBUILD_OPTS" || return 3
 
-  ici_label ccache -sv || return 2
+  ici_label ccache -sv || return 1
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
@@ -105,7 +99,7 @@ function build_source {
   ici_title "Build packages from $1"
 
   prepare_ws "$ws_path" "$1"
-  cd "$ws_path" || exit 1
+  cd "$ws_path" || ici_exit 1
 
   # determine list of packages (names + folders)
   PKG_NAMES=()
@@ -118,18 +112,34 @@ function build_source {
 
   ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
 
+  local msg_prefix=""
   local total="${#PKG_NAMES[@]}"
   for (( idx=0; idx < total; idx++ )); do
-    ici_time_start "Building package $((idx+1))/$total: ${PKG_NAMES[$idx]}"
-    if ! build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}"; then
-      # exit code 2 indicates not-yet handled failure
-      test "$?" = 2 && gha_error "Unknown failure building package ${PKG_NAMES[$idx]}"
-      test "$CONTINUE_ON_ERROR" = false && ici_exit 1 || FAIL_EVENTUALLY=1
+    local pkg_desc="package $((idx+1))/$total: ${PKG_NAMES[$idx]} (${PKG_FOLDERS[$idx]})"
+    ici_time_start "Building $pkg_desc"
+
+    local exit_code=0
+    build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
+
+    if [ "$exit_code" != 0 ] ; then
+      case "$exit_code" in
+        2) msg_prefix="bloom-generate failed" ;;
+        3) msg_prefix="sbuild failed" ;;
+        *) msg_prefix="unnamed step failed ($exit_code)" ;;
+      esac
+
+      if [ "$CONTINUE_ON_ERROR" = false ]; then
+        # exit with custom error message
+        ici_exit "$exit_code" gha_error "$msg_prefix on $pkg_desc. Continue with: --packages-start ${PKG_NAMES[$idx]}"
+      else
+        # fail later
+        FAIL_EVENTUALLY=1
+      fi
     fi
     ici_time_end
   done
 
-  cd "$old_path" || exit 1
+  cd "$old_path" || ici_exit 1
 }
 
 function build_all_sources {

@@ -138,7 +138,7 @@ EOF
 
 [1m$ ( echo failure; false;; )[0m
 failure
-::error::Failure in 'HOOK' (exit code: 1)
+::error::Failure with exit code: 1 (in 'HOOK')
 [31m[31m'HOOK' returned with code '1' after 0 min 0 sec[0m
 ::endgroup::
 EOF
