@@ -30,8 +30,8 @@ ici_timed "Update apt package list" ici_asroot apt-get -qq update
 echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-set-selections
 
 # Install packages on host
-DEBIAN_FRONTEND=noninteractive ici_timed "Install packages" ici_cmd "${APT_QUIET[@]}" ici_apt_install \
-	mmdebstrap sbuild schroot devscripts libdistro-info-perl ccache curl apt-cacher-ng \
+DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT_QUIET[@]}" ici_apt_install \
+	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng \
 	python3-pip python3-rosdep python3-vcstool \
 	python3-colcon-package-information python3-colcon-package-selection python3-colcon-ros python3-colcon-cmake
 
@@ -39,7 +39,10 @@ DEBIAN_FRONTEND=noninteractive ici_timed "Install packages" ici_cmd "${APT_QUIET
 ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
 ici_timed "rosdep init" ici_asroot rosdep init
 
-ici_timed "check apt-cacher-ng" service apt-cacher-ng status
+# Start apt-cacher-ng if not yet running (for example in docker)
+ici_start_fold "Check apt-cacher-ng"
+service apt-cacher-ng status || ici_asroot service apt-cacher-ng start
+ici_end_fold
 
 ici_title "Prepare build environment"
 

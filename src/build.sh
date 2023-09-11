@@ -70,16 +70,19 @@ function build_pkg {
   # https://github.com/ros-infrastructure/bloom/pull/643
   echo 11 > debian/compat
 
-  # Set the version based on the checked out tag that contain at least on digit
-  # strip any leading non digits as they are not part of the version number
-  # strip a potential trailing -g<sha>
-  version=$( ( git describe --tag --match "*[0-9]*" 2>/dev/null || echo 0 ) | sed 's@^[^0-9]*@@;s@-g[0-9a-f]*$@@')
-  debchange -v "$version-$(date +%Y%m%d.%H%M)" --preserve --force-distribution "$DEB_DISTRO" \
-    --urgency high -m "Append timestamp when binarydeb was built."
+  # Set version based on last changelog entry and append build timestamp (following official ROS scheme)
+  # <changelog version>-<increment><debian distro>.date.time
+  # This way, we cannot yet distinguish different, not-yet-released versions (which git describe would do)
+  # However, git describe relied on tags being available, which is often not the case!
+  # TODO: Increase the increment on each build
+  version=$(dpkg-parsechangelog --show-field Version)
+  debchange -v "$version.$(date +%Y%m%d.%H%M)" \
+    --preserve --force-distribution "$DEB_DISTRO" \
+    --urgency high -m "Append timestamp when binarydeb was built." || return 3
 
   ici_label update_repo || return 1
   SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog $EXTRA_SBUILD_OPTS"
-  ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 3
+  ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
@@ -88,7 +91,7 @@ function build_pkg {
     ici_color_output "${ANSI_BOLD}" "Install package within chroot"
     # shellcheck disable=SC2012
     cat <<- EOF | "${APT_QUIET[@]}" ici_pipe_into_schroot sbuild-rw
-      apt install --no-install-recommends -q -y \$(ls -1 -t /build/repo/"$(deb_pkg_name "$pkg_name")"*.deb | head -1)
+      DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y \$(ls -1 -t /build/repo/"$(deb_pkg_name "$pkg_name")"*.deb | head -1)
 EOF
   fi
 }
@@ -125,7 +128,8 @@ function build_source {
     if [ "$exit_code" != 0 ] ; then
       case "$exit_code" in
         2) msg_prefix="bloom-generate failed" ;;
-        3) msg_prefix="sbuild failed" ;;
+        3) msg_prefix="debchange failed" ;;
+        4) msg_prefix="sbuild failed" ;;
         *) msg_prefix="unnamed step failed ($exit_code)" ;;
       esac
 
@@ -135,6 +139,7 @@ function build_source {
       else
         # fail later
         FAIL_EVENTUALLY=1
+        gha_error "$msg_prefix on $pkg_desc."
       fi
     fi
     ici_time_end

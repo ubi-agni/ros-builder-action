@@ -29,7 +29,7 @@ export PUSH_MODE=${PUSH_MODE:-push}
 export CONTENT_MODE=${CONTENT_MODE:-newer}
 
 ## target path for debs: 'eval echo ...' expands environment variables
-export DEBS_PATH
+export DEBS_PATH=${DEBS_PATH:-/tmp/debs}
 DEBS_PATH=$(eval echo "${DEBS_PATH}")
 
 # configure shell debugging
