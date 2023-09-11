@@ -441,10 +441,8 @@ function ici_filter {
 
 # append new line(s) to a variable
 function ici_append {
-  local var=$1; shift
-  local value
-  value=$(echo -e "${!var:+${!var}\n}$*")
-  eval "$var=\"$value\""
+  local -n var=$1; shift
+  var=$(echo -e "${var:+${var}\n}$*")
 }
 
 function _ici_guard {

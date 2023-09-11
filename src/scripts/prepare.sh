@@ -6,6 +6,8 @@ source "${SRC_PATH}/prepare.sh"
 
 ici_title "Install required packages on host system"
 
+ici_cmd validate_deb_sources EXTRA_DEB_SOURCES
+
 ## Add required apt gpg keys and sources
 # Jochen's ppa for mmdebstrap, sbuild
 export EXTRA_HOST_SOURCES=$EXTRA_DEB_SOURCES

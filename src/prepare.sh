@@ -33,6 +33,44 @@ function restrict_src_to_packages {
   gen_pin_entries "$@" | ici_asroot tee /etc/apt/preferences > /dev/null
 }
 
+function url_from_deb_source {
+  # parse url from "deb [[option=value ...]] uri suite [component ...]"
+  local re; re="deb\s+(\[[^]]*\]\s+)?([^ ]+)\s([^ ]+)"
+  if [[ $1 =~ $re ]]; then
+    local uri;
+    # shellcheck disable=SC2001
+    uri=$(echo "${BASH_REMATCH[2]}" | sed 's#/\+$##g') # remove trailing slashes
+    local suite=${BASH_REMATCH[3]}
+    if [ "$suite" = "./" ]; then
+      echo "$uri"
+    else
+      echo "$uri/dists/$suite"
+    fi
+  else
+    return 1 # invalid source spec
+  fi
+}
+
+function validate_deb_sources {
+  local -n var=$1
+  local filtered=""
+  while IFS= read -r line; do
+    local url;
+    test -z "$line" && continue
+    if ! url=$(url_from_deb_source "$line"); then
+      gha_error "Invalid deb source spec: '$line'\nExpected scheme: deb [option=value ...] uri suite [component ...]\nhttps://manpages.ubuntu.com/manpages/jammy/man5/sources.list.5.html#the%20deb%20and%20deb-src%20types:%20general%20format"
+    else
+      local http_result; http_result=$(curl -o /dev/null --silent -Iw '%{http_code}' "$url/Release")
+      if [ "$http_result" = 200 ]; then
+        ici_append filtered "$line"
+      else
+        gha_warning "deb repository $url is missing Release file"
+      fi
+    fi
+  done <<< "$var"
+  var="$filtered"
+}
+
 REPOS_LIST_FILE="/etc/apt/sources.list.d/ros-builder-repos.list"
 function configure_extra_host_sources {
   ici_asroot rm -f "$REPOS_LIST_FILE"
@@ -122,7 +160,7 @@ function create_ws {
 
 function load_local_yaml {
   while IFS= read -r line; do
-    url=$(eval echo "$line" | sed -n 's#deb\s\(\[[^]]*\]\)\?\s\([^ ]*\).*#\2#p')
+    local url; url=$(url_from_deb_source "$line")
     if curl -sfL "$url/local.yaml" -o /tmp/local.yaml ; then
       echo "$url/local.yaml"
       cat /tmp/local.yaml >> "$DEBS_PATH/local.yaml"
