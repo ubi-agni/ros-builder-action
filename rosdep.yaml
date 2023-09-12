@@ -1,6 +1,9 @@
 libogre-dev:
   debian: [libogre-1.12-dev]
   ubuntu: [libogre-1.12-dev]
+libogre:
+  debian: [libogre1.12.10]
+  ubuntu: [libogre1.12.10]
 
 prbt_ikfast_manipulator_plugin:
   debian: []

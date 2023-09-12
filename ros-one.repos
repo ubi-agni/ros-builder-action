@@ -35,6 +35,10 @@ repositories:
     type: git
     url: https://github.com/crigroup/baldor.git
     version: master
+  boost_sml:
+      type: git
+      url: https://github.com/ros-o/boost_sml.git
+      version: obese-devel
   bond_core:
     type: git
     url: https://github.com/ros-o/bond_core
@@ -109,8 +113,8 @@ repositories:
     version: master
   franka_ros:
     type: git
-    url: https://github.com/frankaemika/franka_ros.git
-    version: noetic-devel
+    url: https://github.com/rhaschke/franka_ros.git
+    version: ros-o
   gazebo_ros_pkgs:
     type: git
     url: https://github.com/ros-simulation/gazebo_ros_pkgs.git
@@ -189,8 +193,8 @@ repositories:
     version: noetic-devel
   joystick_drivers:
     type: git
-    url: https://github.com/ros-drivers/joystick_drivers.git
-    version: main
+    url: https://github.com/ros-o/joystick_drivers.git
+    version: obese-devel
   kdl_parser:
     type: git
     url: https://github.com/ros-o/kdl_parser
@@ -349,7 +353,7 @@ repositories:
     version: noetic-devel
   ros_comm:
     type: git
-    url: https://github.com/ros-o/ros_comm.git
+    url: https://github.com/ubi-agni/ros_comm.git
     version: obese-devel
   ros_comm_msgs:
     type: git
