@@ -15,7 +15,7 @@ ici_append INSTALL_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com -
 ici_append EXTRA_HOST_SOURCES "deb http://ppa.launchpad.net/v-launchpad-jochen-sprickerhof-de/sbuild/ubuntu jammy main"
 ici_cmd restrict_src_to_packages "release o=v-launchpad-jochen-sprickerhof-de" "mmdebstrap sbuild"
 
-# ROS for python3-rosdep, python3-vcstool, python3-colcon-*
+# ROS for python3-rosdep, python3-colcon-*
 ros_key_file="/usr/share/keyrings/ros-archive-keyring.gpg"
 ici_append INSTALL_GPG_KEYS "sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $ros_key_file"
 ici_append EXTRA_HOST_SOURCES "deb [signed-by=$ros_key_file] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
@@ -31,12 +31,14 @@ echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-
 
 # Install packages on host
 DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT_QUIET[@]}" ici_apt_install \
-	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng \
-	python3-pip python3-rosdep python3-vcstool \
+	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng python3-pip python3-rosdep \
 	python3-colcon-package-information python3-colcon-package-selection python3-colcon-ros python3-colcon-cmake
 
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
 ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
+# Install patched vcstool to allow for treeless clones
+ici_timed "Install vcstool" ici_asroot pip install -U git+https://github.com/rhaschke/vcstool.git@master
+
 ici_timed "rosdep init" ici_asroot rosdep init
 
 # Start apt-cacher-ng if not yet running (for example in docker)

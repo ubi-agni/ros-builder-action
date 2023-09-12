@@ -121,6 +121,7 @@ function deploy_github {
 	# configure git
 	if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
 		git config --global init.defaultBranch main
+		git config --global advice.detachedHead false
 		git config --global user.name "$COMMIT_NAME"
 		git config --global user.email "$COMMIT_EMAIL"
 	fi
