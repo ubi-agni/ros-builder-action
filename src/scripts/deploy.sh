@@ -43,18 +43,14 @@ function deploy_git {
 	[ $fetch_error -eq 0 ] && ici_cmd git reset FETCH_HEAD
 	git add ./* # add new files to index again (after reset)
 
-	# restore files from original branch
-	if [ "$CONTENT_MODE" != "replace" ]; then
-		# restore files
-		if [ $fetch_error -eq 0 ]; then
-			mapfile -t files < <(git status --porcelain | sed -n 's#^ D \(.*\)#\1#p')
-			ici_cmd git restore --source=FETCH_HEAD "${files[@]}"
-		fi
-
-		# update flat debian repository (considering old and new .debs)
-		apt-ftparchive packages . > Packages
-		apt-ftparchive release  . > Release
+	# restore files from original branch, if possible ($fetch_error=0)
+	if [ "$CONTENT_MODE" != "replace" ] && [ $fetch_error -eq 0 ]; then
+		mapfile -t files < <(git status --porcelain | sed -n 's#^ D \(.*\)#\1#p')
+		ici_cmd git restore --source=FETCH_HEAD "${files[@]}"
 	fi
+	# update flat debian repository (considering old and new .debs)
+	apt-ftparchive packages . > Packages
+	apt-ftparchive release  . > Release
 	git add . # stage all changes (including deleted files from original branch)
 
 	# skip commit/push if only Release file has changed
