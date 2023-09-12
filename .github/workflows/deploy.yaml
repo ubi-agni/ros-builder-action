@@ -8,6 +8,14 @@ on:
         type: string
         description: Where to deploy?
         required: false
+      DEPLOY_FILES:
+        type: string
+        description: Which file types to deploy?
+        required: false
+      DEPLOY_FILE_SIZE_LIMIT:
+        type: string
+        description: Size limit for files to deploy (specify units as K, M, or G)
+        required: false
 
       CONTENT_MODE:
         type: string
@@ -83,6 +91,8 @@ jobs:
           $RUNNER_TEMP/ros-builder-action/src/scripts/generic.sh $RUNNER_TEMP/ros-builder-action/src/scripts/deploy.sh
         env:
           DEPLOY_URL: ${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
+          DEPLOY_FILES: ${{ inputs.DEPLOY_FILES || vars.DEPLOY_FILES || 'deb' }}
+          DEPLOY_FILE_SIZE_LIMIT: ${{ inputs.DEPLOY_FILE_SIZE_LIMIT || vars.DEPLOY_FILE_SIZE_LIMIT || '' }}
           TOKEN: ${{ secrets.TOKEN || secrets.GITHUB_TOKEN }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           CONTENT_MODE: ${{ inputs.CONTENT_MODE || vars.CONTENT_MODE || 'newer' }}

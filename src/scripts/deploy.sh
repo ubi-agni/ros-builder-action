@@ -15,6 +15,34 @@ function update_readme {
 	fi
 }
 
+function cleanup_debs {
+	# cleanup repository
+	ici_step update_readme "$repo_url"
+	cd "$DEBS_PATH" || return 1
+
+	local remove_files=("./*.deb" "./*.ddeb" "./*.dsc" "./*.buildinfo" "./*.changes")
+	for file in $DEPLOY_FILES; do # don't delete file type if listed in DEPLOY_FILES
+		remove_files=( "${remove_files[@]/"./*.${file##*.}"}" )
+	done
+
+	echo "Removing files: ${remove_files[*]}"
+	rm -f "${remove_files[@]}"
+
+	# issue warning if .deb files are not deployed
+	if echo "${remove_files[@]}" | grep -q -F -w "./*.deb"; then
+		gha_warning "You requested to drop .deb files!"
+	fi
+
+	if [ -n "${DEPLOY_FILE_SIZE_LIMIT:-}" ]; then
+		files=$(find . -type f -size "+$DEPLOY_FILE_SIZE_LIMIT" -printf "%p\t%s\n" | numfmt --field=2 --to=iec --suffix=B --padding=8 | sort)
+		if [ -n "$files" ]; then
+			gha_warning "Removing files >$DEPLOY_FILE_SIZE_LIMIT:"
+			echo "$files"
+			find . -type f -size "+$DEPLOY_FILE_SIZE_LIMIT" -delete
+		fi
+	fi
+}
+
 function deploy_git {
 	local repo_url=$1
 	local git_url=$2
@@ -24,10 +52,7 @@ function deploy_git {
 	local commit_args=("-m" "$MESSAGE")
 	local push_args=()
 
-	# cleanup repository
-	ici_step update_readme "$repo_url"
-	cd "$DEBS_PATH" || return 1
-	rm -rf ./*.ddeb ./*.buildinfo ./*.changes
+	cleanup_debs "100M"
 
 	# setup new git repo, create desired branch and stage all (new) files
 	ici_color_output "${ANSI_BOLD}" "Setup git repository"
@@ -107,9 +132,10 @@ function deploy_github {
 		require_ssh_private_key
 		git_url="git@github.com:$repo"
 	fi
+
+	DEPLOY_FILE_SIZE_LIMIT=${DEPLOY_FILE_SIZE_LIMIT:-100M}
 	deploy_git "https://raw.githubusercontent.com/$repo/$branch" "$git_url" "$branch"
 }
-
 
 # Select deployment method based on $DEPLOY_URL
 case "$DEPLOY_URL" in

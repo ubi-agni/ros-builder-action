@@ -53,6 +53,8 @@ variable               | type   | default   | semantics
 |<td colspan=3>**Deployment variables**</td>
 `DEBS_PATH`            | string  | ~/debs   | path to store generated .debs in
 `DEPLOY_URL`           | string  |          | repository URL for deployment
+`DEPLOY_FILES`         | string  | deb      | list of file types to deploy: deb, ddeb, dsc, changes
+`DEPLOY_FILE_SIZE_LIMIT` | string |         | size limit for files (100M on github)
 `TOKEN`                | secret  | secrets.GITHUB_TOKEN | github token for pushing to own repo
 `SSH_PRIVATE_KEY`      | secret  |                      | ssh private key for pushing to an external repo
 |<td colspan=3>**Debugging options**</td>
