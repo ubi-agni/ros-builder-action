@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 function deb_pkg_name {
-  echo "ros-$ROS_DISTRO-$(echo "$1" | tr '_' '-')"
+  local version=${2:-}
+  [ -n "$version" ] && version="_$version" # prepend _
+  echo "ros-$ROS_DISTRO-$(echo "$1" | tr '_' '-')$version"
 }
 
 function register_local_pkgs_with_rosdep {
@@ -75,13 +77,13 @@ function build_pkg {
   # This way, we cannot yet distinguish different, not-yet-released versions (which git describe would do)
   # However, git describe relied on tags being available, which is often not the case!
   # TODO: Increase the increment on each build
-  version=$(dpkg-parsechangelog --show-field Version)
-  debchange -v "$version.$(date +%Y%m%d.%H%M)" \
+  version="$(dpkg-parsechangelog --show-field Version).$(date +%Y%m%d.%H%M)"
+  debchange -v "$version" \
     --preserve --force-distribution "$DEB_DISTRO" \
     --urgency high -m "Append timestamp when binarydeb was built." || return 3
 
   ici_label update_repo || return 1
-  SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian --nolog $EXTRA_SBUILD_OPTS"
+  SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian $EXTRA_SBUILD_OPTS"
   ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
@@ -94,6 +96,15 @@ function build_pkg {
       DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y \$(ls -1 -t /build/repo/"$(deb_pkg_name "$pkg_name")"*.deb | head -1)
 EOF
   fi
+  # Move .dsc file from workspace folder to $DEBS_PATH for deployment
+  mv ../*.dsc "$DEBS_PATH"
+
+  ## Rename .build log file, which has invalid characters (:) for artifact upload
+  local log;
+  # shellcheck disable=SC2010
+  log=$(ls -1t "$DEBS_PATH/$(deb_pkg_name "${pkg_name}" "${version}")_"*.build | grep -P '(?<!Z)\.build' | head -1)
+  mv "$(readlink -f "$log")" "${log/.build/.log}" # rename actual log file
+  rm "$log" # remove symlink
 }
 
 function build_source {

@@ -159,6 +159,9 @@ jobs:
           INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
           VERBOSE: ${{ inputs.VERBOSE || vars.VERBOSE || '' }}
 
+      - name: Remove files comprising invalid chars # they would break artifact upload
+        run: find ${{ env.DEBS_PATH }} -name '*[<>:"\\|?*]*' -delete
+
       - name: Store ccache
         uses: actions/cache/save@v3
         if: always() # save cache on timeout or cancel too
