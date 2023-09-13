@@ -36,8 +36,7 @@ function cleanup_debs {
 	if [ -n "${DEPLOY_FILE_SIZE_LIMIT:-}" ]; then
 		files=$(find . -type f -size "+$DEPLOY_FILE_SIZE_LIMIT" -printf "%p\t%s\n" | numfmt --field=2 --to=iec --suffix=B --padding=8 | sort)
 		if [ -n "$files" ]; then
-			gha_warning "Removing files >$DEPLOY_FILE_SIZE_LIMIT:"
-			echo "$files"
+			gha_warning "Removing files >$DEPLOY_FILE_SIZE_LIMIT:\n${files[*]}"
 			find . -type f -size "+$DEPLOY_FILE_SIZE_LIMIT" -delete
 		fi
 	fi

@@ -623,7 +623,8 @@ function ici_apt_install {
 
 function gha_cmd {
     local cmd=$1; shift
-    echo -e "::$cmd::$*"
+    # turn newlines into %0A, carriage returns into %0D, and % into %25
+    echo -e "::$cmd::$*" | sed -e 's/%/%25/g' -e 's/\r/%0D/g' -e 's/\n/%0A/g'
 }
 
 function gha_error {
