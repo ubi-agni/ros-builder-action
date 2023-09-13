@@ -90,7 +90,7 @@ function build_pkg {
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
-    ici_color_output "${ANSI_BOLD}" "Install package within chroot"
+    ici_color_output BOLD "Install package within chroot"
     # shellcheck disable=SC2012
     cat <<- EOF | "${APT_QUIET[@]}" ici_pipe_into_schroot sbuild-rw
       DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y \$(ls -1 -t /build/repo/"$(deb_pkg_name "$pkg_name")"*.deb | head -1)
@@ -131,7 +131,7 @@ function build_source {
   local total="${#PKG_NAMES[@]}"
   for (( idx=0; idx < total; idx++ )); do
     local pkg_desc="package $((idx+1))/$total: ${PKG_NAMES[$idx]} (${PKG_FOLDERS[$idx]})"
-    ici_time_start "Building $pkg_desc"
+    ici_time_start "$(ici_colorize CYAN BOLD "Building $pkg_desc")"
 
     local exit_code=0
     build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?

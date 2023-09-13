@@ -122,9 +122,9 @@ EOF
 	local expected; expected=$(cat <<EOF
 ::group::HOOK
 
-[1m$ ( echo successful; )[0m
+[1m$ ( echo successful; )[22m
 successful
-[32m[32m'HOOK' returned with code '0' after 0 min 0 sec[0m
+[32m'HOOK' returned with code '0' after 0 min 0 sec[0m
 ::endgroup::
 EOF
 )
@@ -138,10 +138,10 @@ EOF
 	local expected; expected=$(cat <<EOF
 ::group::HOOK
 
-[1m$ ( echo failure; false;; )[0m
+[1m$ ( echo failure; false;; )[22m
 failure
 ::error::Failure with exit code: 1 (in 'HOOK')
-[31m[31m'HOOK' returned with code '1' after 0 min 0 sec[0m
+[31m'HOOK' returned with code '1' after 0 min 0 sec[0m
 ::endgroup::
 EOF
 )

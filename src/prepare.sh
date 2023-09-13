@@ -101,7 +101,7 @@ function create_chroot {
     "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
 
   ici_log
-  ici_color_output "${ANSI_BOLD}" "Write schroot config"
+  ici_color_output BOLD "Write schroot config"
   cat <<- EOF | ici_asroot tee /etc/schroot/chroot.d/sbuild
 [sbuild]
 groups=root,sbuild
@@ -116,14 +116,14 @@ EOF
     /etc/schroot/chroot.d/sbuild | ici_asroot tee /etc/schroot/chroot.d/sbuild-rw
 
   ici_log
-  ici_color_output "${ANSI_BOLD}" "Add mount points to sbuild's fstab"
+  ici_color_output BOLD "Add mount points to sbuild's fstab"
   cat <<- EOF | ici_asroot tee -a /etc/schroot/sbuild/fstab
 $CCACHE_DIR  /build/ccache   none    rw,bind         0       0
 $DEBS_PATH   /build/repo     none    rw,bind         0       0
 EOF
 
   ici_log
-  ici_color_output "${ANSI_BOLD}" "Add extra debian package sources"
+  ici_color_output BOLD "Add extra debian package sources"
   while IFS= read -r line; do
     eval echo "$line"
     cat <<- EOF | ici_pipe_into_schroot sbuild-rw
@@ -132,7 +132,7 @@ EOF
   done <<< "$EXTRA_DEB_SOURCES"
 
   ici_log
-  ici_color_output "${ANSI_BOLD}" "apt-get update -q in chroot"
+  ici_color_output BOLD "apt-get update -q in chroot"
   echo "apt-get update -q" | ici_pipe_into_schroot sbuild-rw
 }
 

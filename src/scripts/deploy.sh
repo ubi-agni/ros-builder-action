@@ -54,7 +54,7 @@ function deploy_git {
 	cleanup_debs "100M"
 
 	# setup new git repo, create desired branch and stage all (new) files
-	ici_color_output "${ANSI_BOLD}" "Setup git repository"
+	ici_color_output BOLD "Setup git repository"
 	git init .
 	git checkout --orphan "$git_branch"
 	git add ./*
@@ -107,7 +107,7 @@ function require_token {
 function require_ssh_private_key {
 	test -z "$SSH_PRIVATE_KEY" && gha_error "SSH_PRIVATE_KEY is not set" && exit 1
 
-	ici_color_output "${ANSI_BOLD}" "Setup ssh-agent"
+	ici_color_output BOLD "Setup ssh-agent"
 	eval "$(ssh-agent -s)"
 	ssh-add - <<< "$SSH_PRIVATE_KEY"
 }

@@ -14,5 +14,5 @@ ici_timed update_repo
 ici_timed "ccache statistics" ccache -sv
 
 if [ "$FAIL_EVENTUALLY" != 0 ]; then
-	ici_exit 1 ici_color_output "${ANSI_RED}" "Some packages failed to build"
+	ici_exit 1 ici_color_output RED "Some packages failed to build"
 fi

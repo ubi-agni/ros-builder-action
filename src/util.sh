@@ -4,12 +4,15 @@
 # Adapted from https://github.com/ros-industrial/industrial_ci/blob/master/industrial_ci/src/util.sh
 # Copyright 2016-2023, Isaac I. Y. Saito, Mathias Lüdtke, Robert Haschke
 
-ANSI_RED=31
-ANSI_GREEN=32
-ANSI_YELLOW=33
-ANSI_BLUE=34
-ANSI_MAGENTA=35
-ANSI_BOLD=1
+export ANSI_RED=31
+export ANSI_GREEN=32
+export ANSI_YELLOW=33
+export ANSI_BLUE=34
+export ANSI_MAGENTA=35
+export ANSI_CYAN=36
+export ANSI_BOLD=1
+export ANSI_THIN=22
+export ANSI_RESET=0
 
 export TRACE=${TRACE:-false}
 export ICI_FOLD_NAME=${ICI_FOLD_NAME:-}
@@ -43,15 +46,35 @@ function ici_log {
     ici_redirect echo "$@"
 }
 
+function ici_ansi {
+  local var="ANSI_$1"
+  echo "\e[${!var}m"
+}
+
+function ici_colorize() {
+   local color reset
+   while true ; do # process all color arguments
+      case "${1:-}" in
+         RED|GREEN|YELLOW|BLUE|MAGENTA|CYAN)
+            color="$(ici_ansi "$1")"; reset="$(ici_ansi RESET)" ;;
+         THIN)
+            color="${color:-}$(ici_ansi THIN)" ;;
+         BOLD)
+            color="${color:-}$(ici_ansi BOLD)"; reset="${reset:-$(ici_ansi THIN)}" ;;
+         *) break ;;
+      esac
+      shift
+   done
+   echo -e "${color:-}$*${reset:-}"
+}
+
 function ici_color_output {
-  local color
-  color=$1; shift
-  ici_log -e "\e[${color}m$*\e[0m"
+  ici_log "$(ici_colorize "$@")"
 }
 
 function ici_title {
   ici_log
-  ici_color_output "${ANSI_BLUE}" "$@"
+  ici_color_output BLUE "$@"
 }
 
 function ici_ansi_cleared_line {
@@ -61,9 +84,9 @@ function ici_ansi_cleared_line {
 function ici_backtrace {
   if [ "$TRACE" = true ]; then
     ici_log
-    ici_color_output ${ANSI_MAGENTA} "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
+    ici_color_output MAGENTA "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
     for ((i=3;i<${#BASH_SOURCE[@]};i++)); do
-        ici_color_output ${ANSI_MAGENTA} "   AT:${BASH_SOURCE[$i]#$SRC_PATH/}:${BASH_LINENO[$((i-1))]} ${FUNCNAME[$((i-1))]}"
+        ici_color_output MAGENTA "   AT:${BASH_SOURCE[$i]#$SRC_PATH/}:${BASH_LINENO[$((i-1))]} ${FUNCNAME[$((i-1))]}"
     done
   fi
 }
@@ -71,7 +94,7 @@ function ici_backtrace {
 function ici_trace {
   if [ "$TRACE" = true ]; then
     ici_log
-    ici_color_output ${ANSI_MAGENTA} "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
+    ici_color_output MAGENTA "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
   fi
 }
 
@@ -113,11 +136,11 @@ function ici_pipe_into_schroot {
 function _label_hook() {
       ici_log
       # shellcheck disable=SC2001
-      ici_color_output ${ANSI_BOLD} "$(sed -e 's/^/$ /' <<< "$1")"
+      ici_color_output BOLD "$(sed -e 's/^/$ /' <<< "$1")"
 }
 
 function ici_hook() {
-  local name=${1^^}
+  local name=${1^^} # uppercase hook name
   if [ -z "${name#*_}" ]; then return 0; fi
 
   ici_trace "$@"
@@ -187,14 +210,13 @@ function ici_time_end {
     if [ "$DEBUG_BASH" ] && [ "$DEBUG_BASH" == true ]; then set +x; fi
 
     local name=$ICI_FOLD_NAME
-    local color_wrap=${ANSI_GREEN}
-    if [ "$exit_code" -ne "0" ]; then color_wrap=${ANSI_RED}; fi  # Red color for errors
+    local color_wrap="GREEN"
+    if [ "$exit_code" -ne "0" ]; then color_wrap="RED"; fi  # Red color for errors
 
     if [ -z "$ICI_START_TIME" ]; then ici_warn "[ici_time_end] var ICI_START_TIME is not set. You need to call ici_time_start in advance. Returning."; return; fi
     local end_time; end_time=$(date -u +%s%N)
     local elapsed_seconds; elapsed_seconds=$(( (end_time - ICI_START_TIME)/1000000000 ))
 
-    ici_log -en "\e[${color_wrap}m"  # just set color, no output
     ici_color_output "$color_wrap" "'$name' returned with code '${exit_code}' after $(( elapsed_seconds / 60 )) min $(( elapsed_seconds % 60 )) sec"
     ici_end_fold "$name"
 
@@ -311,7 +333,7 @@ function ici_exit {
 }
 
 function ici_warn {
-    ici_color_output ${ANSI_YELLOW} "$*"
+    ici_color_output YELLOW "$*"
 }
 
 function ici_mark_deprecated {
@@ -339,7 +361,7 @@ function ici_mark_deprecated {
 function ici_error {
     local exit_code=${2:-$?} #
     if [ -n "$1" ]; then
-        __ici_log_fd=$__ici_err_fd ici_color_output ${ANSI_RED} "$1"
+        __ici_log_fd=$__ici_err_fd ici_color_output RED "$1"
     fi
     if [ "$exit_code" == "0" ]; then # 0 is not error
         exit_code=1
@@ -405,7 +427,7 @@ function ici_retry {
     sleep 1;
   done
 
-  ici_color_output ${ANSI_RED} "'$*' failed $tries times"
+  ici_color_output RED "'$*' failed $tries times"
   return "$ret"
 }
 
@@ -480,7 +502,7 @@ function ici_guard {
 function ici_label {
     local cmd; cmd=$(ici_get_log_cmd "$@")
     ici_log
-    ici_color_output ${ANSI_BOLD} "$ $cmd"
+    ici_color_output BOLD "$ $cmd"
     "$@"
 }
 
@@ -641,8 +663,9 @@ function  ici_start_fold() {
         ici_warn "ici_start_fold: nested folds are not supported (still open: '$ICI_FOLD_NAME')"
         ici_end_fold
     fi
-    ICI_FOLD_NAME=$1
-    gha_cmd group "$ICI_FOLD_NAME"
+    # shellcheck disable=SC2001
+    ICI_FOLD_NAME="$(sed -e 's/\x1b\[[0-9;]*m//g' <<< "$1")" # store name w/o color codes
+    gha_cmd group "$1"
 }
 
 function  ici_end_fold() {
