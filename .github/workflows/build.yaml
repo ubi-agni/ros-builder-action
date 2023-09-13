@@ -135,14 +135,12 @@ jobs:
         id: restore-ccache
         uses: actions/cache/restore@v3
         env:
-          CACHE_ID: "ccache-${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}\
-                           -${{ inputs.ROS_DISTRO || vars.ROS_DISTRO }}\
-                           -${{ hashFiles(inputs.ROS_SOURCES || vars.ROS_SOURCES) || inputs.ROS_SOURCES || vars.ROS_SOURCES }}"
+          CCACHE_ID: "ccache-${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}-${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}"
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ${{ env.CACHE_ID }}-${{ github.run_id }}
+          key: ${{ env.CCACHE_ID }}-${{ github.run_id }}
           restore-keys: |
-            ${{ env.CACHE_ID }}
+            ${{ env.CCACHE_ID }}
 
       - name: Build .deb packages
         uses: ubi-agni/ros-builder-action@main
