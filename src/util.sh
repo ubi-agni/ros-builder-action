@@ -84,9 +84,9 @@ function ici_ansi_cleared_line {
 function ici_backtrace {
   if [ "$TRACE" = true ]; then
     ici_log
-    ici_color_output MAGENTA "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
+    ici_color_output MAGENTA "TRACE: ${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
     for ((i=3;i<${#BASH_SOURCE[@]};i++)); do
-        ici_color_output MAGENTA "   AT:${BASH_SOURCE[$i]#$SRC_PATH/}:${BASH_LINENO[$((i-1))]} ${FUNCNAME[$((i-1))]}"
+        ici_color_output MAGENTA " from: ${BASH_SOURCE[$i]#$SRC_PATH/}:${BASH_LINENO[$((i-1))]} ${FUNCNAME[$((i-1))]}"
     done
   fi
 }
