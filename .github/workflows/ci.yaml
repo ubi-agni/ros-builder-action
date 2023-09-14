@@ -71,7 +71,7 @@ jobs:
           - { DEB_DISTRO: jammy, VERBOSE: true }
           - { DEB_DISTRO: jammy, BUILD_TIMEOUT: 3, ROS_SOURCES: 'good', DEBS: true, EXPECT_EXIT_CODE: 143 }
           # add failing jobs
-          - { DEB_DISTRO: focal, ROS_SOURCES: broken, EXPECT_EXIT_CODE: 2, CONTINUE_ON_ERROR: false }
+          - { DEB_DISTRO: focal, ROS_SOURCES: broken, EXPECT_EXIT_CODE: 2, CONTINUE_ON_ERROR: false, DEBS: true }
           - { DEB_DISTRO: focal, ROS_SOURCES: broken, EXPECT_EXIT_CODE: 1, CONTINUE_ON_ERROR: true, COLCON_PKG_SELECTION: '--packages-up-to rostime' }
 
     uses: ./.github/workflows/build.yaml
@@ -94,7 +94,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { NAME: bookworm, PUSH_MODE: squash, CONTENT_MODE: replace }
+          # Having more than two jobs will cause the 2nd queued to be cancelled if the 3rd arrives
+          # https://github.com/orgs/community/discussions/41518
+          # - { NAME: focal, PUSH_MODE: push, CONTENT_MODE: replace }
+          - { NAME: bookworm, PUSH_MODE: squash, CONTENT_MODE: newer }
           - { NAME: jammy, PUSH_MODE: push, CONTENT_MODE: newer }
     if: always()
     uses: ubi-agni/ros-builder-action/.github/workflows/deploy.yaml@main

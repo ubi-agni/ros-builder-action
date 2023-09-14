@@ -154,7 +154,7 @@ jobs:
         uses: ubi-agni/ros-builder-action@main
         id: build
         with:
-          EXPECT_EXIT_CODE: ${{ inputs.EXPECT_EXIT_CODE || 0 }}
+          EXPECT_EXIT_CODE: ${{ inputs.EXPECT_EXIT_CODE }}
           BUILD_TIMEOUT: ${{ inputs.BUILD_TIMEOUT || vars.BUILD_TIMEOUT }}
         env:
           COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}

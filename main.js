@@ -49,8 +49,8 @@ child.on('exit', function (exit_code, signal) {
   process.exit(exit_code == expect ? 0 : 1)
 })
 
-// cancel build after given timout (github default: 6h - 1min slack)
-const timeout_minutes = core.getInput('BUILD_TIMEOUT') || (6 * 60 - 1)
+// cancel build after given timout (github default: 6h - 20min slack)
+const timeout_minutes = core.getInput('BUILD_TIMEOUT') || (6 * 60 - 20)
 function cancel() {
   core.warning('Cancelling build due to timeout')
   child.kill('SIGTERM')

@@ -10,8 +10,9 @@ function update_readme {
 	if [ -f "$DEBS_PATH/README.md.in" ] && [ ! -f "$DEBS_PATH/README.md" ]; then
 		mv "$DEBS_PATH/README.md.in" "$DEBS_PATH/README.md"
 		sed -e "s|@REPO_URL@|$url|g" \
-			-e "s|@DISTRO_NAME@|$DEB_DISTRO-$ROS_DISTRO|g" \
-			-i "$DEBS_PATH/README.md"
+		    -e "s|@$DEB_DISTRO@|$DEB_DISTRO|g" \
+		    -e "s|@DISTRO_NAME@|$DEB_DISTRO-$ROS_DISTRO|g" \
+		    -i "$DEBS_PATH/README.md"
 	fi
 }
 
@@ -26,7 +27,8 @@ function cleanup_debs {
 	done
 
 	echo "Removing files: ${remove_files[*]}"
-	rm -f "${remove_files[@]}"
+	# shellcheck disable=SC2068
+	rm -f ${remove_files[@]}
 
 	# issue warning if .deb files are not deployed
 	if echo "${remove_files[@]}" | grep -q -F -w "./*.deb"; then
@@ -70,7 +72,7 @@ function deploy_git {
 	# restore files from original branch, if possible ($fetch_error=0)
 	if [ "$CONTENT_MODE" != "replace" ] && [ $fetch_error -eq 0 ]; then
 		mapfile -t files < <(git status --porcelain | sed -n 's#^ D \(.*\)#\1#p')
-		ici_cmd git restore --source=FETCH_HEAD "${files[@]}"
+		[ "${#files[@]}" -ne 0 ] && ici_cmd git restore --source=FETCH_HEAD "${files[@]}"
 	fi
 	# update flat debian repository (considering old and new .debs)
 	apt-ftparchive packages . > Packages
