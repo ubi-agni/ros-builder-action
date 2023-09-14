@@ -153,8 +153,9 @@ jobs:
       - name: Build .deb packages
         uses: ubi-agni/ros-builder-action@main
         id: build
-        # leave some time for the remaining steps too (github cancels the job after 360 minutes)
-        timeout-minutes: ${{ inputs.BUILD_TIMEOUT || vars.BUILD_TIMEOUT || 340 }}
+        with:
+          EXPECT_EXIT_CODE: ${{ inputs.EXPECT_EXIT_CODE || 0 }}
+          BUILD_TIMEOUT: ${{ inputs.BUILD_TIMEOUT || vars.BUILD_TIMEOUT }}
         env:
           COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
           EXTRA_SBUILD_CONFIG: ${{ inputs.EXTRA_SBUILD_CONFIG || vars.EXTRA_SBUILD_CONFIG }}
@@ -164,7 +165,6 @@ jobs:
           SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false }}
           INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
           VERBOSE: ${{ inputs.VERBOSE || vars.VERBOSE || '' }}
-          EXPECT_EXIT_CODE: ${{ inputs.EXPECT_EXIT_CODE || 0 }}
 
       - name: Remove files comprising invalid chars # they would break artifact upload
         if: always() # always prepare files for upload

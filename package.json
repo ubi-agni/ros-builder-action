@@ -1,0 +1,30 @@
+{
+  "name": "ros-builder-action",
+  "version": "1.0.0",
+  "description": "github action to build .deb packages from ROS sources",
+  "main": "main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ubi-agni/ros-builder-action.git"
+  },
+  "keywords": [
+    "github",
+    "actions",
+    "ROS"
+  ],
+  "author": "Robert Haschke",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ubi-agni/ros-builder-action/issues"
+  },
+  "homepage": "https://github.com/ubi-agni/ros-builder-action",
+  "dependencies": {
+    "@actions/core": "^1.10.1"
+  }
+}

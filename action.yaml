@@ -6,33 +6,11 @@ branding:
   color: 'green'
 
 inputs:
-  # target names
-  ROS_DISTRO:
-    description: The ROS distribution codename to compile for
-    required: true
-  DEB_DISTRO:
-    description: The Debian/Ubuntu distribution codename to compile for
+  EXPECT_EXIT_CODE:
+    description: "Expected exit code of the build (default: 0)"
     required: false
-
-  # ROS package selection
-  ROS_SOURCES:
-    description: Repos file with list of repositories to package
-    required: false
-
-  # packages sources
-  EXTRA_DEB_SOURCES:
-    description: additional sources.list entries to add for package builds
-    required: false
-  EXTRA_ROSDEP_SOURCES:
-    description: Additional rosdep sources
-    required: false
-
-  # build options
-  EXTRA_SBUILD_CONFIG:
-    description: Additional sbuild.conf lines. For example EXTRA_REPOSITORIES or VERBOSE. See man sbuild.conf.
-    required: false
-  CONTINUE_ON_ERROR:
-    description: continue building packages once a package failed
+  BUILD_TIMEOUT:
+    description: "Cancel build after this time, before github will do (minutes)"
     required: false
 
 runs:
