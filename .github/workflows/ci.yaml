@@ -51,54 +51,56 @@ jobs:
           done
           exit $err
 
-  ci:
-    runs-on: ubuntu-latest
+  build:
     needs: unittests
-    name: "ci: ${{ matrix.DEB_DISTRO }}, ${{ matrix.ROS_SOURCES }}\
-            ${{ matrix.VERBOSE && format(', verbose={0}', matrix.VERBOSE) || '' }}\
-            ${{ matrix.CONTINUE_ON_ERROR && ', cont-on-err' || '' }}"
+    name: "${{ matrix.DEB_DISTRO }}, ${{ matrix.ROS_SOURCES }}\
+           ${{ matrix.VERBOSE && format(', verbose={0}', matrix.VERBOSE) || '' }}\
+           ${{ matrix.BUILD_TIMEOUT && format(', timeout={0}', matrix.BUILD_TIMEOUT) || '' }}\
+           ${{ matrix.CONTINUE_ON_ERROR && ', cont-on-err' || '' }}"
 
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [ jammy, bookworm ]
+        DEB_DISTRO: [ bookworm, jammy ]
+        BUILD_TIMEOUT: [ 0 ]
         include:
-          - { ROS_SOURCES: good.repos, VERBOSE: false } # set defaults
+          # defaults (can be overriden with values from include w/o adding jobs)
+          - { ROS_SOURCES: 'good', DEBS: false, VERBOSE: false }
           # override/add settings for specific distros
-          - { DEB_DISTRO: jammy, UPLOAD_DEBS: true, VERBOSE: true }
-          - { DEB_DISTRO: bookworm, VERBOSE: bloom }
-          - { DEB_DISTRO: focal, ROS_SOURCES: broken.repos, EXPECT_EXIT_CODE: 2, CONTINUE_ON_ERROR: false }
-          - { DEB_DISTRO: focal, ROS_SOURCES: broken.repos, EXPECT_EXIT_CODE: 1, CONTINUE_ON_ERROR: true }
+          - { DEB_DISTRO: bookworm, DEBS: true, VERBOSE: bloom }
+          - { DEB_DISTRO: jammy, VERBOSE: true }
+          # depending on whether bash reacts to SIGTERM or only to SIGKILL, the exist code is 143 or 137
+          - { DEB_DISTRO: jammy, BUILD_TIMEOUT: 3, ROS_SOURCES: 'good', DEBS: true, EXPECT_EXIT_CODE: 143 }
+          # add failing jobs
+          - { DEB_DISTRO: focal, ROS_SOURCES: broken, EXPECT_EXIT_CODE: 2, CONTINUE_ON_ERROR: false }
+          - { DEB_DISTRO: focal, ROS_SOURCES: broken, EXPECT_EXIT_CODE: 1, CONTINUE_ON_ERROR: true, COLCON_PKG_SELECTION: '--packages-up-to rostime' }
 
-    env:
+    uses: ./.github/workflows/build.yaml
+    with:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
       ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
-      DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Run main action
-        uses: ./
-        env:
-          ROS_SOURCES: .github/workflows/${{ matrix.ROS_SOURCES }}
-          INSTALL_TO_CHROOT: true
-          VERBOSE: ${{ matrix.VERBOSE }}
-          CONTINUE_ON_ERROR: ${{ matrix.CONTINUE_ON_ERROR || false }}
-          EXPECT_EXIT_CODE: ${{ matrix.EXPECT_EXIT_CODE || 0 }}
-
-      - name: Upload debs
-        if: matrix.UPLOAD_DEBS
-        uses: actions/upload-artifact@v3
-        with:
-          name: debs
-          path: ${{ env.DEBS_PATH }}
+      ROS_SOURCES: .github/workflows/${{ matrix.ROS_SOURCES }}.repos
+      INSTALL_TO_CHROOT: ${{ matrix.BUILD_TIMEOUT > 0 }}  # slow down for timeout test
+      VERBOSE: ${{ matrix.VERBOSE && matrix.VERBOSE || false }}
+      BUILD_TIMEOUT: ${{ matrix.BUILD_TIMEOUT && matrix.BUILD_TIMEOUT || 10 }}
+      CONTINUE_ON_ERROR: ${{ matrix.CONTINUE_ON_ERROR && matrix.CONTINUE_ON_ERROR || false }}
+      DOWNLOAD_DEBS: false
+      DEBS_ARTIFACT_NAME: ${{ matrix.DEBS && matrix.DEB_DISTRO || 'skip' }}
+      EXPECT_EXIT_CODE: ${{ matrix.EXPECT_EXIT_CODE || 0 }}
 
   deploy:
-    needs: ci
+    needs: build
+    name: "${{ matrix.NAME }} ${{ matrix.PUSH_MODE }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { NAME: bookworm, PUSH_MODE: squash, CONTENT_MODE: replace }
+          - { NAME: jammy, PUSH_MODE: push, CONTENT_MODE: newer }
+    if: always()
     uses: ubi-agni/ros-builder-action/.github/workflows/deploy.yaml@main
     with:
+      DEBS_ARTIFACT_NAME: ${{ matrix.NAME }}
       DEPLOY_URL: self#ci
-      CONTENT_MODE: replace
-      PUSH_MODE: squash
-      MESSAGE: deployment test
+      PUSH_MODE: ${{ matrix.PUSH_MODE }}
+      MESSAGE: "ci: ${{ matrix.NAME }} ${{ matrix.PUSH_MODE }}"

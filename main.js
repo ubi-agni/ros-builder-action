@@ -4,6 +4,8 @@
 // This is needed as we can't pass arguments from action.yaml
 
 'use strict';
+const fs = require('fs');
+const child_process = require('child_process');
 
 // find paths of generic.sh and action .sh script
 function script_paths() {
@@ -13,7 +15,7 @@ function script_paths() {
   // traverse up to root folder of project (containing main.js)
   var path = __dirname;
   do {
-    if (require('fs').existsSync(path + '/main.js')) {
+    if (fs.existsSync(path + '/main.js')) {
       break;
     }
     path = path.split('/').slice(0, -1).join('/');
@@ -22,10 +24,15 @@ function script_paths() {
 }
 
 var [generic, action] = script_paths();
-var child = require('child_process').spawn(generic, [action], { stdio: 'inherit' });
+var child = child_process.spawn(generic, [action], { stdio: 'inherit' });
 
 // kill child on signals SIGINT and SIGTERM
 function handle(signal) {
+  console.log('[33mForwarding signal ' + signal + ' to child process[0m');
+  // Escalate signal INT -> TERM -> KILL
+  // https://github.com/ringerc/github-actions-signal-handling-demo
+  if (signal == 'SIGINT') { signal = 'SIGTERM'; }
+  else if (signal == 'SIGTERM') { signal = 'SIGKILL'; }
   child.kill(signal);
 }
 process.on('SIGINT', handle);
@@ -36,5 +43,7 @@ setInterval(function () { }, 10000);
 
 // exit if child exits
 child.on('exit', function (exit_code, signal) {
-  process.exit(exit_code !== null ? exit_code : 143);
+  exit_code = exit_code !== null ? exit_code : (128 + 9);
+  console.log('Process finished with code ' + exit_code);
+  process.exit(exit_code);
 });

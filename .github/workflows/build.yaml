@@ -42,35 +42,35 @@ on:
         required: false
       VERBOSE:
         type: string
-        description: "steps to run verbosely: sbuild ccache bloom"
+        description: "Steps to run verbosely: sbuild ccache bloom"
         required: false
 
       # debian package repository options
       EXTRA_DEB_SOURCES:
         type: string
-        description: extra debian sources to add to sources.list
+        description: Extra debian sources to add to sources.list
         required: false
       INSTALL_GPG_KEYS:
         type: string
-        description: code to run for installing GPG keys (for use with EXTRA_DEB_SOURCES)
+        description: Code to run for installing GPG keys (for use with EXTRA_DEB_SOURCES)
         required: false
       EXTRA_ROSDEP_SOURCES:
         type: string
-        description: path to a rosdep-compatible yaml file specifying custom dependency mappings
+        description: Path to a rosdep-compatible yaml file specifying custom dependency mappings
         required: false
 
       # build options
       EXTRA_SBUILD_CONFIG:
         type: string
-        description: lines to add to ~/.sbuildrc
+        description: Lines to add to ~/.sbuildrc
         required: false
       EXTRA_SBUILD_OPTS:
         type: string
-        description: options to pass to sbuild on commandline
+        description: Options to pass to sbuild on commandline
         required: false
       DEB_BUILD_OPTIONS:
         type: string
-        description: options used debian/rules
+        description: Options used debian/rules
         required: false
       CONTINUE_ON_ERROR:
         type: boolean
@@ -79,7 +79,19 @@ on:
 
       DEBS_PATH:
         type: string
-        description: path to store generated .debs in
+        description: Path to store generated .debs in
+        required: false
+      DEBS_ARTIFACT_NAME:
+        type: string
+        description: |
+          Name of the debs artifact
+          defaults to 'debs'. Use 'skip' to skip uploading.
+        required: false
+
+      # only used for CI
+      EXPECT_EXIT_CODE:
+        type: number
+        description: Expected exit code of build step
         required: false
 
     outputs:
@@ -103,10 +115,6 @@ env:
   EXTRA_ROSDEP_SOURCES: ${{ inputs.EXTRA_ROSDEP_SOURCES || vars.EXTRA_ROSDEP_SOURCES }}
 
   DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
-
-concurrency:
-  group: ${{ github.workflow }}-build-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   debs:
@@ -156,9 +164,11 @@ jobs:
           SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false }}
           INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
           VERBOSE: ${{ inputs.VERBOSE || vars.VERBOSE || '' }}
+          EXPECT_EXIT_CODE: ${{ inputs.EXPECT_EXIT_CODE || 0 }}
 
       - name: Remove files comprising invalid chars # they would break artifact upload
-        run: find ${{ env.DEBS_PATH }} -name '*[<>:"\\|?*]*' -delete
+        if: always() # always prepare files for upload
+        run: find ${{ env.DEBS_PATH }} -name '*[<>:"\\|?*]*' -print -delete
 
       - name: Store ccache
         uses: actions/cache/save@v3
@@ -169,8 +179,9 @@ jobs:
 
       - name: Upload debs
         uses: actions/upload-artifact@v3
-        if: always() # upload on timeout or cancel too
+        # always upload except if name is skip (i.e. also on timeout or cancel)
+        if: always() && (inputs.DEBS_ARTIFACT_NAME != 'skip')
         with:
-          name: debs
+          name: ${{ inputs.DEBS_ARTIFACT_NAME || 'debs' }}
           path: ${{ env.DEBS_PATH }}
           if-no-files-found: error

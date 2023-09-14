@@ -4,6 +4,11 @@ on:
   # make this workflow reusable (and only so)
   workflow_call:
     inputs:
+      DEBS_ARTIFACT_NAME:
+        type: string
+        description: name of debs artifact to deploy from
+        required: false
+
       DEPLOY_URL:
         type: string
         description: Where to deploy?
@@ -65,13 +70,13 @@ env:
   DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
 
 concurrency:
-  group: ${{ github.workflow }}-deploy-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Ensure exclusive access to deployment target
+  group: ${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: inputs.DEPLOY_URL || vars.DEPLOY_URL
+    if: (inputs.DEPLOY_URL || vars.DEPLOY_URL) && (inputs.DEBS_ARTIFACT_NAME != 'skip')
     env:
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
 
@@ -81,7 +86,7 @@ jobs:
       - name: Download debs artifact
         uses: actions/download-artifact@v3
         with:
-          name: debs
+          name: ${{ inputs.DEBS_ARTIFACT_NAME || 'debs' }}
           path: ${{ env.DEBS_PATH }}
 
       - name: Deploy to ${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
