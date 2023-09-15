@@ -153,8 +153,8 @@ repositories:
     version: noetic-devel
   gencpp:
     type: git
-    url: https://github.com/ros/gencpp.git
-    version: kinetic-devel
+    url: https://github.com/ros-o/gencpp.git
+    version: obese-devel
   geneus:
     type: git
     url: https://github.com/jsk-ros-pkg/geneus.git
@@ -433,8 +433,8 @@ repositories:
     version: kinetic-devel
   roscpp_core:
     type: git
-    url: https://github.com/ros/roscpp_core.git
-    version: noetic-devel
+    url: https://github.com/ros-o/roscpp_core.git
+    version: obese-devel
   rosdoc_lite:
     type: git
     url: https://github.com/ros-infrastructure/rosdoc_lite
