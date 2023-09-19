@@ -21,7 +21,7 @@ function cleanup_debs {
 	ici_step update_readme "$repo_url"
 	cd "$DEBS_PATH" || return 1
 
-	local remove_files=("./*.deb" "./*.ddeb" "./*.dsc" "./*.buildinfo" "./*.changes" "./*.log")
+	local remove_files=("./*.deb" "./*.ddeb" "./*.dsc" "./*.tar.gz" "./*.buildinfo" "./*.changes" "./*.log")
 	for file in $DEPLOY_FILES; do # don't delete file type if listed in DEPLOY_FILES
 		remove_files=( "${remove_files[@]/"./*.${file##*.}"}" )
 	done

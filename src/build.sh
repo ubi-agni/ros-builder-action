@@ -82,6 +82,8 @@ function build_pkg {
     --preserve --force-distribution "$DEB_DISTRO" \
     --urgency high -m "Append timestamp when binarydeb was built." || return 3
 
+  rm -rf .git
+
   ici_label update_repo || return 1
   SBUILD_OPTS="--chroot=sbuild --no-clean-source --no-run-lintian $EXTRA_SBUILD_OPTS"
   ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4
@@ -96,8 +98,8 @@ function build_pkg {
       DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y \$(ls -1 -t /build/repo/"$(deb_pkg_name "$pkg_name")"*.deb | head -1)
 EOF
   fi
-  # Move .dsc file from workspace folder to $DEBS_PATH for deployment
-  mv ../*.dsc "$DEBS_PATH"
+  # Move .dsc + .tar.gz files from workspace folder to $DEBS_PATH for deployment
+  mv ../*.dsc ../*.tar.gz "$DEBS_PATH"
 
   ## Rename .build log file, which has invalid characters (:) for artifact upload
   local log;
