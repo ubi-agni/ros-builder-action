@@ -1,6 +1,27 @@
 ## github action to build .deb packages from ROS sources
 
 This repository provides actions and resusable workflows helping to build Debian packages from ROS package sources.
+For convenience, the built packages from [`ros-one.repos`](./ros-one.repos) are hosted at https://ros.packages.techfak.net.
+
+```bash
+# Configure ROS 2 apt repository (for python3-rosdep, pythron3-colcon)
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /etc/apt/keyrings/ros-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list
+
+# Configure ROS One apt repository
+sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros1.list
+
+# Install and setup rosdep
+sudo apt update
+sudo apt install python3-rosdep
+sudo rosdep init
+
+# Define custom rosdep package mapping
+echo "yaml https://ros.packages.techfak.net/ros-one.yaml ubuntu" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
+rosdep update
+```
+Note: Replace `ubuntu` for `debian` on a Debian distro.
 
 ### Reusable workflows [build.yaml](.github/workflows/build.yaml) + [deploy.yaml](.github/workflows/deploy.yaml)
 

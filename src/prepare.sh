@@ -35,7 +35,7 @@ function restrict_src_to_packages {
 
 function url_from_deb_source {
   # parse url from "deb [[option=value ...]] uri suite [component ...]"
-  local re; re="deb\s+(\[[^]]*\]\s+)?([^ ]+)\s([^ ]+)"
+  local re; re="deb\s+(\[[^]]*\]\s+)?(https?://[^ ]+)\s([^ ]+)"
   if [[ $1 =~ $re ]]; then
     local uri;
     # shellcheck disable=SC2001

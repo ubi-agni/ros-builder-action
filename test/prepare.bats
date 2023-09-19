@@ -61,6 +61,8 @@ EOF
 
 	run -0 url_from_deb_source "deb http://archive.ubuntu.com/ubuntu ./"
 	assert_output "http://archive.ubuntu.com/ubuntu"
+
+	run -1 url_from_deb_source "deb [option1=val1 option2=val2] http://archive.ubuntu.com/ubuntu"
 }
 
 @test "validate_deb_sources_good" {

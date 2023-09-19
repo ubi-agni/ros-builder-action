@@ -79,9 +79,9 @@ jobs:
       ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
       ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
       EXTRA_DEB_SOURCES: "${{ inputs.CONTINUE_BUILD && \
-          format('deb [trusted=yes] https://raw.githubusercontent.com/ubi-agni/ros-repo/{0}-{1} ./', \
-          inputs.DEB_DISTRO || vars.DEB_DISTRO, \
-          inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one') || '' }}"
+          format('deb [trusted=yes] https://ros.packages.techfak.net/{0} {1} main', \
+          fromJSON('{ \"jammy\": \"ubuntu\", \"bookworm\": \"debian\" }')[inputs.DEB_DISTRO || vars.DEB_DISTRO], \
+          inputs.DEB_DISTRO || vars.DEB_DISTRO) }}"
       COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
