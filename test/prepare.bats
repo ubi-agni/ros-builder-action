@@ -69,7 +69,7 @@ EOF
 	local src
 	for src in \
 		"deb http://archive.ubuntu.com/ubuntu focal" \
-		"$(echo -e "\ndeb https://raw.githubusercontent.com/ubi-agni/ros-repo/jammy-one ./")" \
+		"$(echo -e "\ndeb https://raw.githubusercontent.com/ubi-agni/ros-builder-action/ci ./")" \
 		; do
 		local orig=$src
 		# check correct modification of src variable
