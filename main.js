@@ -43,7 +43,7 @@ process.on('SIGTERM', handle)
 child.on('exit', function (exit_code, signal) {
   const expect = core.getInput('EXPECT_EXIT_CODE') || 0 // expected exit code
   exit_code = exit_code !== null ? exit_code : 143
-  const suffix = exit_code == expect ? '' : ' != ' + expect + ' (as expected)'
+  const suffix = exit_code == expect ? ' (as expected)' : ' != ' + expect
   const msg = 'Process finished with code ' + exit_code + suffix
   exit_code == expect ? core.debug(msg) : core.warning(msg)
   process.exit(exit_code == expect ? 0 : 1)
