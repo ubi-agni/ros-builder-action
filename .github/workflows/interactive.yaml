@@ -36,7 +36,7 @@ on:
         type: boolean
         description: Continue previous build?
         required: true
-        default: true
+        default: false
       SKIP_EXISTING:
         type: boolean
         description: Skip already built packages?
