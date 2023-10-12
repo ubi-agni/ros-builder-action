@@ -41,6 +41,36 @@ function update_repo {
   cd "$old_path" || return 1
 }
 
+function get_release_version {
+  local deb_version
+  local git_version=""
+  local sha
+
+  # version from last changelog entry: <changelog version>-<increment><debian distro>
+  deb_version="$(dpkg-parsechangelog --show-field Version)"
+
+  if [ "$(git rev-parse --show-toplevel)" == "$PWD" ]; then
+    # version from last (numeric) git release tag: <release version>-<git offset>
+    # - stripping any leading non digits as they are not part of the version number
+    # - stripping trailing -g<sha>
+    git_version="$(git describe --tag --long --match "*[0-9]*" 2>/dev/null | sed 's@^[^0-9]*@@;s@-g[0-9a-f]*$@@')"
+
+    if [ -z "$git_version" ] || [ "$git_version$DEB_DISTRO" \< "$deb_version" ]; then
+      # latest tag not defined
+      # extract version from latest version-like commit message instead
+      read -r sha git_version <<< "$(git log --pretty=format:'%h %s' | grep -E "^[^ ]+[^0-9]{0,3}[0-9.]+\.[0-9]+$" | head -n 1)"
+      git_version="${git_version}-$(git rev-list --count "$sha"..HEAD)" # append commit offset from found tag
+    fi
+  fi
+
+  if [ -z "$git_version" ] || [ "$git_version" == "-0" ] ; then
+    git_version="$deb_version" # fallback to deb_version if git version could not be determined
+  else
+    git_version="$git_version$DEB_DISTRO" # append debian distro (as done by bloom)
+  fi
+  echo "$git_version"
+}
+
 function pkg_exists {
   local version; version=$(apt-cache policy "$(deb_pkg_name "$1")" | sed -n 's#^\s*Candidate:\s\(.*\)#\1#p')
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$version" ] && [ "$version" != "(none)" ]; then
@@ -72,12 +102,10 @@ function build_pkg {
   # https://github.com/ros-infrastructure/bloom/pull/643
   echo 11 > debian/compat
 
-  # Set version based on last changelog entry and append build timestamp (following official ROS scheme)
-  # <changelog version>-<increment><debian distro>.date.time
-  # This way, we cannot yet distinguish different, not-yet-released versions (which git describe would do)
-  # However, git describe relied on tags being available, which is often not the case!
-  # TODO: Increase the increment on each build
-  version="$(dpkg-parsechangelog --show-field Version).$(date +%Y%m%d.%H%M)"
+  # Get + Check release version and append build timestamp (following ROS scheme)
+  # <release version>-<git offset><debian distro>.date.time
+  version="$(get_release_version).$(date +%Y%m%d.%H%M)" || return 5
+  # Update release version (with appended timestamp)
   debchange -v "$version" \
     --preserve --force-distribution "$DEB_DISTRO" \
     --urgency high -m "Append timestamp when binarydeb was built." || return 3
@@ -143,6 +171,7 @@ function build_source {
         2) msg_prefix="bloom-generate failed" ;;
         3) msg_prefix="debchange failed" ;;
         4) msg_prefix="sbuild failed" ;;
+        5) msg_prefix="missing release tag for latest version" ;;
         *) msg_prefix="unnamed step failed ($exit_code)" ;;
       esac
 
