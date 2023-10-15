@@ -20,6 +20,11 @@ ros_key_file="/usr/share/keyrings/ros-archive-keyring.gpg"
 ici_append INSTALL_GPG_KEYS "sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $ros_key_file"
 ici_append EXTRA_HOST_SOURCES "deb [signed-by=$ros_key_file] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
 
+# Configure DEBS_PATH as deb sources
+if [ -r "$DEBS_PATH/Release" ]; then
+	ici_append EXTRA_HOST_SOURCES "deb [trusted=yes] file://$(realpath "$DEBS_PATH") ./"
+fi
+
 # Configure sources
 ici_hook INSTALL_GPG_KEYS
 ici_timed "Configure EXTRA_HOST_SOURCES" configure_extra_host_sources
