@@ -85,20 +85,31 @@ function create_chroot {
     return
   fi
 
-  # http://127.0.0.1:3142 should be quoted by double quotes, but this leads to three-fold nested quotes!
-  # Using @ first and replacing them later with quotes via sed...
-  local acng_config_cmd='echo \"Acquire::http::Proxy @http://127.0.0.1:3142@;\" | tee /etc/apt/apt.conf.d/01acng'
+
+  local tmp; tmp=$(mktemp "/tmp/ros-builder-XXXXXX.sh")
+  cat <<- EOF > "$tmp"
+  mkdir -p /etc/apt/keyrings
+  curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /etc/apt/keyrings/ros-archive-keyring.gpg
+  $INSTALL_GPG_KEYS
+  echo "Acquire::http::Proxy \"http://127.0.0.1:3142\";" > tee /etc/apt/apt.conf.d/01acng
+EOF
+
+  ici_color_output BOLD "Add extra debian package sources"
+  while IFS= read -r line; do
+    eval echo "$line"
+    echo "echo \"$line\" >> \"$REPOS_LIST_FILE\"" >> "$tmp"
+  done <<< "$EXTRA_DEB_SOURCES"
 
   local chroot_folder="/var/cache/sbuild-chroot"
   # shellcheck disable=SC2016
   ici_cmd ici_asroot mmdebstrap \
     --variant=buildd --include=apt,apt-utils,ccache,ca-certificates,curl,build-essential,debhelper,fakeroot,cmake,python3-rosdep,python3-catkin-pkg \
-    --customize-hook='chroot "$1" curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg' \
-    --customize-hook='chroot "$1" '"sh -c \"$acng_config_cmd\"" \
-    --customize-hook='chroot "$1" sed -i "s#@#\"#g" /etc/apt/apt.conf.d/01acng' \
+    --customize-hook="upload $tmp $tmp" \
+    --customize-hook="chroot \$1 chmod 755 $tmp" \
+    --customize-hook="chroot \$1 sh -c $tmp" \
     "$DEB_DISTRO" "$chroot_folder" \
     "deb $DISTRIBUTION_REPO $DEB_DISTRO main universe" \
-    "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
+    "deb [signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
 
   ici_log
   ici_color_output BOLD "Write schroot config"
@@ -121,15 +132,6 @@ EOF
 $CCACHE_DIR  /build/ccache   none    rw,bind         0       0
 $DEBS_PATH   /build/repo     none    rw,bind         0       0
 EOF
-
-  ici_log
-  ici_color_output BOLD "Add extra debian package sources"
-  while IFS= read -r line; do
-    eval echo "$line"
-    cat <<- EOF | ici_pipe_into_schroot sbuild-rw
-    eval echo "$line" >> "$REPOS_LIST_FILE"
-EOF
-  done <<< "$EXTRA_DEB_SOURCES"
 
   ici_log
   ici_color_output BOLD "apt-get update -q in chroot"

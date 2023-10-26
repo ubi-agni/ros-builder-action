@@ -10,14 +10,13 @@ ici_cmd validate_deb_sources EXTRA_DEB_SOURCES
 
 ## Add required apt gpg keys and sources
 # Jochen's ppa for mmdebstrap, sbuild
-export EXTRA_HOST_SOURCES=$EXTRA_DEB_SOURCES
-ici_append INSTALL_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D8A3751519274DEF"
+ici_append INSTALL_HOST_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D8A3751519274DEF"
 ici_append EXTRA_HOST_SOURCES "deb http://ppa.launchpad.net/v-launchpad-jochen-sprickerhof-de/sbuild/ubuntu jammy main"
 ici_cmd restrict_src_to_packages "release o=v-launchpad-jochen-sprickerhof-de" "mmdebstrap sbuild"
 
 # ROS for python3-rosdep, python3-colcon-*
-ros_key_file="/usr/share/keyrings/ros-archive-keyring.gpg"
-ici_append INSTALL_GPG_KEYS "sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $ros_key_file"
+ros_key_file="/etc/apt/keyrings/ros-archive-keyring.gpg"
+ici_append INSTALL_HOST_GPG_KEYS "sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $ros_key_file"
 ici_append EXTRA_HOST_SOURCES "deb [signed-by=$ros_key_file] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
 
 # Configure DEBS_PATH as deb sources
@@ -26,7 +25,7 @@ if [ -r "$DEBS_PATH/Release" ]; then
 fi
 
 # Configure sources
-ici_hook INSTALL_GPG_KEYS
+ici_hook INSTALL_HOST_GPG_KEYS
 ici_timed "Configure EXTRA_HOST_SOURCES" configure_extra_host_sources
 
 ici_timed "Update apt package list" ici_asroot apt-get -qq update

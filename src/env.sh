@@ -13,6 +13,9 @@ export INSTALL_GPG_KEYS=${INSTALL_GPG_KEYS:-} # hook to install GPG keys
 export EXTRA_DEB_SOURCES=${EXTRA_DEB_SOURCES:-}
 export EXTRA_ROSDEP_SOURCES=${EXTRA_ROSDEP_SOURCES:-}
 
+export INSTALL_HOST_GPG_KEYS="$INSTALL_GPG_KEYS"
+export EXTRA_HOST_SOURCES="$EXTRA_DEB_SOURCES"
+
 ## build options
 export ROS_SOURCES=${ROS_SOURCES:-*.repos}
 export COLCON_PKG_SELECTION=${COLCON_PKG_SELECTION:-}
@@ -72,7 +75,7 @@ export ROS_PYTHON_VERSION=3
 if debian-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION=debian
 	export DISTRIBUTION_REPO=http://deb.debian.org/debian
-	ici_append INSTALL_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 F8D2585B8783D481"
+	ici_append INSTALL_HOST_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 F8D2585B8783D481"
 
 elif ubuntu-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION=ubuntu
