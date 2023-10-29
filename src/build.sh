@@ -94,10 +94,12 @@ function build_pkg {
 
   ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
 
+  # Enable CATKIN_INSTALL_INTO_PREFIX_ROOT for catkin package
   if [ "$pkg_name" = "catkin" ]; then
-    # Enable CATKIN_INSTALL_INTO_PREFIX_ROOT for catkin package
     sed -i 's@-DCATKIN_BUILD_BINARY_PACKAGE="1"@-DCATKIN_INSTALL_INTO_PREFIX_ROOT="1"@' debian/rules
   fi
+  # Configure ament python packages to install into lib/python3/dist-packages (instead of lib/python3.x/site-packages)
+  sed -i 's@lib/{interpreter}/site-packages@lib/python3/dist-packages@' debian/rules
 
   # https://github.com/ros-infrastructure/bloom/pull/643
   echo 11 > debian/compat

@@ -15,6 +15,14 @@ repositories:
     type: git
     url: https://github.com/rhaschke/actionlib.git
     version: noetic-devel
+  ament_cmake:
+    type: git
+    url: https://github.com/ament/ament_cmake.git
+    version: rolling
+  ament_package:
+    type: git
+    url: https://github.com/ros-o/ament_package.git
+    version: obese-devel
   angles:
     type: git
     url: https://github.com/ros/angles.git
@@ -43,13 +51,13 @@ repositories:
     type: git
     url: https://github.com/TAMS-Group/bio_ik.git
     version: master
-  boost_sml:
-      type: git
-      url: https://github.com/ros-o/boost_sml.git
-      version: obese-devel
   bond_core:
     type: git
     url: https://github.com/ros-o/bond_core
+    version: obese-devel
+  boost_sml:
+    type: git
+    url: https://github.com/ros-o/boost_sml.git
     version: obese-devel
   catkin:
     type: git
@@ -91,6 +99,10 @@ repositories:
     type: git
     url: https://github.com/crigroup/criutils.git
     version: master
+  ddynamic_reconfigure:
+    type: git
+    url: https://github.com/ros-o/ddynamic_reconfigure.git
+    version: obese-devel
   diagnostics:
     type: git
     url: https://github.com/ros-o/diagnostics.git
@@ -195,6 +207,14 @@ repositories:
     type: git
     url: https://github.com/ros-visualization/gl_dependency.git
     version: kinetic-devel
+  google_benchmark_vendor:
+    type: git
+    url: https://github.com/ament/google_benchmark_vendor.git
+    version: rolling
+  googletest:
+    type: git
+    url: https://github.com/ament/googletest.git
+    version: rolling
   graph_msgs:
     type: git
     url: https://github.com/PickNikRobotics/graph_msgs.git
@@ -328,9 +348,9 @@ repositories:
     url: https://github.com/pal-robotics/pal_statistics.git
     version: kinetic-devel
   panda_moveit_config:
-      type: git
-      url: https://github.com/ros-planning/panda_moveit_config.git
-      version: noetic-devel
+    type: git
+    url: https://github.com/ros-planning/panda_moveit_config.git
+    version: noetic-devel
   pcl_msgs:
     type: git
     url: https://github.com/ros-perception/pcl_msgs
