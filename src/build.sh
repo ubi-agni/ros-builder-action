@@ -12,8 +12,8 @@ function register_local_pkgs_with_rosdep {
   for pkg in "${PKG_NAMES[@]}"; do
     cat << EOF >> "$DEBS_PATH/local.yaml"
 $pkg:
-  $DISTRIBUTION:
-    - $(deb_pkg_name "$pkg")
+  ubuntu: [$(deb_pkg_name "$pkg")]
+  debian: [$(deb_pkg_name "$pkg")]
 EOF
   done
   "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/local.yaml"
@@ -92,6 +92,8 @@ function build_pkg {
   cd "$pkg_path" || return 1
   trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
 
+  # Check availability of all required packages (bloom-generated waits for input on rosdep issues)
+  rosdep install --simulate --from-paths . > /dev/null || return 2
   ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
 
   # Enable CATKIN_INSTALL_INTO_PREFIX_ROOT for catkin package
