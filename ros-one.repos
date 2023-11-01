@@ -15,6 +15,10 @@ repositories:
     type: git
     url: https://github.com/rhaschke/actionlib.git
     version: noetic-devel
+  agni_tf_tools:
+    type: git
+    url: https://github.com/ubi-agni/agni_tf_tools.git
+    version: master
   ament_cmake:
     type: git
     url: https://github.com/ament/ament_cmake.git
@@ -275,6 +279,10 @@ repositories:
     type: git
     url: https://github.com/frankaemika/libfranka-release.git
     version: release/noetic/libfranka/0.9.2-1
+  librealsense2:
+    type: git
+    url: https://github.com/ros-o/librealsense.git
+    version: master
   media_export:
     type: git
     url: https://github.com/ros/media_export
@@ -391,6 +399,10 @@ repositories:
     type: git
     url: https://github.com/ros-planning/random_numbers
     version: master
+  realsense_ros:
+    type: git
+    url: https://github.com/ros-o/realsense-ros.git
+    version: obese-devel
   realtime_tools:
     type: git
     url: https://github.com/ros-controls/realtime_tools.git
