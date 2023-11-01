@@ -42,42 +42,30 @@ function update_repo {
 }
 
 function get_release_version {
-  local deb_version
-  local git_version=""
-  local sha
+  local version
+  local offset="0"
 
-  # version from last changelog entry: <changelog version>-<increment><debian distro>
-  deb_version="$(dpkg-parsechangelog --show-field Version)"
+  # version from package.xml
+  version="$(xmllint --xpath "/package/version/text()" package.xml)"
 
-  if [ "$(git rev-parse --show-toplevel)" == "$PWD" ]; then
-    # version from last (numeric) git release tag: <release version>-<git offset>
-    # - stripping any leading non digits as they are not part of the version number
-    # - stripping trailing -g<sha>
-    git_version="$(git describe --tag --long --match "*[0-9]*" 2>/dev/null | sed 's@^[^0-9]*@@;s@-g[0-9a-f]*$@@')"
-
-    if [ -z "$git_version" ] || [ "$git_version$DEB_DISTRO" \< "$deb_version" ]; then
-      # latest tag not defined
-      # extract version from latest version-like commit message instead
-      read -r sha git_version <<< "$(git log --pretty=format:'%h %s' | grep -E "^[^ ]+[^0-9]{0,3}[0-9.]+\.[0-9]+$" | head -n 1)"
-      git_version="${git_version}-$(git rev-list --count "$sha"..HEAD)" # append commit offset from found tag
-    fi
+  if git rev-parse --is-inside-work-tree &> /dev/null; then
+    # commit offset from latest version update in package.xml
+    offset="$(git rev-list --count "$(git log -n 1 --pretty=format:'%H' -Gversion package.xml)..HEAD")"
   fi
 
-  if [ -z "$git_version" ] || [ "$git_version" == "-0" ] ; then
-    git_version="$deb_version" # fallback to deb_version if git version could not be determined
-  else
-    git_version="$git_version$DEB_DISTRO" # append debian distro (as done by bloom)
-  fi
-  echo "$git_version"
+  echo "$version-$offset$DEB_DISTRO"
 }
 
 function pkg_exists {
-  local version; version=$(apt-cache policy "$(deb_pkg_name "$1")" | sed -n 's#^\s*Candidate:\s\(.*\)#\1#p')
-  if [ "$SKIP_EXISTING" == "true" ] && [ -n "$version" ] && [ "$version" != "(none)" ]; then
+  local pkg_version="${2%"$DEB_DISTRO"}"
+  local available; available=$(LANG=C apt-cache policy "$(deb_pkg_name "$1")" | sed -n "s#^\s*Candidate:\s\(.*\)$DEB_DISTRO\..*#\1#p")
+  if [ "$SKIP_EXISTING" == "true" ] && [ -n "$available" ] && [ "$available" != "(none)" ] && \
+     dpkg --compare-versions "$available" ">=" "$pkg_version"; then
+    echo "Skipped (existing version $available >= $pkg_version)"
     return 0
-  else
-    return 1
   fi
+  echo "Building version $pkg_version"
+  return 1
 }
 
 function build_pkg {
@@ -85,12 +73,17 @@ function build_pkg {
   local pkg_name=$1
   local pkg_path=$2
 
-  test -f "$pkg_path/CATKIN_IGNORE" && echo "Skipped (CATKIN_IGNORE)" && return
-  test -f "$pkg_path/COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
-  pkg_exists "$pkg_name" && echo "Skipped (already built)" && return
-
   cd "$pkg_path" || return 1
   trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
+
+  test -f "./CATKIN_IGNORE" && echo "Skipped (CATKIN_IGNORE)" && return
+  test -f "./COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
+
+  # Get + Check release version and append build timestamp (following ROS scheme)
+  # <release version>-<git offset><debian distro>.date.time
+  version="$(get_release_version)" || return 5
+
+  pkg_exists "$pkg_name" "$version" && return
 
   # Check availability of all required packages (bloom-generated waits for input on rosdep issues)
   rosdep install --simulate --from-paths . > /dev/null || return 2
@@ -106,10 +99,8 @@ function build_pkg {
   # https://github.com/ros-infrastructure/bloom/pull/643
   echo 11 > debian/compat
 
-  # Get + Check release version and append build timestamp (following ROS scheme)
-  # <release version>-<git offset><debian distro>.date.time
-  version="$(get_release_version).$(date +%Y%m%d.%H%M)" || return 5
   # Update release version (with appended timestamp)
+  version="$version.$(date +%Y%m%d.%H%M)" # append build timestamp
   debchange -v "$version" \
     --preserve --force-distribution "$DEB_DISTRO" \
     --urgency high -m "Append timestamp when binarydeb was built." || return 3

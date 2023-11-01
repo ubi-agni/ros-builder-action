@@ -35,7 +35,7 @@ echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-
 
 # Install packages on host
 DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT_QUIET[@]}" ici_apt_install \
-	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng python3-pip python3-rosdep \
+	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng python3-pip python3-rosdep libxml2-utils \
 	python3-colcon-package-information python3-colcon-package-selection python3-colcon-ros python3-colcon-cmake
 
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
