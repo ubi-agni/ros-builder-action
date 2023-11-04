@@ -24,13 +24,80 @@ EOF
   ici_cmd rosdep update
 }
 
+function ici_vcs_import {
+  ici_guard vcs import --recursive --force --treeless "$@"
+}
+
+function ici_import_repository {
+  local ws_path=$1
+
+  if ! ici_parse_url "$2"; then
+    gha_error "URL '$2' does not match the pattern: <scheme>:<resource>[#<fragment>]"
+  fi
+
+  local name="${URL_RESOURCE%.git}"
+  local url
+  case "$URL_SCHEME" in
+    bitbucket | bb)   url="https://bitbucket.org/$URL_RESOURCE" ;;
+    github | gh)      url="https://github.com/$URL_RESOURCE" ;;
+    gitlab | gl)      url="https://gitlab.com/$URL_RESOURCE" ;;
+    'git+file'*|'git+http'*|'git+ssh'*)
+                      url="${URL_SCHEME#git+}:$URL_RESOURCE" ;;
+    git+*)            url="$URL_SCHEME:$URL_RESOURCE" ;;
+    *)                url="$URL_SCHEME:$URL_RESOURCE" ;;
+  esac
+
+  if [ -z "$URL_FRAGMENT" ] || [ "$URL_FRAGMENT" = "HEAD" ]; then
+    ici_vcs_import "$ws_path" <<< "{repositories: {'$name': {type: 'git', url: '$url'}}}"
+  else
+    ici_vcs_import "$ws_path" <<< "{repositories: {'$name': {type: 'git', url: '$url', version: '$URL_FRAGMENT'}}}"
+  fi
+}
+
+function ici_import {
+  local type=$1; shift
+  local ws_path=$1; shift
+  local src=$1; shift
+  local importer
+  local processor
+
+  if [ "$type" = "url" ]; then
+    importer=(curl -sSL)
+  elif [ "$type" = "file" ]; then
+    importer=(cat)
+  else
+    return 1
+  fi
+
+  case "$src" in
+    *.zip|*.tar|*.tar.*|*.tgz|*.tbz2)
+      processor=(bsdtar -C "$ws_path" -xf-)
+      ;;
+    *)
+      processor=(ici_vcs_import "$ws_path")
+      ;;
+  esac
+  ici_guard "${importer[@]}" "$src" | ici_guard "${processor[@]}"
+}
+
 function prepare_ws {
   local ws_path=$1
   local src=$2
 
   rm -rf "$ws_path"
   mkdir -p "$ws_path"
-  ici_timed "Import ROS sources into workspace" vcs import --recursive --input "$src" "$ws_path"
+
+  case "$src" in
+    git* | bitbucket:* | bb:* | gh:* | gl:*)
+      ici_import_repository "$ws_path" "$src"
+      ;;
+    http://* | https://*)
+      ici_import url "$ws_path" "$src"
+      ;;
+    *)
+      ici_import file "$ws_path" "$src"
+      ;;
+  esac
 }
 
 function update_repo {

@@ -152,14 +152,6 @@ $EXTRA_SBUILD_CONFIG
 EOF
 }
 
-function create_ws {
-  local src=$1; shift
-
-  rm -rf src
-  mkdir src
-  vcs import --recursive --treeless --input "$src" src
-}
-
 function load_local_yaml {
   while IFS= read -r line; do
     local url; url=$(url_from_deb_source "$line")
