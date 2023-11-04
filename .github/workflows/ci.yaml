@@ -5,7 +5,12 @@ on:
   pull_request:
   push:
     branches: [ main ]
-    paths-ignore: [ '*.repos', 'rosdep.yaml', 'README.md' ]
+    paths-ignore:
+      - '*.repos'
+      - rosdep.yaml
+      - README.md
+      - .github/workflows/docker*.yaml
+      - .github/docker/*
 
 env:
   DEBS_PATH: ${{ vars.DEBS_PATH || '~/debs' }}
@@ -99,7 +104,7 @@ jobs:
           # - { NAME: focal, PUSH_MODE: push, CONTENT_MODE: replace }
           - { NAME: bookworm, PUSH_MODE: squash, CONTENT_MODE: newer }
           - { NAME: jammy, PUSH_MODE: push, CONTENT_MODE: newer }
-    if: always()
+    if: ${{ !cancelled() }}
     uses: ubi-agni/ros-builder-action/.github/workflows/deploy.yaml@main
     with:
       DEBS_ARTIFACT_NAME: ${{ matrix.NAME }}

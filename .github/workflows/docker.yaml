@@ -1,0 +1,108 @@
+name: docker
+
+on:
+  schedule:
+    # 6 AM UTC every Sunday
+    - cron: "0 6 * * 6"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/docker/**
+      - .github/workflows/docker*.yaml
+
+concurrency: # cancel any previous workflow(s) from the same PR or branch/tag
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ros-core:
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [jammy]
+        ROS_DISTRO: [one]
+
+    uses: ./.github/workflows/docker.build.yaml
+    secrets: inherit
+    with:
+      CONTEXT: ros-core
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+
+
+  ros-base:
+    needs: ros-core
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [jammy]
+
+    uses: ./.github/workflows/docker.build.yaml
+    secrets: inherit
+    with:
+      CONTEXT: ros-base
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+
+
+  ros-robot:
+    needs: ros-base
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [jammy]
+
+    uses: ./.github/workflows/docker.build.yaml
+    secrets: inherit
+    with:
+      CONTEXT: ros-robot
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+
+
+  ros-desktop:
+    needs: ros-robot
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [jammy]
+
+    uses: ./.github/workflows/docker.build.yaml
+    secrets: inherit
+    with:
+      CONTEXT: ros-desktop
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+
+
+  ros-desktop-full:
+    needs: ros-desktop
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [jammy]
+
+    uses: ./.github/workflows/docker.build.yaml
+    secrets: inherit
+    with:
+      CONTEXT: ros-desktop-full
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+
+
+  moveit-ci:
+    needs: ros-base
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [jammy]
+
+    uses: ./.github/workflows/docker.build.yaml
+    secrets: inherit
+    with:
+      CONTEXT: moveit-ci
+      IMAGE: moveit/moveit:${{ matrix.DEB_DISTRO }}-ci
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
