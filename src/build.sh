@@ -139,6 +139,8 @@ function build_pkg {
   local old_path=$PWD
   local pkg_name=$1
   local pkg_path=$2
+  local version
+  local version_stamped
 
   cd "$pkg_path" || return 1
   trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
@@ -146,8 +148,8 @@ function build_pkg {
   test -f "./CATKIN_IGNORE" && echo "Skipped (CATKIN_IGNORE)" && return
   test -f "./COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
 
-  # Get + Check release version and append build timestamp (following ROS scheme)
-  # <release version>-<git offset><debian distro>.date.time
+  # Get + Check release version
+  # <release version>-<git offset><debian distro>
   version="$(get_release_version)" || return 5
 
   pkg_exists "$pkg_name" "$version" && return
@@ -167,8 +169,8 @@ function build_pkg {
   echo 11 > debian/compat
 
   # Update release version (with appended timestamp)
-  version="$version.$(date +%Y%m%d.%H%M)" # append build timestamp
-  debchange -v "$version" \
+  version_stamped="$version.$(date +%Y%m%d.%H%M)" # append build timestamp (following ROS scheme)
+  debchange -v "$version_stamped" \
     --preserve --force-distribution "$DEB_DISTRO" \
     --urgency high -m "Append timestamp when binarydeb was built." || return 3
 
@@ -180,6 +182,7 @@ function build_pkg {
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
+  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output BOLD "Install package within chroot"
@@ -194,7 +197,7 @@ EOF
   ## Rename .build log file, which has invalid characters (:) for artifact upload
   local log;
   # shellcheck disable=SC2010
-  log=$(ls -1t "$DEBS_PATH/$(deb_pkg_name "${pkg_name}" "${version}")_"*.build | grep -P '(?<!Z)\.build' | head -1)
+  log=$(ls -1t "$DEBS_PATH/$(deb_pkg_name "${pkg_name}" "$version_stamped")_"*.build | grep -P '(?<!Z)\.build' | head -1)
   mv "$(readlink -f "$log")" "${log/.build/.log}" # rename actual log file
   rm "$log" # remove symlink
 }
