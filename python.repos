@@ -1,0 +1,121 @@
+repositories:
+  osrf_pycommon:
+    type: git
+    url: https://github.com/osrf/osrf_pycommon
+    version: master
+  catkin_tools:
+    type: git
+    url: https://github.com/catkin/catkin_tools
+    version: main
+  colcon-alias:
+    type: git
+    url: https://github.com/colcon/colcon-alias.git
+    version: main
+  colcon-argcomplete:
+    type: git
+    url: https://github.com/colcon/colcon-argcomplete.git
+    version: master
+  colcon-bash:
+    type: git
+    url: https://github.com/colcon/colcon-bash.git
+    version: master
+  colcon-cd:
+    type: git
+    url: https://github.com/colcon/colcon-cd.git
+    version: master
+  colcon-clean:
+    type: git
+    url: https://github.com/colcon/colcon-clean.git
+    version: master
+  colcon-cmake:
+    type: git
+    url: https://github.com/colcon/colcon-cmake.git
+    version: master
+  colcon-common-extensions:
+    type: git
+    url: https://github.com/colcon/colcon-common-extensions.git
+    version: master
+  colcon-core:
+    type: git
+    url: https://github.com/colcon/colcon-core.git
+    version: master
+  colcon-defaults:
+    type: git
+    url: https://github.com/colcon/colcon-defaults.git
+    version: master
+  colcon-devtools:
+    type: git
+    url: https://github.com/colcon/colcon-devtools.git
+    version: master
+  colcon-installed-package-information:
+    type: git
+    url: https://github.com/colcon/colcon-installed-package-information.git
+    version: main
+  colcon-library-path:
+    type: git
+    url: https://github.com/colcon/colcon-library-path.git
+    version: master
+  colcon-metadata:
+    type: git
+    url: https://github.com/colcon/colcon-metadata.git
+    version: master
+  colcon-mixin:
+    type: git
+    url: https://github.com/colcon/colcon-mixin.git
+    version: master
+  colcon-notification:
+    type: git
+    url: https://github.com/colcon/colcon-notification.git
+    version: master
+  colcon-output:
+    type: git
+    url: https://github.com/colcon/colcon-output.git
+    version: master
+  colcon-override-check:
+    type: git
+    url: https://github.com/colcon/colcon-override-check.git
+    version: main
+  colcon-package-information:
+    type: git
+    url: https://github.com/colcon/colcon-package-information.git
+    version: master
+  colcon-package-selection:
+    type: git
+    url: https://github.com/colcon/colcon-package-selection.git
+    version: master
+  colcon-parallel-executor:
+    type: git
+    url: https://github.com/colcon/colcon-parallel-executor.git
+    version: master
+  colcon-pkg-config:
+    type: git
+    url: https://github.com/colcon/colcon-pkg-config.git
+    version: master
+  colcon-powershell:
+    type: git
+    url: https://github.com/colcon/colcon-powershell.git
+    version: master
+  colcon-python-setup-py:
+    type: git
+    url: https://github.com/colcon/colcon-python-setup-py.git
+    version: master
+  colcon-recursive-crawl:
+    type: git
+    url: https://github.com/colcon/colcon-recursive-crawl.git
+    version: master
+  colcon-ros:
+    type: git
+    url: https://github.com/colcon/colcon-ros.git
+    version: master
+  colcon-test-result:
+    type: git
+    url: https://github.com/colcon/colcon-test-result.git
+    version: master
+  colcon-top-level-workspace:
+    type: git
+    url: https://github.com/rhaschke/colcon-top-level-workspace
+    version: main
+  colcon-zsh:
+    type: git
+    url: https://github.com/colcon/colcon-zsh.git
+    version: master
