@@ -5,6 +5,8 @@ if [ -r ~/.reprepro.env ]; then
 	. ~/.reprepro.env
 fi
 
+LOG="$(mktemp /tmp/reprepro-import-XXXXXX)"
+
 # Sanity checks
 [ ! -d "$INCOMING_DIR" ] && echo "Invalid incoming directory" && exit 1
 [ -z "$DISTRO" ] && echo "Distribution undefined" && exit 1
@@ -22,7 +24,9 @@ for f in "$INCOMING_DIR"/*.dsc; do
 done
 
 # Import packages
-reprepro includedeb "$DISTRO" "$INCOMING_DIR"/*.deb
+for f in "$DISTRO" "$INCOMING_DIR"/*.deb; do
+	reprepro includedeb "$DISTRO" "$f" && echo "$f" >> "$LOG"
+done
 
 # Cleanup files
 (cd "$INCOMING_DIR" || exit 1; rm ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.changes ./*.buildinfo)
@@ -38,3 +42,7 @@ cat "$INCOMING_DIR/local.yaml" >> "ros-one.yaml"
 
 # Remove remaining files
 (cd "$INCOMING_DIR" || exit 1; rm ./Packages ./Release ./README.md.in ./local.yaml)
+
+echo "Imported: "
+cat "$LOG"
+rm "$LOG"
