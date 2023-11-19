@@ -1,0 +1,28 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 10:07:06 +0000
+Source: ros-one-cpp-common
+Binary: ros-one-cpp-common ros-one-cpp-common-dbgsym
+Architecture: amd64
+Version: 0.7.3-0bookworm.20230914.1007
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Changed-By: Martin Pecka <peckama2@fel.cvut.cz>
+Description:
+ ros-one-cpp-common - cpp_common contains C++ code for doing things that are not necess
+Changes:
+ ros-one-cpp-common (0.7.3-0bookworm.20230914.1007) UNRELEASED; urgency=high
+ .
+   * bookworm Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ 09ed3c1f6d09fb193c2cc09e5555338d70110890 144212 ros-one-cpp-common-dbgsym_0.7.3-0bookworm.20230914.1007_amd64.deb
+ b7d7a42b404fd86aaf0411ca45f817aa71d1e94e 7786 ros-one-cpp-common_0.7.3-0bookworm.20230914.1007_amd64.buildinfo
+ 1707eea5402bd116dc99ef7a256ccad76f1b61d9 22068 ros-one-cpp-common_0.7.3-0bookworm.20230914.1007_amd64.deb
+Checksums-Sha256:
+ 3ee2b9b3706791927e1f5398902631e22b9ec6c4c9035f6371e6a9011e40f12e 144212 ros-one-cpp-common-dbgsym_0.7.3-0bookworm.20230914.1007_amd64.deb
+ cbe86a93a01e250d7688936be785fce7f7f26d4277a09fac4ea00e3bcf11b9ed 7786 ros-one-cpp-common_0.7.3-0bookworm.20230914.1007_amd64.buildinfo
+ 93e910f403dfb83351f097bb91fb1da2e8d04573a3b0b7df2fb19795914d6162 22068 ros-one-cpp-common_0.7.3-0bookworm.20230914.1007_amd64.deb
+Files:
+ 3eee4a265c2b2e6546385989f2ea23af 144212 debug optional ros-one-cpp-common-dbgsym_0.7.3-0bookworm.20230914.1007_amd64.deb
+ 2ff9fe74862b244198f59dcca7d1be9a 7786 misc optional ros-one-cpp-common_0.7.3-0bookworm.20230914.1007_amd64.buildinfo
+ d867cea9192518f8a6c0908f0405e12f 22068 misc optional ros-one-cpp-common_0.7.3-0bookworm.20230914.1007_amd64.deb

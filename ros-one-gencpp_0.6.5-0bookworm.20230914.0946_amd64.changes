@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 09:46:35 +0000
+Source: ros-one-gencpp
+Binary: ros-one-gencpp
+Architecture: amd64
+Version: 0.6.5-0bookworm.20230914.0946
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Dirk Thomas <dthomas@osrfoundation.org>
+Changed-By: Dirk Thomas <dthomas@osrfoundation.org>
+Description:
+ ros-one-gencpp - C++ ROS message and service generators.
+Changes:
+ ros-one-gencpp (0.6.5-0bookworm.20230914.0946) UNRELEASED; urgency=high
+ .
+   * bookworm Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ c686f18c89dc4ff2efc68750c534ef34f22bc24f 6699 ros-one-gencpp_0.6.5-0bookworm.20230914.0946_amd64.buildinfo
+ 07295694c9e554de741e4199f7d02c855e377131 17148 ros-one-gencpp_0.6.5-0bookworm.20230914.0946_amd64.deb
+Checksums-Sha256:
+ 38411bbdc365efcd36818a254ce235a640ebc668327cbdc0ad25c72ada058ca0 6699 ros-one-gencpp_0.6.5-0bookworm.20230914.0946_amd64.buildinfo
+ 1ed0915e6104372e8fec5c3675356ca9e102b461de25ba93177e260c665369ce 17148 ros-one-gencpp_0.6.5-0bookworm.20230914.0946_amd64.deb
+Files:
+ 53ccf02c1a2a5d42d429dd65f239867c 6699 misc optional ros-one-gencpp_0.6.5-0bookworm.20230914.0946_amd64.buildinfo
+ 4cbfb9eacce288c47b870d123823246b 17148 misc optional ros-one-gencpp_0.6.5-0bookworm.20230914.0946_amd64.deb

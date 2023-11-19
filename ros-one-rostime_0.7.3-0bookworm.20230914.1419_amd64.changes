@@ -1,0 +1,28 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 14:19:55 +0000
+Source: ros-one-rostime
+Binary: ros-one-rostime ros-one-rostime-dbgsym
+Architecture: amd64
+Version: 0.7.3-0bookworm.20230914.1419
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Changed-By: Martin Pecka <peckama2@fel.cvut.cz>
+Description:
+ ros-one-rostime - Time and Duration implementations for C++ libraries, including ro
+Changes:
+ ros-one-rostime (0.7.3-0bookworm.20230914.1419) UNRELEASED; urgency=high
+ .
+   * bookworm Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ f2ab890f54420e0bd1952abad49ebbe25735e8d0 273204 ros-one-rostime-dbgsym_0.7.3-0bookworm.20230914.1419_amd64.deb
+ aa9e79a8d14d88cc8a8c2888671c5055c71e1664 7852 ros-one-rostime_0.7.3-0bookworm.20230914.1419_amd64.buildinfo
+ cec85af97c36d98d4369a6bbf4c6d0a4a1b7a7ed 42044 ros-one-rostime_0.7.3-0bookworm.20230914.1419_amd64.deb
+Checksums-Sha256:
+ f7d190678058d94842a2f272632928a45146994cfd39f07b47f9a9a1232f2952 273204 ros-one-rostime-dbgsym_0.7.3-0bookworm.20230914.1419_amd64.deb
+ 164fdc7719bf10180494c660d373860bbf82dc58393f58134c294fbe197e057a 7852 ros-one-rostime_0.7.3-0bookworm.20230914.1419_amd64.buildinfo
+ 7e180d9e41eb695a931cb04e116f767d3c978e2ac76c75c159b07345a98e4af0 42044 ros-one-rostime_0.7.3-0bookworm.20230914.1419_amd64.deb
+Files:
+ 72ebe5ea31dd2cbc8b183a7bf8e1f1d3 273204 debug optional ros-one-rostime-dbgsym_0.7.3-0bookworm.20230914.1419_amd64.deb
+ ae42dea600cd9d85807e7c568c4ae2e7 7852 misc optional ros-one-rostime_0.7.3-0bookworm.20230914.1419_amd64.buildinfo
+ 9bb6cc27aa06d8576e8155670959a809 42044 misc optional ros-one-rostime_0.7.3-0bookworm.20230914.1419_amd64.deb

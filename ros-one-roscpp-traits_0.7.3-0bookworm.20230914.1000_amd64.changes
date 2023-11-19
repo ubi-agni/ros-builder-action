@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 10:00:38 +0000
+Source: ros-one-roscpp-traits
+Binary: ros-one-roscpp-traits
+Architecture: amd64
+Version: 0.7.3-0bookworm.20230914.1000
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Changed-By: Martin Pecka <peckama2@fel.cvut.cz>
+Description:
+ ros-one-roscpp-traits - roscpp_traits contains the message traits code as described in Me
+Changes:
+ ros-one-roscpp-traits (0.7.3-0bookworm.20230914.1000) UNRELEASED; urgency=high
+ .
+   * bookworm Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ 03af2c9b4929b1156cbc5541b5b782147747431b 6682 ros-one-roscpp-traits_0.7.3-0bookworm.20230914.1000_amd64.buildinfo
+ 86dc3fc4a85b50f898b0091c693aa650d7ebc3f9 10880 ros-one-roscpp-traits_0.7.3-0bookworm.20230914.1000_amd64.deb
+Checksums-Sha256:
+ 04b5e8ba4c38fa875ecaf484ca77f8c2f501b4c206708802024760a0903d0c14 6682 ros-one-roscpp-traits_0.7.3-0bookworm.20230914.1000_amd64.buildinfo
+ 65e87a8395f969195c7e96511b9b09b55b247abfd757da3e89bd3d2dcfbc1ea4 10880 ros-one-roscpp-traits_0.7.3-0bookworm.20230914.1000_amd64.deb
+Files:
+ cb4ab9c92d2ffbe69d1d6b12559e6373 6682 misc optional ros-one-roscpp-traits_0.7.3-0bookworm.20230914.1000_amd64.buildinfo
+ a100075131a7110ed1374dde38a829a5 10880 misc optional ros-one-roscpp-traits_0.7.3-0bookworm.20230914.1000_amd64.deb
