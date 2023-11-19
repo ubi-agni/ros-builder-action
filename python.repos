@@ -37,8 +37,8 @@ repositories:
     version: master
   colcon-core:
     type: git
-    url: https://github.com/colcon/colcon-core.git
-    version: master
+    url: https://github.com/timonegk/colcon-core.git
+    version: colors
   colcon-defaults:
     type: git
     url: https://github.com/colcon/colcon-defaults.git
@@ -65,12 +65,12 @@ repositories:
     version: master
   colcon-notification:
     type: git
-    url: https://github.com/colcon/colcon-notification.git
-    version: master
+    url: https://github.com/timonegk/colcon-notification.git
+    version: colors
   colcon-output:
     type: git
-    url: https://github.com/colcon/colcon-output.git
-    version: master
+    url: https://github.com/timonegk/colcon-output.git
+    version: colors
   colcon-override-check:
     type: git
     url: https://github.com/colcon/colcon-override-check.git
