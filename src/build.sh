@@ -9,19 +9,29 @@ function deb_pkg_name {
 
 function register_local_pkgs_with_rosdep {
   #shellcheck disable=SC2086
-  for pkg in "${PKG_NAMES[@]}"; do
+  local total="${#PKG_NAMES[@]}"
+  local idx
+
+  for (( idx=0; idx < total; idx++ )); do
+    if [ ! -f "${PKG_FOLDERS[$idx]}/package.xml" ]; then # only consider ROS packages
+      continue
+    fi
+    local pkg="${PKG_NAMES[$idx]}"
     cat << EOF >> "$DEBS_PATH/local.yaml"
 $pkg:
   ubuntu: [$(deb_pkg_name "$pkg")]
   debian: [$(deb_pkg_name "$pkg")]
 EOF
   done
-  "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/local.yaml"
 
-  echo "yaml file://$DEBS_PATH/local.yaml $ROS_DISTRO" | \
-    ici_asroot tee /etc/ros/rosdep/sources.list.d/01-local.list
+  if [ -f "$DEBS_PATH/local.yaml" ]; then
+    "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/local.yaml"
 
-  ici_cmd rosdep update
+    echo "yaml file://$DEBS_PATH/local.yaml $ROS_DISTRO" | \
+      ici_asroot tee /etc/ros/rosdep/sources.list.d/01-local.list
+
+    ici_cmd rosdep update
+  fi
 }
 
 function ici_vcs_import {
@@ -125,7 +135,7 @@ function get_release_version {
 
 function pkg_exists {
   local pkg_version="${2%"$DEB_DISTRO"}"
-  local available; available=$(LANG=C apt-cache policy "$(deb_pkg_name "$1")" | sed -n "s#^\s*Candidate:\s\(.*\)$DEB_DISTRO\..*#\1#p")
+  local available; available=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)$DEB_DISTRO\..*#\1#p")
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$available" ] && [ "$available" != "(none)" ] && \
      dpkg --compare-versions "$available" ">=" "$pkg_version"; then
     echo "Skipped (existing version $available >= $pkg_version)"
@@ -152,7 +162,7 @@ function build_pkg {
   # <release version>-<git offset><debian distro>
   version="$(get_release_version)" || return 5
 
-  pkg_exists "$pkg_name" "$version" && return
+  pkg_exists "$(deb_pkg_name "$pkg_name")" "$version" && return
 
   # Check availability of all required packages (bloom-generated waits for input on rosdep issues)
   rosdep install --simulate --from-paths . > /dev/null || return 2
@@ -202,6 +212,35 @@ EOF
   rm "$log" # remove symlink
 }
 
+function build_python_pkg {
+  local old_path=$PWD
+  local pkg_name=$1
+  local pkg_path=$2
+  local version
+  local version_stamped
+
+  cd "$pkg_path" || return 1
+  trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
+
+  test -f "./CATKIN_IGNORE" && echo "Skipped (CATKIN_IGNORE)" && return
+  test -f "./COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
+
+  # Get + Check release version
+  # <release version>-1
+  version="$(python3 setup.py --version)-1" || return 5
+  local deb_pkg_name; deb_pkg_name="python3-$(python3 setup.py --name)"
+  pkg_exists "$deb_pkg_name" "$version" && return
+
+  ici_label update_repo || return 1
+  ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command bdist_deb || return 4
+
+  gha_report_result "LATEST_PACKAGE" "$pkg_name"
+  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version")
+
+  # Move created files to $DEBS_PATH for deployment
+  mv deb_dist/*.dsc deb_dist/*.tar.?z deb_dist/*.deb deb_dist/*.changes deb_dist/*.buildinfo "$DEBS_PATH"
+}
+
 function build_source {
   local old_path=$PWD
   local ws_path="$PWD/ws"
@@ -224,12 +263,17 @@ function build_source {
 
   local msg_prefix=""
   local total="${#PKG_NAMES[@]}"
+  local idx
   for (( idx=0; idx < total; idx++ )); do
     local pkg_desc="package $((idx+1))/$total: ${PKG_NAMES[$idx]} (${PKG_FOLDERS[$idx]})"
     ici_time_start "$(ici_colorize CYAN BOLD "Building $pkg_desc")"
 
     local exit_code=0
-    build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
+    if [ -f "${PKG_FOLDERS[$idx]}/package.xml" ]; then
+      build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
+    else
+      build_python_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
+    fi
 
     if [ "$exit_code" != 0 ] ; then
       case "$exit_code" in
