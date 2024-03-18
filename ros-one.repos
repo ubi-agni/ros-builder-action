@@ -401,8 +401,8 @@ repositories:
     version: master
   realsense_ros:
     type: git
-    url: https://github.com/ros-o/realsense-ros.git
-    version: obese-devel
+    url: https://github.com/IntelRealSense/realsense-ros.git
+    version: ros1-legacy
   realtime_tools:
     type: git
     url: https://github.com/ros-controls/realtime_tools.git
