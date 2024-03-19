@@ -379,6 +379,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/pluginlib.git
     version: obese-devel
+  pr2_common:
+    type: git
+    url: https://github.com/pr2/pr2_common.git
+    version: melodic-devel
   pybind11_catkin:
     type: git
     url: https://github.com/wxmerkt/pybind11_catkin.git
