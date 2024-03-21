@@ -12,6 +12,9 @@ LOG="$(mktemp /tmp/reprepro-import-XXXXXX)"
 [ -z "$DISTRO" ] && echo "Distribution undefined" && exit 1
 [ -z "$REPO" ] && echo "github repo undefined" && exit 1
 
+# Operate on the -build distro
+DISTRO="${DISTRO}-build"
+
 # Fetch last debs artifact from github
 if [ -n "$GH_TOKEN" ]; then
 	echo "$GH_TOKEN" | gh auth login --with-token
@@ -29,7 +32,7 @@ for f in "$DISTRO" "$INCOMING_DIR"/*.deb; do
 done
 
 # Cleanup files
-(cd "$INCOMING_DIR" || exit 1; rm ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.changes ./*.buildinfo)
+(cd "$INCOMING_DIR" || exit 1; rm ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
 
 # Rename, Import, and Cleanup ddeb files
 mmv "$INCOMING_DIR/*.ddeb" "$INCOMING_DIR/#1.deb"
