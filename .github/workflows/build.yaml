@@ -129,10 +129,10 @@ jobs:
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download debs from previous run
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         if: inputs.DOWNLOAD_DEBS
         continue-on-error: true
         with:
@@ -141,7 +141,7 @@ jobs:
 
       - name: Restore ccache
         id: restore-ccache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         env:
           CCACHE_ID: "ccache-${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}-${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}"
         with:
@@ -171,14 +171,14 @@ jobs:
         run: find ${{ env.DEBS_PATH }} -name '*[<>:"\\|?*]*' -print -delete
 
       - name: Store ccache
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         if: always() # save cache on timeout or cancel too
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
 
       - name: Upload debs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         # always upload except if name is skip (i.e. also on timeout or cancel)
         if: always() && (inputs.DEBS_ARTIFACT_NAME != 'skip')
         with:
