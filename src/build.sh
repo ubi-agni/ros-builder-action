@@ -127,7 +127,7 @@ function get_release_version {
 
   if git rev-parse --is-inside-work-tree &> /dev/null; then
     # commit offset from latest version update in package.xml
-    offset="$(git rev-list --count "$(git log -n 1 --pretty=format:'%H' -Gversion package.xml)..HEAD")"
+    offset="$(git rev-list --count "$(git log -n 1 --pretty=format:'%H' -G"<version>" package.xml)..HEAD")"
   fi
 
   echo "$version-$offset$DEB_DISTRO"
