@@ -5,8 +5,6 @@ if [ -r ~/.reprepro.env ]; then
 	. ~/.reprepro.env
 fi
 
-LOG="$(mktemp /tmp/reprepro-import-XXXXXX)"
-
 # Sanity checks
 [ ! -d "$INCOMING_DIR" ] && echo "Invalid incoming directory" && exit 1
 [ -z "$DISTRO" ] && echo "Distribution undefined" && exit 1
@@ -21,23 +19,28 @@ if [ -n "$GH_TOKEN" ]; then
 	gh --repo "$REPO" run download --name debs --dir "$INCOMING_DIR"
 fi
 
+function filter {
+	grep -vE "Exporting indices...|Deleting files no longer referenced..."
+}
+
 # Import sources
 for f in "$INCOMING_DIR"/*.dsc; do
-	reprepro includedsc "$DISTRO" "$f";
+	echo "$f"
+	reprepro includedsc "$DISTRO" "$f" | filter
 done
 
 # Import packages
-for f in "$DISTRO" "$INCOMING_DIR"/*.deb; do
-	reprepro includedeb "$DISTRO" "$f" && echo "$f" >> "$LOG"
-done
+reprepro includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
 
 # Cleanup files
 (cd "$INCOMING_DIR" || exit 1; rm ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
 
 # Rename, Import, and Cleanup ddeb files
 mmv "$INCOMING_DIR/*.ddeb" "$INCOMING_DIR/#1.deb"
-reprepro -C main-dbg includedeb "$DISTRO" "$INCOMING_DIR"/*.deb
+reprepro -C main-dbg includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
 (cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
+
+reprepro export "$DISTRO"
 
 # Merge local.yaml into ros-one.yaml
 cat "$INCOMING_DIR/local.yaml" >> "ros-one.yaml"
@@ -45,7 +48,3 @@ cat "$INCOMING_DIR/local.yaml" >> "ros-one.yaml"
 
 # Remove remaining files
 (cd "$INCOMING_DIR" || exit 1; rm ./Packages ./Release ./README.md.in ./local.yaml)
-
-echo "Imported: "
-cat "$LOG"
-rm "$LOG"
