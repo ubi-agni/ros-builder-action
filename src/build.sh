@@ -212,6 +212,24 @@ EOF
   rm "$log" # remove symlink
 }
 
+function get_python_release_version {
+  local version
+  local offset="0"
+
+  # version from setup.py
+  version="$(python3 setup.py --version)"
+
+  if git rev-parse --is-inside-work-tree &> /dev/null; then
+    # commit sha from latest version update in setup.py
+    sha=$(git log -n 1 --pretty=format:'%H' -G"version *=" setup.py)
+    # alternatively, commit sha from latest commit with $version in commit message
+    test -z "$sha" && sha=$(git log -n 1 --pretty=format:'%H' --grep="${version}$")
+    offset="$(git rev-list --count "$sha..HEAD")"
+  fi
+
+  echo "$version-$offset"
+}
+
 function build_python_pkg {
   local old_path=$PWD
   local pkg_name=$1
@@ -226,8 +244,7 @@ function build_python_pkg {
   test -f "./COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
 
   # Get + Check release version
-  # <release version>-1
-  version="$(python3 setup.py --version)-1" || return 5
+  version="$(get_python_release_version)" || return 5
   local deb_pkg_name; deb_pkg_name="python3-$(python3 setup.py --name)"
   pkg_exists "$deb_pkg_name" "$version" && return
 
