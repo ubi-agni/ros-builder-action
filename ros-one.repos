@@ -383,6 +383,10 @@ repositories:
     type: git
     url: https://github.com/pr2/pr2_common.git
     version: melodic-devel
+  py_binding_tools:
+    type: git
+    url: https://github.com/ros-planning/py_binding_tools.git
+    version: main
   pybind11_catkin:
     type: git
     url: https://github.com/wxmerkt/pybind11_catkin.git
