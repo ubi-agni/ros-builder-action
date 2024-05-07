@@ -164,7 +164,7 @@ function build_pkg {
 
   pkg_exists "$(deb_pkg_name "$pkg_name")" "$version" && return
 
-  # Check availability of all required packages (bloom-generated waits for input on rosdep issues)
+  # Check availability of all required packages (bloom-generate waits for input on rosdep issues)
   rosdep install --simulate --from-paths . > /dev/null || return 2
   ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
 
@@ -252,7 +252,7 @@ function build_python_pkg {
   ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command bdist_deb || return 4
 
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
-  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version")
+  BUILT_PACKAGES+=("$deb_pkg_name: $version")
 
   # Move created files to $DEBS_PATH for deployment
   mv deb_dist/*.dsc deb_dist/*.tar.?z deb_dist/*.deb deb_dist/*.changes deb_dist/*.buildinfo "$DEBS_PATH"
