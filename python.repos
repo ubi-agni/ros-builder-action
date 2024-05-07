@@ -1,8 +1,4 @@
 repositories:
-  osrf_pycommon:
-    type: git
-    url: https://github.com/osrf/osrf_pycommon
-    version: master
   catkin_tools:
     type: git
     url: https://github.com/catkin/catkin_tools
