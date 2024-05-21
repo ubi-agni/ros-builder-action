@@ -13,8 +13,10 @@ fi
 # Operate on the -build distro
 DISTRO="${DISTRO}-build"
 
-# Fetch last debs artifact from github
-if [ -n "$GH_TOKEN" ]; then
+if [ "$(ls -A "$INCOMING_DIR")" ]; then
+	echo "Importing existing files from incoming directory"
+elif [ -n "$GH_TOKEN" ]; then
+   echo "Fetching last debs artifact from github"
 	echo "$GH_TOKEN" | gh auth login --with-token
 	gh --repo "$REPO" run download --name debs --dir "$INCOMING_DIR"
 fi
