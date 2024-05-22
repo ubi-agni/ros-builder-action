@@ -165,7 +165,7 @@ function build_pkg {
   pkg_exists "$(deb_pkg_name "$pkg_name")" "$version" && return
 
   # Check availability of all required packages (bloom-generate waits for input on rosdep issues)
-  rosdep install --simulate --from-paths . > /dev/null || return 2
+  rosdep install --os="$DISTRIBUTION:$DEB_DISTRO" --simulate --from-paths . > /dev/null || return 2
   ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
 
   # Enable CATKIN_INSTALL_INTO_PREFIX_ROOT for catkin package
@@ -271,7 +271,7 @@ function build_source {
   PKG_NAMES=()
   PKG_FOLDERS=()
   #shellcheck disable=SC2034,SC2086
-  while read -r name folder dummy; do
+  while read -r name folder unused; do
     PKG_NAMES+=("$name")
     PKG_FOLDERS+=("$folder")
   done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
