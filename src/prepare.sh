@@ -109,7 +109,7 @@ EOF
     --customize-hook="chroot \$1 sh -c $tmp" \
     "$DEB_DISTRO" "$chroot_folder" \
     "deb $DISTRIBUTION_REPO $DEB_DISTRO main universe" \
-    "deb [signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main"
+    "deb [signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $DEB_DISTRO main"
 
   ici_log
   ici_color_output BOLD "Write schroot config"
