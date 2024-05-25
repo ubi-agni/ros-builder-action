@@ -451,6 +451,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/ros_environment.git
     version: 348f78c92113ccb809ced887f7856a66f84f63ea
+  ros_pytest:
+    type: git
+    url: https://github.com/machinekoder/ros_pytest.git
+    version: noetic-devel
   ros_tutorials:
     type: git
     url: https://github.com/ros/ros_tutorials.git
