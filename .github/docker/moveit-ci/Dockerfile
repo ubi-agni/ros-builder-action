@@ -1,4 +1,4 @@
-# moveit/moveit:noetic-ci
+# moveit/moveit:jammy-ci
 # Sets up a base image to use for running Continuous Integration on Travis
 
 ARG DEB_DISTRO=jammy
@@ -18,6 +18,8 @@ RUN \
     apt-get -q install --no-install-recommends -y \
         # Some basic requirements
         wget python3-vcstool git sudo \
+        # Qt6 packages for Jammy
+        $(test "$ROS_DISTRO" = "one" && echo "qt6-base-dev qt6-base-dev-tools libqt6opengl6-dev") \
         # Preferred build tools
         clang clang-format-12 clang-tidy clang-tools ccache && \
     #
