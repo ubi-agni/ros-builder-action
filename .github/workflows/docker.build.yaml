@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: rhaschke/docker-run-action@v4
+      - uses: rhaschke/docker-run-action@main
         name: Check for apt updates
         continue-on-error: true
         id: apt
