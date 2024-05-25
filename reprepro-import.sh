@@ -35,12 +35,14 @@ done
 reprepro includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
 
 # Cleanup files
-(cd "$INCOMING_DIR" || exit 1; rm ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
+(cd "$INCOMING_DIR" || exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
 
-# Rename, Import, and Cleanup ddeb files
-mmv "$INCOMING_DIR/*.ddeb" "$INCOMING_DIR/#1.deb"
-reprepro -C main-dbg includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
-(cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
+# Rename, Import, and Cleanup ddeb files (if existing)
+if [ -n "$(ls -A "$INCOMING_DIR"/*.ddeb 2>/dev/null)" ]; then
+	mmv "$INCOMING_DIR/*.ddeb" "$INCOMING_DIR/#1.deb"
+	reprepro -C main-dbg includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
+	(cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
+fi
 
 reprepro export "$DISTRO"
 
@@ -49,4 +51,4 @@ cat "$INCOMING_DIR/local.yaml" >> "ros-one.yaml"
 "$(dirname "${BASH_SOURCE[0]}")/src/scripts/yaml_remove_duplicates.py" ros-one.yaml
 
 # Remove remaining files
-(cd "$INCOMING_DIR" || exit 1; rm ./Packages ./Release ./README.md.in ./local.yaml)
+(cd "$INCOMING_DIR" || exit 1; rm -f ./Packages ./Release ./README.md.in ./local.yaml)
