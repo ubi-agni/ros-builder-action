@@ -3415,6 +3415,23 @@ SHA512: f6030bba737ba0267025e40c938152e29e44c298ca2df687a9baaa00254c84996a8094c7
 Homepage: http://wiki.ros.org/catkin
 Description: Low-level build system macros and infrastructure for ROS.
 
+Package: ros-one-catkin
+Architecture: amd64
+Version: 0.8.10-10jammy.20240602.1145
+Priority: optional
+Section: misc
+Maintainer: Geoffrey Biggs <geoff@openrobotics.org>
+Installed-Size: 662
+Depends: cmake, google-mock, libgtest-dev, python3-catkin-pkg (>> 0.4.3), python3-empy, python3-nose, python3-setuptools
+Filename: ./ros-one-catkin_0.8.10-10jammy.20240602.1145_amd64.deb
+Size: 127552
+MD5sum: 144888d946644e0abd9378b546885718
+SHA1: 2fa76cb36c0f43b1026abee063689f865f081c56
+SHA256: 8f6622ee86c73d5738440e1725d534fb8edc3ba260c38a14eb2a0b1e8034b3e0
+SHA512: cb2d79d4cc781263862955f624487ffc8b81a1afceca96f15660619a97148a57ba76493588b21fbea48841301fd2824436a07142e837d2c3d71a11778d73668a
+Homepage: http://wiki.ros.org/catkin
+Description: Low-level build system macros and infrastructure for ROS.
+
 Package: ros-one-cpp-common-dbgsym
 Architecture: amd64
 Version: 0.7.3-0bookworm.20230914.0945
@@ -8637,6 +8654,24 @@ Homepage: http://www.ros.org/wiki/cpp_common
 Description: cpp_common contains C++ code for doing things that are not necessarily ROS related, but are useful for multiple packages.
  This includes things like the ROS_DEPRECATED and ROS_FORCE_INLINE macros, as well as code for getting backtraces. This package is a component of roscpp.
 
+Package: ros-one-cpp-common
+Architecture: amd64
+Version: 0.7.3-0jammy.20240602.1145
+Priority: optional
+Section: misc
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Installed-Size: 94
+Depends: libc6 (>= 2.14), libconsole-bridge1.0 (>= 1.0.1+dfsg2), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 5.2), libboost-system-dev, libboost-thread-dev, libconsole-bridge-dev
+Filename: ./ros-one-cpp-common_0.7.3-0jammy.20240602.1145_amd64.deb
+Size: 21890
+MD5sum: 04969574d79a5d9c91b1784b6d425f6b
+SHA1: 2eefcb360f2aa7d594a55fda137435593ae5fbd7
+SHA256: 5cefa9cb6b5d5a3e74391f54e227508167cd0024b0c275e5fedd012107e69497
+SHA512: 7a4b2411e03c3fd04fc1892154585b0de90fc1be0897aff32e580194a8d18a0c465d2717660c61455ee7e024186a5a8b9e6aef719689a092428b9dca202beb83
+Homepage: http://www.ros.org/wiki/cpp_common
+Description: cpp_common contains C++ code for doing things that are not necessarily ROS related, but are useful for multiple packages.
+ This includes things like the ROS_DEPRECATED and ROS_FORCE_INLINE macros, as well as code for getting backtraces. This package is a component of roscpp.
+
 Package: ros-one-gencpp
 Architecture: amd64
 Version: 0.6.5-0bookworm.20230914.0946
@@ -11131,6 +11166,22 @@ MD5sum: 47ff049af837360b9407e0cf318ef46b
 SHA1: 8a7720002117028c3ad325c6872af564856230a0
 SHA256: 6bf9ec1c826be894def0a703552f5cf7e05f74852879f19cfacdd81957400e59
 SHA512: 98d156dd22d5acf2ad1148884c39664a676e1c89e5fc49000e1d510b1965bdc7f53f5c072431fa597ee818876201517307f5edff11aa7a395b3766b15ed772a4
+Description: C++ ROS message and service generators.
+
+Package: ros-one-gencpp
+Architecture: amd64
+Version: 0.6.5-2jammy.20240602.1146
+Priority: optional
+Section: misc
+Maintainer: Dirk Thomas <dthomas@osrfoundation.org>
+Installed-Size: 81
+Depends: ros-one-genmsg
+Filename: ./ros-one-gencpp_0.6.5-2jammy.20240602.1146_amd64.deb
+Size: 15948
+MD5sum: 777250bb6c97a7e19d87b81483c4eaec
+SHA1: 4d43239370a0e00282d6dc726a2ee755df329137
+SHA256: 0d7b28459f7effab8998885f03bfcaabc87aed078a7ba008929e1c4ce8e88e6e
+SHA512: 5ab41ba1f95e535b41ad0f71f0a0941f3a5ce4bb2e35c15825f25e753af0e38e27e2b510c44b89a40081cc17653e0d4e04bc2ed5319bd42545674433c293d594
 Description: C++ ROS message and service generators.
 
 Package: ros-one-genmsg
@@ -13952,6 +14003,23 @@ MD5sum: 00a133952b9cc397489d4d128649abc8
 SHA1: 4f51c18518793e5dd1186622ca3f4f121ed0e2db
 SHA256: aa6c816a15fb74bf325bde10b0b29d7b639207d8c02b9469320d4060987e69bf
 SHA512: 9c7e9240b5a2bda40a4778523e2d41c2e55367a441dbe55a0e2e5561a17bc385580fcd30572b96c7ba40191dbd1a3fee3301235fa8dfa57ec8ce51d25aef50a2
+Homepage: http://wiki.ros.org/genmsg
+Description: Standalone Python library for generating ROS message and service data structures for various languages.
+
+Package: ros-one-genmsg
+Architecture: amd64
+Version: 0.5.16-1jammy.20240602.1146
+Priority: optional
+Section: misc
+Maintainer: Dirk Thomas <dthomas@osrfoundation.org>
+Installed-Size: 185
+Depends: python3-empy, ros-one-catkin
+Filename: ./ros-one-genmsg_0.5.16-1jammy.20240602.1146_amd64.deb
+Size: 37742
+MD5sum: 5f825d32b180faa5bd67ef4c64097b3a
+SHA1: 45b598e2796a95643a884d72a08e67d9cc3861d5
+SHA256: a837726919170469b0fff2b597dbc0836e1d64e0fd868cf3639889682210e2bb
+SHA512: 63876e54ccf0d67bbc92ac04b2260abb4579a7c6ebbc3b56d09b842ec7c77821384a9cedfb14c11cf4a2a384d3143f23a059e6dff28fa25ece63cf2b97eec803
 Homepage: http://wiki.ros.org/genmsg
 Description: Standalone Python library for generating ROS message and service data structures for various languages.
 
@@ -19136,6 +19204,24 @@ Homepage: http://ros.org/wiki/roscpp_serialization
 Description: roscpp_serialization contains the code for serialization as described in MessagesSerializationAndAdaptingTypes.
  This package is a component of roscpp.
 
+Package: ros-one-roscpp-serialization
+Architecture: amd64
+Version: 0.7.3-0jammy.20240602.1147
+Priority: optional
+Section: misc
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Installed-Size: 76
+Depends: libc6 (>= 2.2.5), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 5.2), ros-one-cpp-common, ros-one-roscpp-traits, ros-one-rostime
+Filename: ./ros-one-roscpp-serialization_0.7.3-0jammy.20240602.1147_amd64.deb
+Size: 14080
+MD5sum: 29d0b83163edaec95c0aa5d48ab12add
+SHA1: 8641f08d56e5d3c8e8a7f73dbd0ef553e45623e3
+SHA256: 5d0edb948cb01a8e8240437bb276795f8d3779b0c8ffe47b8cf0f04aa8b4fc82
+SHA512: a99b116244e928a1a4203f42aa13f2fe7adc85c6163bcce9407353e376f82aa5b5eddc21d1b1b4a73458912dd61d7acc17770165b2493e7e91c8e566bb18cc99
+Homepage: http://ros.org/wiki/roscpp_serialization
+Description: roscpp_serialization contains the code for serialization as described in MessagesSerializationAndAdaptingTypes.
+ This package is a component of roscpp.
+
 Package: ros-one-roscpp-traits
 Architecture: amd64
 Version: 0.7.3-0bookworm.20230914.0947
@@ -21184,6 +21270,24 @@ MD5sum: 750e4bc8defe32cc4bee6b567213cd0d
 SHA1: 95f35f5a954d2bc8d7aeb141a0786a15ccb28335
 SHA256: 8d48f4a8d9d19c379216ad3c1192704a7ba101c58f549c5fdbd6d0e6b8ab17ce
 SHA512: 4219a38a730534fc7fc2fadbdba21b97464a77a1f64662ed94b42cf23ba2c62f869bf7fef3da0d5bb12b6f542ca9f788078317f4cdde46af7183138b569d0469
+Homepage: http://ros.org/wiki/roscpp_traits
+Description: roscpp_traits contains the message traits code as described in MessagesTraits.
+ This package is a component of roscpp.
+
+Package: ros-one-roscpp-traits
+Architecture: amd64
+Version: 0.7.3-0jammy.20240602.1147
+Priority: optional
+Section: misc
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Installed-Size: 64
+Depends: ros-one-cpp-common, ros-one-rostime
+Filename: ./ros-one-roscpp-traits_0.7.3-0jammy.20240602.1147_amd64.deb
+Size: 10742
+MD5sum: bc06e9747743692786c9ce8c83756f1a
+SHA1: 5971970401ef0192aec8876ff3c356743a7429dc
+SHA256: 7b2da1191100423e64f0d5a2f3e2c43d88e2b500375ee87a29c5d124c2819231
+SHA512: 1d252cd8c9c220b2e36017103edb5a1f541a3400f7c9f3926af5f306116ea676f0fd9f42ede859670f49c3610138495e09f9d7e40fab3b035ea7ccd4f2dbfeef
 Homepage: http://ros.org/wiki/roscpp_traits
 Description: roscpp_traits contains the message traits code as described in MessagesTraits.
  This package is a component of roscpp.
@@ -25191,6 +25295,23 @@ MD5sum: ec2bf7ea816bcb2503478e0a50205b7d
 SHA1: 20a4e1e721a5b983de2eebd59ead7bb6663d317a
 SHA256: ddc43848500e8903e64da89f4843784bb7c27b02100f3b703789c113bffdb06a
 SHA512: 187539c3ad8c09b89e19c24f01ab7079987ce0913b1ad95366ae543f6686578d609422ee7510ff6d814fdf97f50f4bb70dfc4789051d44857c650afbb83fe04f
+Homepage: http://ros.org/wiki/rostime
+Description: Time and Duration implementations for C++ libraries, including roscpp.
+
+Package: ros-one-rostime
+Architecture: amd64
+Version: 0.7.3-0jammy.20240602.1146
+Priority: optional
+Section: misc
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Installed-Size: 174
+Depends: libc6 (>= 2.17), libgcc-s1 (>= 3.3.1), libstdc++6 (>= 9), libboost-date-time-dev, libboost-system-dev, libboost-thread-dev, ros-one-cpp-common
+Filename: ./ros-one-rostime_0.7.3-0jammy.20240602.1146_amd64.deb
+Size: 40756
+MD5sum: 0bc3ea392ed7c04096b90e389814cb31
+SHA1: 78d722a7d05278423c75543809010a6c125c8f95
+SHA256: 0900343932a1afc58081b4209afe19a6705742109ad0ac4ddfa0a80679517031
+SHA512: 203f5aed6342a43171dbf71cc9f4b87ca670aaf13e0e1e3ce779fdf854bf1e437afb382acca48a3d2b1c5a4584a152a0e2e45007a671f7efc3cc02755fd58b40
 Homepage: http://ros.org/wiki/rostime
 Description: Time and Duration implementations for C++ libraries, including roscpp.
 
