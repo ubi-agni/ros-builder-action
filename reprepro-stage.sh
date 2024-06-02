@@ -12,6 +12,7 @@ fi
 
 # Move packages from build to production stage
 pkgs=$(reprepro list "$DISTRO-build" | grep -v "|source" | cut -s -d " " -f 2)
-reprepro copy "$DISTRO" "$DISTRO-build" "$pkgs"
+# shellcheck disable=SC2086
+reprepro copy "$DISTRO" "$DISTRO-build" $pkgs
 
 # reprepro remove "$DISTRO-build" "$pkgs"
