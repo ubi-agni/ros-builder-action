@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 09:45:36 +0000
+Source: ros-one-catkin
+Binary: ros-one-catkin
+Architecture: amd64
+Version: 0.8.10-0bookworm.20230914.0945
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Geoffrey Biggs <geoff@openrobotics.org>
+Changed-By: Geoffrey Biggs <geoff@openrobotics.org>
+Description:
+ ros-one-catkin - Low-level build system macros and infrastructure for ROS.
+Changes:
+ ros-one-catkin (0.8.10-0bookworm.20230914.0945) UNRELEASED; urgency=high
+ .
+   * bookworm Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ f80d8d05f2ebe6cd18cab55dd0bc0981141e14e4 6569 ros-one-catkin_0.8.10-0bookworm.20230914.0945_amd64.buildinfo
+ 6287236e767e4c7b4f0ef0e663f692c8f7f42b87 141336 ros-one-catkin_0.8.10-0bookworm.20230914.0945_amd64.deb
+Checksums-Sha256:
+ a3266da281795cda8e419900b213aa5317845c2b8c08443d8de8b67820cd5751 6569 ros-one-catkin_0.8.10-0bookworm.20230914.0945_amd64.buildinfo
+ dcf88ec080d56208f11c8f9cc09f2883d27ffa0abd0eb4b46c46cc08da61d106 141336 ros-one-catkin_0.8.10-0bookworm.20230914.0945_amd64.deb
+Files:
+ 8fc30ea68e7f1ce67a761a17049adebd 6569 misc optional ros-one-catkin_0.8.10-0bookworm.20230914.0945_amd64.buildinfo
+ 2aaa0b4554509ad2a7f981ede017d735 141336 misc optional ros-one-catkin_0.8.10-0bookworm.20230914.0945_amd64.deb

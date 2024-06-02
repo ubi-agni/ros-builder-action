@@ -1,0 +1,26 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 10:07:14 +0000
+Source: ros-one-genmsg
+Binary: ros-one-genmsg
+Built-For-Profiles: noudeb
+Architecture: amd64
+Version: 0.5.16-0jammy.20230914.1007
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Dirk Thomas <dthomas@osrfoundation.org>
+Changed-By: Dirk Thomas <dthomas@osrfoundation.org>
+Description:
+ ros-one-genmsg - Standalone Python library for generating ROS message and service
+Changes:
+ ros-one-genmsg (0.5.16-0jammy.20230914.1007) UNRELEASED; urgency=high
+ .
+   * jammy Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ cf2eaea92b06efa72d65615ede49aaed2f43566a 7595 ros-one-genmsg_0.5.16-0jammy.20230914.1007_amd64.buildinfo
+ 901d551dbe1574ca4dac64ae576b686e4b63ffc1 37734 ros-one-genmsg_0.5.16-0jammy.20230914.1007_amd64.deb
+Checksums-Sha256:
+ b5e3538c5afcafecf2ad2d6b2d45b074ac55d8265bbebe7f2e26c5ccd33112a8 7595 ros-one-genmsg_0.5.16-0jammy.20230914.1007_amd64.buildinfo
+ 3bd5f0240077a2fc1da71dcb58c2df8ff10f4e5320b3a726bf1c4ade429b8eeb 37734 ros-one-genmsg_0.5.16-0jammy.20230914.1007_amd64.deb
+Files:
+ 73b10f43594d9f4775afc469cdf41508 7595 misc optional ros-one-genmsg_0.5.16-0jammy.20230914.1007_amd64.buildinfo
+ b9b1b0c782c30e45c2d43085e532cca9 37734 misc optional ros-one-genmsg_0.5.16-0jammy.20230914.1007_amd64.deb

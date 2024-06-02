@@ -1,0 +1,26 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 10:06:27 +0000
+Source: ros-one-catkin
+Binary: ros-one-catkin
+Built-For-Profiles: noudeb
+Architecture: amd64
+Version: 0.8.10-0jammy.20230914.1006
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Geoffrey Biggs <geoff@openrobotics.org>
+Changed-By: Geoffrey Biggs <geoff@openrobotics.org>
+Description:
+ ros-one-catkin - Low-level build system macros and infrastructure for ROS.
+Changes:
+ ros-one-catkin (0.8.10-0jammy.20230914.1006) UNRELEASED; urgency=high
+ .
+   * jammy Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ 375d0bf2fac3735b19aee9e2e40b171b920e0f40 7528 ros-one-catkin_0.8.10-0jammy.20230914.1006_amd64.buildinfo
+ 6bacf605bc9487bb76ea861b5aa1aa6a067d21c3 127534 ros-one-catkin_0.8.10-0jammy.20230914.1006_amd64.deb
+Checksums-Sha256:
+ 6f1d3b671dc6e9649df4c6ed2e16cbb62b4a5723dcc1ab3ea4a9cd487300b24e 7528 ros-one-catkin_0.8.10-0jammy.20230914.1006_amd64.buildinfo
+ 58374e13d02092471dfa9b9fdaa72f8867e2272ccd422f9790236201dc7c9fef 127534 ros-one-catkin_0.8.10-0jammy.20230914.1006_amd64.deb
+Files:
+ f69e6c3bfc76a67dd613dad1fdcc649a 7528 misc optional ros-one-catkin_0.8.10-0jammy.20230914.1006_amd64.buildinfo
+ 99ccfe68a7b9fc468cc5bb672c5490b3 127534 misc optional ros-one-catkin_0.8.10-0jammy.20230914.1006_amd64.deb

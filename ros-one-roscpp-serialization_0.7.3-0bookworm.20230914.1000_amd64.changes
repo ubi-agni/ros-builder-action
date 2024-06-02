@@ -1,0 +1,28 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 10:00:51 +0000
+Source: ros-one-roscpp-serialization
+Binary: ros-one-roscpp-serialization ros-one-roscpp-serialization-dbgsym
+Architecture: amd64
+Version: 0.7.3-0bookworm.20230914.1000
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Changed-By: Martin Pecka <peckama2@fel.cvut.cz>
+Description:
+ ros-one-roscpp-serialization - roscpp_serialization contains the code for serialization as descr
+Changes:
+ ros-one-roscpp-serialization (0.7.3-0bookworm.20230914.1000) UNRELEASED; urgency=high
+ .
+   * bookworm Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ 6152d5d55b900a8f08d966b654abdd3cb5bece22 31048 ros-one-roscpp-serialization-dbgsym_0.7.3-0bookworm.20230914.1000_amd64.deb
+ 465f29eb082ed18f244b91850bd5747c7d9c1101 8076 ros-one-roscpp-serialization_0.7.3-0bookworm.20230914.1000_amd64.buildinfo
+ ab571ae0b585e9af914d078f043c4e97b24f1f9e 14176 ros-one-roscpp-serialization_0.7.3-0bookworm.20230914.1000_amd64.deb
+Checksums-Sha256:
+ 5aa6bd64c2f715bcec0c60a7b3e49dc92b0c9c27fae604a80d12b4f4b92f4610 31048 ros-one-roscpp-serialization-dbgsym_0.7.3-0bookworm.20230914.1000_amd64.deb
+ 5bb19d9f7286f12cf2ee6bb09ed700cdd943cb9ddafd4dcf071e98ac18d3f871 8076 ros-one-roscpp-serialization_0.7.3-0bookworm.20230914.1000_amd64.buildinfo
+ 0a330948a3b7ce937ae92744e5c7a2442d0d25eed3eac0bc9a664268ee289a1a 14176 ros-one-roscpp-serialization_0.7.3-0bookworm.20230914.1000_amd64.deb
+Files:
+ 473f730329a2156d46e5c1f3b71934e8 31048 debug optional ros-one-roscpp-serialization-dbgsym_0.7.3-0bookworm.20230914.1000_amd64.deb
+ 8cd3ba2bc30756cb7f55e5dc7f50c9e1 8076 misc optional ros-one-roscpp-serialization_0.7.3-0bookworm.20230914.1000_amd64.buildinfo
+ 9654f3daf4e80d7d0519f6458a51dde8 14176 misc optional ros-one-roscpp-serialization_0.7.3-0bookworm.20230914.1000_amd64.deb

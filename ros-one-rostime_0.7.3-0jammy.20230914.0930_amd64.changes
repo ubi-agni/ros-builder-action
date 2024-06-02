@@ -1,0 +1,29 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 09:30:40 +0000
+Source: ros-one-rostime
+Binary: ros-one-rostime
+Built-For-Profiles: noudeb
+Architecture: amd64
+Version: 0.7.3-0jammy.20230914.0930
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Changed-By: Martin Pecka <peckama2@fel.cvut.cz>
+Description:
+ ros-one-rostime - Time and Duration implementations for C++ libraries, including ro
+Changes:
+ ros-one-rostime (0.7.3-0jammy.20230914.0930) UNRELEASED; urgency=high
+ .
+   * jammy Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ 0a497149ee279ea2e2201a8ae6447905042c4792 233612 ros-one-rostime-dbgsym_0.7.3-0jammy.20230914.0930_amd64.ddeb
+ ba3a4ee2093a7557c5ce1ba9d53450ba648a44c1 8841 ros-one-rostime_0.7.3-0jammy.20230914.0930_amd64.buildinfo
+ 24f4f677a435b203b0c31ea98ed88e2f6942715f 40748 ros-one-rostime_0.7.3-0jammy.20230914.0930_amd64.deb
+Checksums-Sha256:
+ c878d8476342b072181f799e3cc83df5d09a4f492afb47a1876a478f66ba725b 233612 ros-one-rostime-dbgsym_0.7.3-0jammy.20230914.0930_amd64.ddeb
+ 1cb8c9af684e41729a1f745fe6e21ca87163c15e7ce4ea70c02efe70178217b9 8841 ros-one-rostime_0.7.3-0jammy.20230914.0930_amd64.buildinfo
+ 1179958528d9dbb114f16cccbabf5bcef74a53dd9b18fe40ae80fc34f4cd558b 40748 ros-one-rostime_0.7.3-0jammy.20230914.0930_amd64.deb
+Files:
+ 13c785443f01747117be7c2180f8dc14 233612 debug optional ros-one-rostime-dbgsym_0.7.3-0jammy.20230914.0930_amd64.ddeb
+ 121c8a9af8502e7a4ae01138c33d6a1d 8841 misc optional ros-one-rostime_0.7.3-0jammy.20230914.0930_amd64.buildinfo
+ f989c158d602067cafb536d0bc236c29 40748 misc optional ros-one-rostime_0.7.3-0jammy.20230914.0930_amd64.deb
