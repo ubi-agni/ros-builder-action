@@ -2,10 +2,6 @@ prbt_ikfast_manipulator_plugin:
   debian: []
   ubuntu: []
 
-orocos_kdl:
-  debian: [liborocos-kdl-dev]
-  ubuntu: [liborocos-kdl-dev]
-
 libfcl-dev:
   debian: [ros-one-fcl]
   ubuntu: [ros-one-fcl]

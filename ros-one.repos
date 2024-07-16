@@ -3,10 +3,6 @@ repositories:
     type: git
     url: https://github.com/BehaviorTree/BehaviorTree.CPP.git
     version: master
-  PlotJuggler:
-    type: git
-    url: https://github.com/facontidavide/PlotJuggler.git
-    version: main
   Stage:
     type: git
     url: https://github.com/ros-o/Stage.git
@@ -79,6 +75,10 @@ repositories:
     type: git
     url: https://github.com/mikeferguson/code_coverage.git
     version: master
+  collada_urdf:
+    type: git
+    url: https://github.com/ros-o/collada_urdf.git
+    version: obese-devel
   common_msgs:
     type: git
     url: https://github.com/ros/common_msgs.git
@@ -163,6 +163,10 @@ repositories:
     type: git
     url: https://github.com/rhaschke/franka_ros.git
     version: ros-o
+  freenect_stack:
+    type: git
+    url: https://github.com/ros-drivers/freenect_stack.git
+    version: master
   gazebo_ros_pkgs:
     type: git
     url: https://github.com/ros-simulation/gazebo_ros_pkgs.git
@@ -367,14 +371,18 @@ repositories:
     type: git
     url: https://github.com/ros-o/perception_pcl
     version: obese-devel
-  plotjuggler-ros-plugins:
+  plotjuggler:
     type: git
-    url: https://github.com/PlotJuggler/plotjuggler-ros-plugins
+    url: https://github.com/facontidavide/PlotJuggler.git
     version: main
   plotjuggler_msgs:
     type: git
     url: https://github.com/facontidavide/plotjuggler_msgs
-    version: ros1
+    version: 0.2.1
+  plotjuggler_ros:
+    type: git
+    url: https://github.com/PlotJuggler/plotjuggler-ros-plugins
+    version: main
   pluginlib:
     type: git
     url: https://github.com/ros-o/pluginlib.git
