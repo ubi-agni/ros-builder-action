@@ -76,7 +76,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: (inputs.DEPLOY_URL || vars.DEPLOY_URL) && (inputs.DEBS_ARTIFACT_NAME != 'skip')
     env:
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}

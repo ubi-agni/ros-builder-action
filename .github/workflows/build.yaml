@@ -118,7 +118,7 @@ env:
 
 jobs:
   debs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: build debs
     outputs:
       LATEST_PACKAGE: ${{ steps.build.outputs.LATEST_PACKAGE }}
