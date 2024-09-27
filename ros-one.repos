@@ -391,6 +391,10 @@ repositories:
     type: git
     url: https://github.com/pr2/pr2_common.git
     version: melodic-devel
+  pr2_kinematics:
+    type: git
+    url: https://github.com/ros-o/pr2_kinematics.git
+    version: obese-devel
   py_binding_tools:
     type: git
     url: https://github.com/ros-planning/py_binding_tools.git
@@ -439,6 +443,14 @@ repositories:
     type: git
     url: https://github.com/ros/ros.git
     version: noetic-devel
+  rosauth:
+    type: git
+    url: https://github.com/GT-RAIL/rosauth.git
+    version: develop
+  rosbridge_suite:
+    type: git
+    url: https://github.com/RobotWebTools/rosbridge_suite.git
+    version: ros1
   ros_comm:
     type: git
     url: https://github.com/ubi-agni/ros_comm.git
