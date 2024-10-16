@@ -36,7 +36,7 @@ on:
         type: boolean
         description: Continue previous build?
         required: true
-        default: false
+        default: true
       SKIP_EXISTING:
         type: boolean
         description: Skip already built packages?
@@ -51,23 +51,6 @@ on:
       INSTALL_TO_CHROOT:
         type: boolean
         description: Incrementally fill chroot?
-        required: false
-
-      # deployment options
-      PUSH_MODE:
-        type: choice
-        description: Push to DEPLOY_URL?
-        required: true
-        default: push
-        options:
-          - skip
-          - push
-          - amend
-          - squash
-
-      MESSAGE:
-        type: string
-        description: Commit message
         required: false
 
 jobs:
@@ -91,18 +74,3 @@ jobs:
       SKIP_EXISTING: ${{ inputs.SKIP_EXISTING }}
       CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
       INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
-
-  deploy:
-    needs: build
-    if: always() && ( inputs.PUSH_MODE != 'skip' ) && vars.DEPLOY_URL
-    uses: ubi-agni/ros-builder-action/.github/workflows/deploy.yaml@main
-    with:
-      # content mode: 'add' if continueing build, 'replace' otherwise
-      CONTENT_MODE: ${{ inputs.CONTINUE_BUILD && 'add' || 'replace' }}
-      # default push mode: 'push' if continueing build, 'squash' otherwise
-      PUSH_MODE: ${{ inputs.PUSH_MODE || vars.PUSH_MODE || (inputs.CONTINUE_BUILD && 'push' || 'squash') }}
-      MESSAGE: "${{ inputs.MESSAGE || needs.build.outputs.LATEST_PACKAGE \
-        && format('build up to {0}', needs.build.outputs.LATEST_PACKAGE) \
-        || format('{0}-{1}', inputs.DEB_DISTRO || vars.DEB_DISTRO, inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one') }}"
-    secrets:
-      SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
