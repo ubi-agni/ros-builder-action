@@ -79,7 +79,18 @@ if debian-distro-info --all | grep -q "$DEB_DISTRO"; then
 
 elif ubuntu-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION=ubuntu
-	export DISTRIBUTION_REPO=http://azure.archive.ubuntu.com/ubuntu
+	case "$(dpkg --print-architecture)" in
+		amd64)
+			export DISTRIBUTION_REPO=http://archive.ubuntu.com/ubuntu
+			;;
+		arm64|armhf)
+			export DISTRIBUTION_REPO=http://ports.ubuntu.com/ubuntu-ports
+			;;
+		*)
+			gha_error "Unknown architecture: $(dpkg --print-architecture)"
+			ici_exit 1
+			;;
+	esac
 else
 	gha_error "Unknown DEB_DISTRO: $DEB_DISTRO"
 	ici_exit 1

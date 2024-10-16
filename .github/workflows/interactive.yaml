@@ -19,6 +19,14 @@ on:
         required: true
         description: 'ROS distribution codename:'
         default: one
+      ARCH:
+        type: choice
+        required: true
+        description: 'Architecture:'
+        default: x64
+        options:
+          - x64
+          - arm64
 
       # source selection
       ROS_SOURCES:
@@ -60,6 +68,7 @@ jobs:
     with:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
       ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
+      ARCH: ${{ inputs.ARCH || vars.ARCH || 'x64' }}
       ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg

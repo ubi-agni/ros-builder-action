@@ -11,8 +11,13 @@ on:
         required: false # defaults to 'one'
       DEB_DISTRO:
         type: string
-        description: The Debian/Ubuntu distribution codename to compile for.
+        description: The Debian/Ubuntu distribution codename to compile for
         required: false  # defaults to 'lsb_release -cs'
+      ARCH:
+        type: string
+        required: false
+        description: CPU architecture
+        default: x64
       ROS_SOURCES:
         type: string
         description: ROS sources to compile. See README.md for details.
@@ -118,7 +123,7 @@ env:
 
 jobs:
   debs:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ inputs.ARCH  == 'x64' && 'ubuntu-22.04' || inputs.ARCH }}
     name: build debs
     outputs:
       LATEST_PACKAGE: ${{ steps.build.outputs.LATEST_PACKAGE }}
