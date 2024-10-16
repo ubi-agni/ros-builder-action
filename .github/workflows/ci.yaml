@@ -29,7 +29,7 @@ jobs:
           submodules: recursive
       - name: Install shellcheck
         run: sudo apt-get install shellcheck
-      - uses: pre-commit/action@v3.0.0
+      - uses: pre-commit/action@v3.0.1
         id: precommit
       - name: Upload pre-commit changes
         if: failure() && steps.precommit.outcome == 'failure'
