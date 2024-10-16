@@ -137,11 +137,11 @@ function pkg_exists {
   local pkg_version="${2%"$DEB_DISTRO"}"
   local available; available=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)$DEB_DISTRO\..*#\1#p")
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$available" ] && [ "$available" != "(none)" ] && \
-     dpkg --compare-versions "$available" ">=" "$pkg_version"; then
+     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py" "$DEBS_PATH"; then
     echo "Skipped (existing version $available >= $pkg_version)"
     return 0
   fi
-  echo "Building version $pkg_version"
+  echo "Building version $pkg_version (old: $available)"
   return 1
 }
 
