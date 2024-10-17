@@ -28,7 +28,7 @@ fi
 ici_hook INSTALL_HOST_GPG_KEYS
 ici_timed "Configure EXTRA_HOST_SOURCES" configure_extra_host_sources
 
-ici_timed "Update apt package list" ici_asroot apt-get -qq update
+ici_timed "Update apt package list" ici_asroot apt-get update
 
 # Configure apt-cacher-ng
 echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-set-selections
@@ -43,6 +43,11 @@ DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT
 ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
 # Install patched vcstool to allow for treeless clones
 ici_timed "Install vcstool" ici_asroot pip install -U git+https://github.com/rhaschke/vcstool.git@master
+
+# Remove ros2 package repository, now that rosdep and colcon are installed
+# This repo might have newer versions, e.g. of colcon, than the ones to be built
+ici_asroot sed -i '/packages.ros.org\/ros2\/ubuntu/d' "$REPOS_LIST_FILE"
+ici_timed "Update apt package list" ici_asroot apt-get update
 
 # remove existing rosdep config to avoid conflicts with rosdep init
 ici_asroot rm -f /etc/ros/rosdep/sources.list.d/20-default.list
