@@ -290,8 +290,11 @@ function build_source {
     local exit_code=0
     if [ -f "${PKG_FOLDERS[$idx]}/package.xml" ]; then
       build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
-    else
+    elif [ -f "${PKG_FOLDERS[$idx]}/setup.py" ]; then
       build_python_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
+    else
+      ici_warn "No package.xml or setup.py found"
+      exit_code=0
     fi
 
     if [ "$exit_code" != 0 ] ; then
