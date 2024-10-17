@@ -27,6 +27,10 @@ class Options:
 debs = Path(sys.argv[1])
 folder = Path(sys.argv[2] if len(sys.argv) > 2 else ".")
 
+# bail out if folder doesn't contain package.xml
+if not (folder / "package.xml").exists():
+    exit(1)
+
 xml, file = _get_package_xml(folder)
 pkg = parse_package_string(xml, filename=file)
 pkg.evaluate_conditions(os.environ)
