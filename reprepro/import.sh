@@ -8,6 +8,7 @@ fi
 # Sanity checks
 [ ! -d "$INCOMING_DIR" ] && echo "Invalid incoming directory" && exit 1
 [ -z "$DISTRO" ] && echo "Distribution undefined" && exit 1
+[ -z "$ARCH" ] && echo "ARCH undefined" && exit 1
 [ -z "$REPO" ] && echo "github repo undefined" && exit 1
 
 # Operate on the -build distro
@@ -26,13 +27,15 @@ function filter {
 }
 
 # Import sources
-for f in "$INCOMING_DIR"/*.dsc; do
-	echo "$f"
-	reprepro includedsc "$DISTRO" "$f" | filter
-done
+if [ "$ARCH" == "amd64" ]; then
+	for f in "$INCOMING_DIR"/*.dsc; do
+		echo "$f"
+		reprepro includedsc "$DISTRO" "$f" | filter
+	done
+fi
 
 # Import packages
-reprepro includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
+reprepro -A "$ARCH" includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
 
 # Cleanup files
 (cd "$INCOMING_DIR" || exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
@@ -40,7 +43,7 @@ reprepro includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
 # Rename, Import, and Cleanup ddeb files (if existing)
 if [ -n "$(ls -A "$INCOMING_DIR"/*.ddeb 2>/dev/null)" ]; then
 	mmv "$INCOMING_DIR/*.ddeb" "$INCOMING_DIR/#1.deb"
-	reprepro -C main-dbg includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
+	reprepro -A "$ARCH" -C main-dbg includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
 	(cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
 fi
 
@@ -48,7 +51,7 @@ reprepro export "$DISTRO"
 
 # Merge local.yaml into ros-one.yaml
 cat "$INCOMING_DIR/local.yaml" >> "ros-one.yaml"
-"$(dirname "${BASH_SOURCE[0]}")/src/scripts/yaml_remove_duplicates.py" ros-one.yaml
+"$(dirname "${BASH_SOURCE[0]}")/../src/scripts/yaml_remove_duplicates.py" ros-one.yaml
 
 # Remove remaining files
 (cd "$INCOMING_DIR" || exit 1; rm -f ./Packages ./Release ./README.md.in ./local.yaml)
