@@ -253,11 +253,12 @@ function build_python_pkg {
 
   # Get + Check release version
   version="$(get_python_release_version)" || return 5
+  local debian_version="${version#*-}"
   local deb_pkg_name; deb_pkg_name="python3-$(python3 setup.py --name)"
   pkg_exists "$deb_pkg_name" "$version" && return
 
   ici_label update_repo || return 1
-  ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command bdist_deb || return 4
+  ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command sdist_dsc --debian-version "$debian_version" bdist_deb || return 4
 
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
   BUILT_PACKAGES+=("$deb_pkg_name: $version")
