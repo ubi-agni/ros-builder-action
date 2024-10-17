@@ -135,7 +135,9 @@ function get_release_version {
 
 function pkg_exists {
   local pkg_version="${2%"$DEB_DISTRO"}"
-  local available; available=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)$DEB_DISTRO\..*#\1#p")
+  local available
+  available=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)$DEB_DISTRO\..*#\1#p") # for ros pkgs
+  test -z "$available" && available=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p") # for python pkgs
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$available" ] && [ "$available" != "(none)" ] && \
      dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py" "$DEBS_PATH"; then
     echo "Skipped (existing version $available >= $pkg_version)"
