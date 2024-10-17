@@ -15,3 +15,6 @@ repositories:
     type: git
     url: https://github.com/ros/roscpp_core.git
     version: noetic-devel
+
+sbuild_options:
+  genmsg: --jobs=2

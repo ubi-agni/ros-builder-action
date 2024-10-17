@@ -1055,3 +1055,6 @@ repositories:
     type: git
     url: https://github.com/ros/xacro.git
     version: noetic-devel
+
+sbuild_options:
+  eigenpy: --jobs=2

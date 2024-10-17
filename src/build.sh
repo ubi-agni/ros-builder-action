@@ -151,6 +151,7 @@ function build_pkg {
   local old_path=$PWD
   local pkg_name=$1
   local pkg_path=$2
+  local opts
   local version
   local version_stamped
 
@@ -188,8 +189,13 @@ function build_pkg {
 
   rm -rf .git
 
+  # Fetch sbuild options from .repos yaml file
+  opts=$(yq ".sbuild_options.\"$pkg_name\"" "$3")
+  [ "$opts" != "null" ] || opts=""
+  [ -z "$opts" ] || opts="$EXTRA_SBUILD_OPTS $opts"
+
   ici_label update_repo || return 1
-  SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $EXTRA_SBUILD_OPTS"
+  SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
   ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
@@ -289,7 +295,7 @@ function build_source {
 
     local exit_code=0
     if [ -f "${PKG_FOLDERS[$idx]}/package.xml" ]; then
-      build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
+      build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" "$old_path/$1" || exit_code=$?
     elif [ -f "${PKG_FOLDERS[$idx]}/setup.py" ]; then
       build_python_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
     else
