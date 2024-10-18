@@ -135,15 +135,16 @@ function get_release_version {
 
 function pkg_exists {
   local pkg_version="${2%"$DEB_DISTRO"}"
-  local available
-  available=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)$DEB_DISTRO\..*#\1#p") # for ros pkgs
-  test -z "$available" && available=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p") # for python pkgs
-  if [ "$SKIP_EXISTING" == "true" ] && [ -n "$available" ] && [ "$available" != "(none)" ] && \
-     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py" "$DEBS_PATH"; then
-    echo "Skipped (existing version $available >= $pkg_version)"
+  local candidate; candidate=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+  [ "$candidate" = "(none)" ] && candidate=""
+  local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
+
+  if [ "$SKIP_EXISTING" == "true" ] && [ -n "$candidate" ] && \
+     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py"; then
+    echo "Skipped (existing version $candidate >= $pkg_version)"
     return 0
   fi
-  echo "Building version $pkg_version (old: $available)"
+  echo "Building version $pkg_version (old: $candidate)"
   return 1
 }
 
@@ -271,9 +272,7 @@ function build_source {
   local old_path=$PWD
   local ws_path="$PWD/ws"
 
-  ici_title "Build packages from $1"
-
-  prepare_ws "$ws_path" "$1"
+  ici_timed "$(ici_colorize BLUE BOLD "Setup workspace for $1")" prepare_ws "$ws_path" "$1"
   cd "$ws_path" || ici_exit 1
 
   # determine list of packages (names + folders)
