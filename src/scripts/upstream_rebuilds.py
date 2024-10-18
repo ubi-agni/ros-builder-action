@@ -12,7 +12,10 @@ from rosdep2.sources_list import get_sources_cache_dir
 
 from dataclasses import dataclass, field
 from pathlib import Path
-import os, sys
+import argparse
+import datetime
+import subprocess
+import os, re
 
 
 @dataclass
@@ -23,9 +26,10 @@ class Options:
     sources_cache_dir: str = get_sources_cache_dir()
     verbose: bool = False
 
-
-debs = Path(sys.argv[1])
-folder = Path(sys.argv[2] if len(sys.argv) > 2 else ".")
+parser = argparse.ArgumentParser()
+parser.add_argument("folder", nargs="?", default=".")
+options = parser.parse_args()
+folder = Path(options.folder)
 
 # bail out if folder doesn't contain package.xml
 if not (folder / "package.xml").exists():
@@ -58,17 +62,36 @@ def resolve(rosdep_name):
         os_name, os_version, installer_keys, default_key
     )
 
-    installer = installer_context.get_installer(rule_installer)
-    resolved = installer.resolve(rule)
-    return resolved
+    return installer_context.get_installer(rule_installer).resolve(rule)
+
+# regex to extract version number and build time from "1.16.0-14jammy.20240914.2055"
+regex = re.compile(f'(?P<version>.*){os.environ["DEB_DISTRO"]}\.(?P<stamp>.*)')
 
 
+def stamp(pkg_name):
+    try:
+        deb_name = resolve(pkg_name)[0]
+        # version scheme only applies to ros packages
+        if not deb_name.startswith("ros-"):
+            return datetime.datetime.fromtimestamp(0)
+
+        # run shell command: LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p"
+        candidate = subprocess.getoutput(
+            f'apt-cache policy "{deb_name}" | sed -n "s#^\\s*Candidate:\\s\\(.*\\)#\\1#p"'
+        )
+        result = regex.match(candidate).groupdict()
+        return datetime.datetime.strptime(result["stamp"], "%Y%m%d.%H%M")
+    except IndexError:
+        return datetime.datetime.fromtimestamp(0)
+
+
+current = stamp(pkg.name)
 for dep in pkg.build_depends:
     if dep.evaluated_condition:
-        for name in resolve(dep.name):
-            # check whether file debs/name*.deb exists
-            if any(debs.glob(f"{name}*.deb")):
-                print(f"Rebuild needed due to {name}")
-                exit(0)  # rebuild needed
+        # rebuild is needed if any dependency's stamp is newer than package's one
+        time = stamp(dep.name)
+        if time > current:
+            print(f"Rebuild needed due to {dep.name} rebuilt at {time}")
+            exit(0)  # rebuild needed
 
 exit(1)  # no rebuild needed
