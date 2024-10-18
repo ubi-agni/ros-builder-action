@@ -11,14 +11,19 @@ fi
 [ -z "$ARCH" ] && echo "ARCH undefined" && exit 1
 [ -z "$REPO" ] && echo "github repo undefined" && exit 1
 
+# Translate ARCH x64 -> amd64
+[ "$ARCH" == "x64" ] && ARCH="amd64"
+
 # Operate on the -build distro
 DISTRO="${DISTRO}-build"
 
-if [ "$(ls -A "$INCOMING_DIR")" ]; then
+if [ -n "$RUN_ID" ] ; then
+	echo "Fetching debs artifact from https://github.com/$REPO/actions/runs/$RUN_ID"
+	gh --repo "$REPO" run download --name debs --dir "$INCOMING_DIR" "$RUN_ID"
+elif [ "$(ls -A "$INCOMING_DIR")" ]; then
 	echo "Importing existing files from incoming directory"
 elif [ -n "$GH_TOKEN" ]; then
-   echo "Fetching last debs artifact from github"
-	echo "$GH_TOKEN" | gh auth login --with-token
+   echo "Fetching last debs artifact from https://github.com/$REPO"
 	gh --repo "$REPO" run download --name debs --dir "$INCOMING_DIR"
 fi
 
