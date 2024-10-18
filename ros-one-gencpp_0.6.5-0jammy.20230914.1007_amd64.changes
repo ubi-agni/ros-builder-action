@@ -1,0 +1,26 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 10:07:28 +0000
+Source: ros-one-gencpp
+Binary: ros-one-gencpp
+Built-For-Profiles: noudeb
+Architecture: amd64
+Version: 0.6.5-0jammy.20230914.1007
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Dirk Thomas <dthomas@osrfoundation.org>
+Changed-By: Dirk Thomas <dthomas@osrfoundation.org>
+Description:
+ ros-one-gencpp - C++ ROS message and service generators.
+Changes:
+ ros-one-gencpp (0.6.5-0jammy.20230914.1007) UNRELEASED; urgency=high
+ .
+   * jammy Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ 4463876dab9c9fc24b8fd1ad95182c406a8d2cd2 7640 ros-one-gencpp_0.6.5-0jammy.20230914.1007_amd64.buildinfo
+ 6cbc0d4dc6e6aa55217a02df246b6e835529363f 15942 ros-one-gencpp_0.6.5-0jammy.20230914.1007_amd64.deb
+Checksums-Sha256:
+ fb2c2d00bcd2af17658793fdba6f701f9d530727d883d54c26fb5876789da649 7640 ros-one-gencpp_0.6.5-0jammy.20230914.1007_amd64.buildinfo
+ 31bede4afb4695a130689962e352319464b84f55fbf8ace03f0bfcec1e4b0432 15942 ros-one-gencpp_0.6.5-0jammy.20230914.1007_amd64.deb
+Files:
+ 1d49f0c97be4bcc4c2983fd19f877f05 7640 misc optional ros-one-gencpp_0.6.5-0jammy.20230914.1007_amd64.buildinfo
+ 7dffcbf8b2fcdb5eeb0480e651fb512f 15942 misc optional ros-one-gencpp_0.6.5-0jammy.20230914.1007_amd64.deb

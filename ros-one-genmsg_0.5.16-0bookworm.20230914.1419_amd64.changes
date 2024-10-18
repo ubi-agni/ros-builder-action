@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 14:19:17 +0000
+Source: ros-one-genmsg
+Binary: ros-one-genmsg
+Architecture: amd64
+Version: 0.5.16-0bookworm.20230914.1419
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Dirk Thomas <dthomas@osrfoundation.org>
+Changed-By: Dirk Thomas <dthomas@osrfoundation.org>
+Description:
+ ros-one-genmsg - Standalone Python library for generating ROS message and service
+Changes:
+ ros-one-genmsg (0.5.16-0bookworm.20230914.1419) UNRELEASED; urgency=high
+ .
+   * bookworm Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ 5e49c8fdeb9dd584f5da7e67a4e4060cb84bb2fa 6651 ros-one-genmsg_0.5.16-0bookworm.20230914.1419_amd64.buildinfo
+ c5d1ff8b6811c1fb16bcc534efb85317b36d5513 44600 ros-one-genmsg_0.5.16-0bookworm.20230914.1419_amd64.deb
+Checksums-Sha256:
+ 51a5eee4aa17e56c4ce67ff0b0a8b590248091f0aa0f5077cd44230f0676cdec 6651 ros-one-genmsg_0.5.16-0bookworm.20230914.1419_amd64.buildinfo
+ cf76b589fe72a493bfc7e3229a7f032f2f382d30ce162ea0ef5855712527302c 44600 ros-one-genmsg_0.5.16-0bookworm.20230914.1419_amd64.deb
+Files:
+ 67c2b702797d22829b95b21ada21f578 6651 misc optional ros-one-genmsg_0.5.16-0bookworm.20230914.1419_amd64.buildinfo
+ 2fa0229166b642d8486758a104aa8047 44600 misc optional ros-one-genmsg_0.5.16-0bookworm.20230914.1419_amd64.deb

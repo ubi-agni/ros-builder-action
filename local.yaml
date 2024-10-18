@@ -1,0 +1,40 @@
+catkin:
+  debian:
+  - ros-one-catkin
+  ubuntu:
+  - ros-one-catkin
+cpp_common:
+  debian:
+  - ros-one-cpp-common
+  ubuntu:
+  - ros-one-cpp-common
+gencpp:
+  debian:
+  - ros-one-gencpp
+  ubuntu:
+  - ros-one-gencpp
+genmsg:
+  debian:
+  - ros-one-genmsg
+  ubuntu:
+  - ros-one-genmsg
+roscpp_core:
+  debian:
+  - ros-one-roscpp-core
+  ubuntu:
+  - ros-one-roscpp-core
+roscpp_serialization:
+  debian:
+  - ros-one-roscpp-serialization
+  ubuntu:
+  - ros-one-roscpp-serialization
+roscpp_traits:
+  debian:
+  - ros-one-roscpp-traits
+  ubuntu:
+  - ros-one-roscpp-traits
+rostime:
+  debian:
+  - ros-one-rostime
+  ubuntu:
+  - ros-one-rostime

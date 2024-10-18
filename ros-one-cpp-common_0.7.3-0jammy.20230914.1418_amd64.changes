@@ -1,0 +1,29 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 14:18:12 +0000
+Source: ros-one-cpp-common
+Binary: ros-one-cpp-common
+Built-For-Profiles: noudeb
+Architecture: amd64
+Version: 0.7.3-0jammy.20230914.1418
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Changed-By: Martin Pecka <peckama2@fel.cvut.cz>
+Description:
+ ros-one-cpp-common - cpp_common contains C++ code for doing things that are not necess
+Changes:
+ ros-one-cpp-common (0.7.3-0jammy.20230914.1418) UNRELEASED; urgency=high
+ .
+   * jammy Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ 010b2d3ca8f4fd9930a90a882924249688262bbe 137106 ros-one-cpp-common-dbgsym_0.7.3-0jammy.20230914.1418_amd64.ddeb
+ f7ca4119df96beb4291c9fe071944f33f489185e 8771 ros-one-cpp-common_0.7.3-0jammy.20230914.1418_amd64.buildinfo
+ 13507579b0ac41054043432dab9bd11994f977ad 21896 ros-one-cpp-common_0.7.3-0jammy.20230914.1418_amd64.deb
+Checksums-Sha256:
+ 9538f8dbb127b9b3ffe8bdd7037223c0341c8911ee5d07a80d8831aa20105f9d 137106 ros-one-cpp-common-dbgsym_0.7.3-0jammy.20230914.1418_amd64.ddeb
+ c42cba647934d30a665de8eb5295ebc8222c63426848f73cb8551fa55d68f6c7 8771 ros-one-cpp-common_0.7.3-0jammy.20230914.1418_amd64.buildinfo
+ 8b757626c1620eb3324166966d7d650625b0678e22e2d5171bb156cbe926502e 21896 ros-one-cpp-common_0.7.3-0jammy.20230914.1418_amd64.deb
+Files:
+ c4d12156d877851e20d79fc748f6be4e 137106 debug optional ros-one-cpp-common-dbgsym_0.7.3-0jammy.20230914.1418_amd64.ddeb
+ 2630347c1c8eec68cbcce6bc7d9599e9 8771 misc optional ros-one-cpp-common_0.7.3-0jammy.20230914.1418_amd64.buildinfo
+ 7a565f4b48d65398e2f5ab79a50277c8 21896 misc optional ros-one-cpp-common_0.7.3-0jammy.20230914.1418_amd64.deb

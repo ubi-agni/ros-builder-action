@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Thu, 14 Sep 2023 10:09:14 +0000
+Source: ros-one-roscpp-core
+Binary: ros-one-roscpp-core
+Architecture: amd64
+Version: 0.7.3-0bookworm.20230914.1009
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: Martin Pecka <peckama2@fel.cvut.cz>
+Changed-By: Martin Pecka <peckama2@fel.cvut.cz>
+Description:
+ ros-one-roscpp-core - Underlying data libraries for roscpp messages.
+Changes:
+ ros-one-roscpp-core (0.7.3-0bookworm.20230914.1009) UNRELEASED; urgency=high
+ .
+   * bookworm Append timestamp when binarydeb was built.
+Checksums-Sha1:
+ ca63c56edc577213c1bd8d03da34a585606b66c2 6669 ros-one-roscpp-core_0.7.3-0bookworm.20230914.1009_amd64.buildinfo
+ 3825e95ca38ee2f7b3e3ed8b3b2e97d2869ba891 2132 ros-one-roscpp-core_0.7.3-0bookworm.20230914.1009_amd64.deb
+Checksums-Sha256:
+ 1b4ae81be8ae955b7ed4dad73f550073c743516b659491bbbe6c93bee1cd2336 6669 ros-one-roscpp-core_0.7.3-0bookworm.20230914.1009_amd64.buildinfo
+ 899e8c5cc0365090c20274ca22592948bf5e6f84954c07efeab146c45b073d5d 2132 ros-one-roscpp-core_0.7.3-0bookworm.20230914.1009_amd64.deb
+Files:
+ 81ce49e4078eaac9e4180fb2502c9d4c 6669 misc optional ros-one-roscpp-core_0.7.3-0bookworm.20230914.1009_amd64.buildinfo
+ 3c14836a2e0a22c9897ef91596892163 2132 misc optional ros-one-roscpp-core_0.7.3-0bookworm.20230914.1009_amd64.deb
