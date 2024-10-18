@@ -1,0 +1,14 @@
+description: GitHub action to deploy debs to a package repository
+author: Robert Haschke
+branding:
+  icon: 'package'
+  color: 'green'
+
+inputs:
+  url:
+    description: "request url"
+    required: true
+
+runs:
+  using: 'node20'
+  main: 'deploy.js'
