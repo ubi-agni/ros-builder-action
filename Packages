@@ -4353,6 +4353,23 @@ SHA512: a2d025212f3ac36cea50e9a68450918869521b7db654fde916fa58d1bdbe0820c5530bc6
 Homepage: http://wiki.ros.org/catkin
 Description: Low-level build system macros and infrastructure for ROS.
 
+Package: ros-one-catkin
+Architecture: amd64
+Version: 0.8.10-10jammy.20241018.2159
+Priority: optional
+Section: misc
+Maintainer: Geoffrey Biggs <geoff@openrobotics.org>
+Installed-Size: 662
+Depends: cmake, google-mock, libgtest-dev, python3-catkin-pkg (>> 0.4.3), python3-empy, python3-nose, python3-setuptools
+Filename: ./ros-one-catkin_0.8.10-10jammy.20241018.2159_amd64.deb
+Size: 127554
+MD5sum: 297c0a67488419e93612f0678b6f66a5
+SHA1: 9f466033d49bbc4c6877494d139bbacefbfa1470
+SHA256: 7c50afef9a8f027fee94397bf3ac27fdb6dec314a84c4110aea13542498ea1e4
+SHA512: cfeddbc8a50e6f1e2e22f095f0df89e1747efe5c1ff9068bad176f91dd2b5bfaa5c36b20de46bd45c97e60880555c4ec40aa69fa8ae9752ddf3a29f356f0d5a8
+Homepage: http://wiki.ros.org/catkin
+Description: Low-level build system macros and infrastructure for ROS.
+
 Package: ros-one-cpp-common-dbgsym
 Architecture: amd64
 Version: 0.7.3-0bookworm.20230914.0945
