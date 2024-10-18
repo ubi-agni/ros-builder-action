@@ -83,3 +83,18 @@ jobs:
       SKIP_EXISTING: ${{ inputs.SKIP_EXISTING }}
       CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
       INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
+
+  deploy:
+    needs: build
+    if: success() && vars.DEPLOY_URL
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    concurrency:
+      # Ensure exclusive access to deployment target
+      group: ${{ vars.DEPLOY_URL }}
+      cancel-in-progress: false
+    steps:
+      - name: Import build artifacts to reprepro server
+        uses: ./reprepro
+        with:
+          url: "${{ vars.DEPLOY_URL }}?&run_id=${{ github.run_id }}&arch=${{ inputs.ARCH || vars.ARCH || 'x64' }}"

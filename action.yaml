@@ -1,5 +1,5 @@
 name: ROS buildfarm
-description: Github action to build .deb packages from ROS sources
+description: GitHub action to build .deb packages from ROS sources
 author: Robert Haschke
 branding:
   icon: 'package'
