@@ -72,6 +72,7 @@ function validate_deb_sources {
 }
 
 REPOS_LIST_FILE="/etc/apt/sources.list.d/ros-builder-repos.list"
+DEBS_LIST_FILE="/etc/apt/sources.list.d/ros-builder-debs.list"
 function configure_extra_host_sources {
   ici_asroot rm -f "$REPOS_LIST_FILE"
   while IFS= read -r line; do
@@ -176,5 +177,6 @@ function update_repo {
   apt-ftparchive release  . > Release
   cd "$old_path" || return 1
 
-  ici_asroot apt-get update -qq
+  ici_asroot apt-get update -qq -o Dir::Etc::sourcelist="$DEBS_LIST_FILE" \
+        -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
 }

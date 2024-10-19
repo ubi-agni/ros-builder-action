@@ -19,11 +19,6 @@ ros_key_file="/etc/apt/keyrings/ros-archive-keyring.gpg"
 ici_append INSTALL_HOST_GPG_KEYS "sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $ros_key_file"
 ici_append EXTRA_HOST_SOURCES "deb [signed-by=$ros_key_file] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
 
-# Configure DEBS_PATH as deb sources
-ici_append EXTRA_HOST_SOURCES "deb [trusted=yes] file://$(realpath "$DEBS_PATH") ./"
-ici_timed "Create \$DEBS_PATH=$DEBS_PATH" mkdir -p "$DEBS_PATH"
-ici_timed "Initialize $DEBS_PATH" update_repo
-
 # Configure sources
 ici_hook INSTALL_HOST_GPG_KEYS
 ici_timed "Configure EXTRA_HOST_SOURCES" configure_extra_host_sources
@@ -59,6 +54,13 @@ service apt-cacher-ng status || ici_asroot service apt-cacher-ng start
 ici_end_fold
 
 ici_title "Prepare build environment"
+
+# Configure DEBS_PATH as deb sources
+ici_time_start "Configure $DEBS_PATH as deb sources"
+echo "deb [trusted=yes] file://$(realpath "$DEBS_PATH") ./" | ici_asroot tee -a "$DEBS_LIST_FILE"
+ici_label mkdir -p "$DEBS_PATH"
+ici_label update_repo
+ici_time_end
 
 ici_timed "Declare EXTRA_ROSDEP_SOURCES" declare_extra_rosdep_sources
 ici_timed "Download existing rosdep declarations" load_local_yaml
