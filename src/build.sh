@@ -131,6 +131,9 @@ function pkg_exists {
   [ "$candidate" = "(none)" ] && candidate=""
   local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
 
+  if [ -n "$candidate" ] && ! dpkg --compare-versions "$available" "<=" "$pkg_version" ; then
+    gha_warning "$1: existing version newer: $available > $pkg_version"
+  fi
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$candidate" ] && \
      dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py"; then
     echo "Skipped (existing version $candidate >= $pkg_version)"
