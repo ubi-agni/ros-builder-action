@@ -11,7 +11,6 @@ BUILT_PACKAGES=()
 build_all_sources
 
 ici_log
-ici_timed update_repo
 ici_timed "ccache statistics" ccache -sv
 
 if [ "${#BUILT_PACKAGES[@]}" -gt 0 ]; then

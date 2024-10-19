@@ -110,14 +110,6 @@ function prepare_ws {
   esac
 }
 
-function update_repo {
-  local old_path=$PWD
-  cd "$DEBS_PATH" || return 1
-  apt-ftparchive packages . > Packages
-  apt-ftparchive release  . > Release
-  cd "$old_path" || return 1
-}
-
 function get_release_version {
   local version
   local offset="0"
@@ -195,7 +187,6 @@ function build_pkg {
   [ "$opts" != "null" ] || opts=""
   [ -z "$opts" ] || opts="$EXTRA_SBUILD_OPTS $opts"
 
-  ici_label update_repo || return 1
   SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
   ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4
 
@@ -258,7 +249,6 @@ function build_python_pkg {
   local deb_pkg_name; deb_pkg_name="python3-$(python3 setup.py --name)"
   pkg_exists "$deb_pkg_name" "$version" && return
 
-  ici_label update_repo || return 1
   ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command sdist_dsc --debian-version "$debian_version" bdist_deb || return 4
 
   gha_report_result "LATEST_PACKAGE" "$pkg_name"
@@ -285,6 +275,7 @@ function build_source {
   done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
 
   ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
+  ici_timed update_repo
 
   local msg_prefix=""
   local total="${#PKG_NAMES[@]}"
@@ -321,6 +312,7 @@ function build_source {
         gha_error "$msg_prefix on $pkg_desc."
       fi
     fi
+    ici_label update_repo
     ici_time_end
   done
 

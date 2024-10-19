@@ -20,9 +20,9 @@ ici_append INSTALL_HOST_GPG_KEYS "sudo curl -sSL https://raw.githubusercontent.c
 ici_append EXTRA_HOST_SOURCES "deb [signed-by=$ros_key_file] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
 
 # Configure DEBS_PATH as deb sources
-if [ -r "$DEBS_PATH/Release" ]; then
-	ici_append EXTRA_HOST_SOURCES "deb [trusted=yes] file://$(realpath "$DEBS_PATH") ./"
-fi
+ici_append EXTRA_HOST_SOURCES "deb [trusted=yes] file://$(realpath "$DEBS_PATH") ./"
+ici_timed "Create \$DEBS_PATH=$DEBS_PATH" mkdir -p "$DEBS_PATH"
+ici_timed "Initialize $DEBS_PATH" update_repo
 
 # Configure sources
 ici_hook INSTALL_HOST_GPG_KEYS
@@ -60,7 +60,6 @@ ici_end_fold
 
 ici_title "Prepare build environment"
 
-ici_timed "Create \$DEBS_PATH=$DEBS_PATH" mkdir -p "$DEBS_PATH"
 ici_timed "Declare EXTRA_ROSDEP_SOURCES" declare_extra_rosdep_sources
 ici_timed "Download existing rosdep declarations" load_local_yaml
 

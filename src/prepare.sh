@@ -168,3 +168,13 @@ function declare_extra_rosdep_sources {
     echo "yaml $source $ROS_DISTRO"
   done | ici_asroot tee /etc/ros/rosdep/sources.list.d/02-remote.list
 }
+
+function update_repo {
+  local old_path=$PWD
+  cd "$DEBS_PATH" || return 1
+  apt-ftparchive packages . > Packages
+  apt-ftparchive release  . > Release
+  cd "$old_path" || return 1
+
+  ici_asroot apt-get update -qq
+}
