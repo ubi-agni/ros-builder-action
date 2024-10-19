@@ -96,7 +96,7 @@ jobs:
     if: ${{ !cancelled() }}
     uses: ubi-agni/ros-builder-action/.github/workflows/deploy.yaml@main
     with:
-      DEBS_ARTIFACT_NAME: ${{ matrix.NAME }}
+      DEBS_ARTIFACT_NAME: skip
       DEPLOY_URL: self#ci
       PUSH_MODE: ${{ matrix.PUSH_MODE }}
       MESSAGE: "ci: ${{ matrix.NAME }} ${{ matrix.PUSH_MODE }}"
