@@ -12,3 +12,9 @@ evtSource.onmessage = (event) => {
 	else
 		console.log(event.data)
 };
+
+evtSource.onerror = (error) => {
+	core.warning(error.message);
+	evtSource.close();
+	process.exit(1);
+}

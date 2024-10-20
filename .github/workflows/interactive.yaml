@@ -97,4 +97,4 @@ jobs:
       - name: Import build artifacts to reprepro server
         uses: ./reprepro
         with:
-          url: "${{ vars.DEPLOY_URL }}?&run_id=${{ github.run_id }}&arch=${{ inputs.ARCH || vars.ARCH || 'x64' }}"
+          url: "${{ vars.DEPLOY_URL }}?distro=${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}&run_id=${{ github.run_id }}&arch=${{ inputs.ARCH || vars.ARCH || 'x64' }}"

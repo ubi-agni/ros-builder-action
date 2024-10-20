@@ -18,7 +18,7 @@ fi
 DISTRO="${DISTRO}-build"
 
 if [ -n "$RUN_ID" ] ; then
-	echo "Fetching debs artifact from https://github.com/$REPO/actions/runs/$RUN_ID"
+	echo "Fetching artifact"
 	gh --repo "$REPO" run download --name debs --dir "$INCOMING_DIR" "$RUN_ID"
 elif [ "$(ls -A "$INCOMING_DIR")" ]; then
 	echo "Importing existing files from incoming directory"
