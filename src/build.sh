@@ -194,7 +194,6 @@ function build_pkg {
   ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
-  gha_report_result "LATEST_PACKAGE" "$pkg_name"
   BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
@@ -213,6 +212,8 @@ EOF
   log=$(ls -1t "$DEBS_PATH/$(deb_pkg_name "${pkg_name}" "$version_stamped")_"*.build | grep -P '(?<!Z)\.build' | head -1)
   mv "$(readlink -f "$log")" "${log/.build/.log}" # rename actual log file
   rm "$log" # remove symlink
+
+  ici_label update_repo
 }
 
 function get_python_release_version {
@@ -254,11 +255,12 @@ function build_python_pkg {
 
   ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command sdist_dsc --debian-version "$debian_version" bdist_deb || return 4
 
-  gha_report_result "LATEST_PACKAGE" "$pkg_name"
   BUILT_PACKAGES+=("$deb_pkg_name: $version")
 
   # Move created files to $DEBS_PATH for deployment
   mv deb_dist/*.dsc deb_dist/*.tar.?z deb_dist/*.deb deb_dist/*.changes deb_dist/*.buildinfo "$DEBS_PATH"
+
+  ici_label update_repo
 }
 
 function build_source {
@@ -284,6 +286,8 @@ function build_source {
   local total="${#PKG_NAMES[@]}"
   local idx
   for (( idx=0; idx < total; idx++ )); do
+    gha_report_result "LATEST_PACKAGE" "${PKG_NAMES[$idx]}"
+
     local pkg_desc="package $((idx+1))/$total: ${PKG_NAMES[$idx]} (${PKG_FOLDERS[$idx]})"
     ici_time_start "$(ici_colorize CYAN BOLD "Building $pkg_desc")"
 
@@ -308,14 +312,13 @@ function build_source {
 
       if [ "$CONTINUE_ON_ERROR" = false ]; then
         # exit with custom error message
-        ici_exit "$exit_code" gha_error "$msg_prefix on $pkg_desc. Continue with: --packages-start ${PKG_NAMES[$idx]}"
+        ici_exit "$exit_code" gha_error "$msg_prefix on $pkg_desc."
       else
         # fail later
         FAIL_EVENTUALLY=1
         gha_error "$msg_prefix on $pkg_desc."
       fi
     fi
-    ici_label update_repo
     ici_time_end
   done
 

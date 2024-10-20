@@ -21,3 +21,5 @@ fi
 if [ "$FAIL_EVENTUALLY" != 0 ]; then
 	ici_exit 1 ici_color_output RED "Some packages failed to build"
 fi
+
+gha_report_result "LATEST_PACKAGE" "DONE"

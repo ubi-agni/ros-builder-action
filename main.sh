@@ -4,6 +4,15 @@
 
 ici_setup_vars "${VERBOSE:-}" "${DEFAULT_QUIET_CONFIG[@]}"
 
+if [ "$CONTINUE_FROM_PKG" == "DONE" ]; then
+	ici_log "Skipping build, as requested"
+	gha_report_result "LATEST_PACKAGE" "DONE"
+	exit 0
+elif [ "$CONTINUE_FROM_PKG" != "" ]; then
+	COLCON_PKG_SELECTION="$COLCON_PKG_SELECTION --packages-start $CONTINUE_FROM_PKG"
+fi
+
+
 ici_start_fold "Variables"
 cat <<EOF
 ROS_DISTRO=$ROS_DISTRO
