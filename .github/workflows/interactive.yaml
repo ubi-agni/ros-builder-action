@@ -62,8 +62,7 @@ on:
         required: false
 
 jobs:
-  build:
-    name: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || 'latest' }}-${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one'}}
+  build-1:
     uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
     with:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
@@ -84,8 +83,52 @@ jobs:
       CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
       INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
 
+  build-2:
+    needs: build-1
+    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
+    with:
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
+      ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
+      ARCH: ${{ inputs.ARCH || vars.ARCH || 'x64' }}
+      ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
+      INSTALL_GPG_KEYS: |
+        sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
+        sudo mkdir -p /etc/ros/rosdep/sources.list.d
+        echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || '' }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
+      EXTRA_DEB_SOURCES: "${{ inputs.CONTINUE_BUILD && \
+          format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main', \
+                 inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+      COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
+      CONTINUE_FROM_PKG: ${{ needs.build-1.outputs.LATEST_PACKAGE }}
+      DOWNLOAD_DEBS: true
+      SKIP_EXISTING: ${{ inputs.SKIP_EXISTING }}
+      CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
+      INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
+
+  build-3:
+    needs: build-2
+    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
+    with:
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
+      ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
+      ARCH: ${{ inputs.ARCH || vars.ARCH || 'x64' }}
+      ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
+      INSTALL_GPG_KEYS: |
+        sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
+        sudo mkdir -p /etc/ros/rosdep/sources.list.d
+        echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || '' }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
+      EXTRA_DEB_SOURCES: "${{ inputs.CONTINUE_BUILD && \
+          format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-build main', \
+                 inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+      COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
+      CONTINUE_FROM_PKG: ${{ needs.build-2.outputs.LATEST_PACKAGE }}
+      DOWNLOAD_DEBS: true
+      SKIP_EXISTING: ${{ inputs.SKIP_EXISTING }}
+      CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
+      INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
+
   deploy:
-    needs: build
+    needs: build-3
     if: success() && vars.DEPLOY_URL
     timeout-minutes: 15
     runs-on: ubuntu-latest
@@ -95,6 +138,6 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Import build artifacts to reprepro server
-        uses: ./reprepro
+        uses: ubi-agni/ros-builder-action/reprepro@main
         with:
           url: "${{ vars.DEPLOY_URL }}?distro=${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}&run_id=${{ github.run_id }}&arch=${{ inputs.ARCH || vars.ARCH || 'x64' }}"

@@ -37,6 +37,10 @@ on:
         description: Continue building from previous debs artifact?
         required: true
         default: false
+      CONTINUE_FROM_PKG:
+        type: string
+        description: package to continue building from
+        required: false
       INSTALL_TO_CHROOT:
         type: boolean
         description: Incrementally install built packages within the chroot?
@@ -125,6 +129,7 @@ jobs:
   debs:
     runs-on: ${{ inputs.ARCH  == 'x64' && 'ubuntu-22.04' || inputs.ARCH }}
     name: build debs
+    continue-on-error: true
     outputs:
       LATEST_PACKAGE: ${{ steps.build.outputs.LATEST_PACKAGE }}
 
@@ -163,6 +168,7 @@ jobs:
           BUILD_TIMEOUT: ${{ inputs.BUILD_TIMEOUT || vars.BUILD_TIMEOUT }}
         env:
           COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
+          CONTINUE_FROM_PKG: ${{ inputs.CONTINUE_FROM_PKG }}
           EXTRA_SBUILD_CONFIG: ${{ inputs.EXTRA_SBUILD_CONFIG || vars.EXTRA_SBUILD_CONFIG }}
           EXTRA_SBUILD_OPTS: ${{ inputs.EXTRA_SBUILD_OPTS || vars.EXTRA_SBUILD_OPTS }}
           DEB_BUILD_OPTIONS: ${{ inputs.DEB_BUILD_OPTIONS || vars.DEB_BUILD_OPTIONS || 'nocheck' }}
@@ -189,4 +195,5 @@ jobs:
         with:
           name: ${{ inputs.DEBS_ARTIFACT_NAME || 'debs' }}
           path: ${{ env.DEBS_PATH }}
+          overwrite: true
           if-no-files-found: error
