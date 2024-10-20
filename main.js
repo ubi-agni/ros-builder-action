@@ -45,8 +45,8 @@ child.on('exit', function (exit_code, signal) {
   exit_code = exit_code !== null ? exit_code : 143
   const suffix = exit_code == expect ? ' (as expected)' : ' != ' + expect
   const msg = 'Process finished with code ' + exit_code + suffix
-  exit_code == expect ? core.debug(msg) : core.warning(msg)
-  process.exit(exit_code == expect ? 0 : 1)
+  exit_code == expect || exit_code == 143 ? core.debug(msg) : core.warning(msg)
+  process.exit(exit_code == expect || exit_code == 143 ? 0 : 1)
 })
 
 // cancel build after given timout (github default: 6h - 20min slack)
