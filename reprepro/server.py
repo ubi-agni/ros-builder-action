@@ -56,28 +56,35 @@ def reprepro_import(request: Request, run_id: str = "", arch: str = "x64"):
         with open("import.log", "a", encoding="utf-8") as f:
             stamp = time.strftime("%Y-%m-%d %H:%M:%S")
             url = f"https://github.com/{repo}/actions/runs/{run_id}"
-            f.write(f"\n\n{stamp} Importing {arch} from {url}\n")
+            f.write(f"\n\n{stamp}\nImporting {arch} from {url}\n")
 
-            while True:
-                if await request.is_disconnected():
-                    pass  # continue process and writing log file
+            try:
+                while True:
+                    output = process.stdout.readline()
+                    if output:
+                        f.write(output)
+                        yield output[:-1]
 
-                output = process.stdout.readline()
-                if output:
-                    f.write(output)
-                    yield output[:-1]
+                    elif process.poll() is not None:  # process finished
+                        if process.returncode != 0:
+                            output = f"Failed with return code {process.returncode}\n"
+                            yield output[:-1]
+                        yield ""  # signal end of stream
+                        break
 
-                elif process.poll() is not None:
-                    break  # process finished
+            except asyncio.CancelledError:  # client disconnected
+                # continue process and writing log
+                while True:
+                    output = process.stdout.readline()
+                    if output:
+                        f.write(output)
+                    elif process.poll() is not None:
+                        if process.returncode != 0:
+                            output = f"Failed with return code {process.returncode}\n"
+                        break  # process finished
 
-                await asyncio.sleep(1)
+            f.write(output)
 
-            if process.returncode != 0:
-                output = f"Failed with return code {process.returncode}\n"
-                f.write(output)
-                yield output[:-1]
-
-        yield ""  # signal end of stream
         global running
         running = None
 
