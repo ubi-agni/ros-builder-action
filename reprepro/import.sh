@@ -32,30 +32,39 @@ function filter {
 }
 
 # Import sources
-printf "\nImporting source packages"
 if [ "$ARCH" == "amd64" ]; then
+	printf "\nImporting source packages\n"
 	for f in "$INCOMING_DIR"/*.dsc; do
-		echo "$f"
+		[ -f "$f" ] || break  # Handle case of no files found
+		echo "${f#"$INCOMING_DIR/"}"
 		reprepro includedsc "$DISTRO" "$f" | filter
 	done
 fi
 
 # Import packages
-printf "\nImporting binary packages"
-reprepro -A "$ARCH" includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
+printf "\nImporting binary packages\n"
+for f in "$INCOMING_DIR"/*.deb; do
+	[ -f "$f" ] || break  # Handle case of no files found
+	echo "${f#"$INCOMING_DIR/"}"
+	reprepro -A "$ARCH" includedeb "$DISTRO" "$f" | filter
+done
 
 # Cleanup files
 (cd "$INCOMING_DIR" || exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
 
 # Rename, Import, and Cleanup ddeb files (if existing)
-printf "\nImporting debug packages"
-if [ -n "$(ls -A "$INCOMING_DIR"/*.ddeb 2>/dev/null)" ]; then
-	mmv "$INCOMING_DIR/*.ddeb" "$INCOMING_DIR/#1.deb"
-	reprepro -A "$ARCH" -C main-dbg includedeb "$DISTRO" "$INCOMING_DIR"/*.deb | filter
-	(cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
-fi
+printf "\nImporting debug packages\n"
+for f in "$INCOMING_DIR"/*.ddeb; do
+	[ -f "$f" ] || break  # Handle case of no files found
+	echo "${f#"$INCOMING_DIR/"}"
+	# remove .ddeb suffix
+	f=${f%.ddeb}
+	mv "${f}.ddeb" "${f}.deb"
+	reprepro -A "$ARCH" -C main-dbg includedeb "$DISTRO" "${f}.deb" | filter
+done
+(cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
 
-printf "\nExporting"
+printf "\nExporting\n"
 reprepro export "$DISTRO"
 
 # Merge local.yaml into ros-one.yaml

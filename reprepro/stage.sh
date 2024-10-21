@@ -11,9 +11,17 @@ fi
 [ -z "$ARCH" ] && echo "ARCH undefined" && exit 1
 [ -z "$REPO" ] && echo "github repo undefined" && exit 1
 
-# Move packages from testing to production stage
-pkgs=$(reprepro -A "$ARCH" list "$DISTRO-testing" | grep -v "|source" | cut -s -d " " -f 2)
+# Move deb packages from testing to production stage
+pkgs=$(reprepro -A "$ARCH" -T deb list "$DISTRO-testing" | cut -s -d " " -f 2)
 # shellcheck disable=SC2086
 reprepro -A "$ARCH" copy "$DISTRO" "$DISTRO-testing" $pkgs
 
-# reprepro remove "$DISTRO-testing" "$pkgs"
+# Move dsc packages from testing to production stage
+if [ "$ARCH" == "amd64" ]; then
+	pkgs=$(reprepro -T dsc list "$DISTRO-testing" | cut -s -d " " -f 2)
+	for pkg in $pkgs; do
+		reprepro -T dsc copysrc "$DISTRO" "$DISTRO-testing" "$pkg"
+	done
+fi
+
+# reprepro remove "$DISTRO-testing" $pkgs
