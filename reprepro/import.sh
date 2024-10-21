@@ -14,8 +14,8 @@ fi
 # Translate ARCH x64 -> amd64
 [ "$ARCH" == "x64" ] && ARCH="amd64"
 
-# Operate on the -build distro
-DISTRO="${DISTRO}-build"
+# Operate on the -testing distro
+DISTRO="${DISTRO}-testing"
 
 if [ -n "$RUN_ID" ] ; then
 	echo "Fetching artifact"

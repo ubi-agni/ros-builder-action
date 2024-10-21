@@ -11,9 +11,9 @@ fi
 [ -z "$ARCH" ] && echo "ARCH undefined" && exit 1
 [ -z "$REPO" ] && echo "github repo undefined" && exit 1
 
-# Move packages from build to production stage
-pkgs=$(reprepro -A "$ARCH" list "$DISTRO-build" | grep -v "|source" | cut -s -d " " -f 2)
+# Move packages from testing to production stage
+pkgs=$(reprepro -A "$ARCH" list "$DISTRO-testing" | grep -v "|source" | cut -s -d " " -f 2)
 # shellcheck disable=SC2086
-reprepro -A "$ARCH" copy "$DISTRO" "$DISTRO-build" $pkgs
+reprepro -A "$ARCH" copy "$DISTRO" "$DISTRO-testing" $pkgs
 
-# reprepro remove "$DISTRO-build" "$pkgs"
+# reprepro remove "$DISTRO-testing" "$pkgs"
