@@ -194,7 +194,7 @@ function build_pkg {
   ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
-  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version")
+  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): ${version%"$DEB_DISTRO"}")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output BOLD "Install package within chroot"
