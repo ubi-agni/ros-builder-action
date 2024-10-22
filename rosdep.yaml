@@ -1,5 +1,12 @@
+# this package does not exist (and shouldn't, because it was moved to moveit-resources)
+# but it's still referenced as conflicting with moveit_resources
 prbt_ikfast_manipulator_plugin:
   debian: []
+  ubuntu: []
+
+# this package is not available in the default ubuntu repositories due to licensing issues
+# rosdep still needs to resolve it when building warehouse_ros_mongo
+mongodb:
   ubuntu: []
 
 libfltk-dev:
@@ -17,3 +24,18 @@ libgazebo11-dev:
 log4cxx:
   debian:
     bookworm: [liblog4cxx-dev]
+
+libuvc:
+  ubuntu: [libuvc-dev]
+
+fcl:
+  debian: [libfcl-dev]
+  ubuntu: [libfcl-dev]
+
+octomap:
+  debian: [liboctomap-dev]
+  ubuntu: [liboctomap-dev]
+
+python-serial:
+  debian: [python3-serial]
+  ubuntu: [python3-serial]
