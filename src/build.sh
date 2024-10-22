@@ -59,8 +59,10 @@ function ici_import_repository {
 
   if [ -z "$URL_FRAGMENT" ] || [ "$URL_FRAGMENT" = "HEAD" ]; then
     ici_vcs_import "$ws_path" <<< "{repositories: {'$name': {type: 'git', url: '$url'}}}"
+    WS_SOURCE="${url%.git}"
   else
     ici_vcs_import "$ws_path" <<< "{repositories: {'$name': {type: 'git', url: '$url', version: '$URL_FRAGMENT'}}}"
+    WS_SOURCE="${url%.git}/commit/$URL_FRAGMENT"
   fi
 }
 
@@ -87,6 +89,7 @@ function ici_import {
       processor=(ici_vcs_import "$ws_path")
       ;;
   esac
+  WS_SOURCE=$(realpath "$src")
   ici_guard "${importer[@]}" "$src" | ici_guard "${processor[@]}"
 }
 
@@ -108,6 +111,24 @@ function prepare_ws {
       ici_import file "$ws_path" "$src"
       ;;
   esac
+}
+
+function source_link {
+  local version=$1
+  local url
+
+  if git rev-parse --is-inside-work-tree &> /dev/null; then
+    url="$(git config --get remote.origin.url)"
+    url="${url%.git}/commit/$(git rev-parse HEAD)"
+  elif [ -f "$WS_SOURCE" ]; then
+    local repo; repo=$(realpath "$PWD")
+    repo=${repo#*/ws/}  # strip everyting before /ws/
+    repo=${repo%%/*}    # strip everything after next /
+    url=$(yq ".repositories.\"$repo\".url" "$WS_SOURCE")
+  else
+    url="$WS_SOURCE"
+  fi
+  echo "[$version]($url)"
 }
 
 function get_release_version {
@@ -183,10 +204,11 @@ function build_pkg {
     --preserve --force-distribution "$DEB_DISTRO" \
     --urgency high -m "Append timestamp when binarydeb was built." || return 3
 
+  local version_link; version_link=$(source_link "${version%"$DEB_DISTRO"}") || true
   rm -rf .git
 
   # Fetch sbuild options from .repos yaml file
-  opts=$(yq ".sbuild_options.\"$pkg_name\"" "$3")
+  [ -f "$WS_SOURCE" ] && opts=$(yq ".sbuild_options.\"$pkg_name\"" "$WS_SOURCE") || opts=""
   [ "$opts" != "null" ] || opts=""
   [ -z "$opts" ] || opts="$EXTRA_SBUILD_OPTS $opts"
 
@@ -194,7 +216,7 @@ function build_pkg {
   ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
-  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): ${version%"$DEB_DISTRO"}")
+  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version_link")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output BOLD "Install package within chroot"
@@ -253,9 +275,12 @@ function build_python_pkg {
   local deb_pkg_name; deb_pkg_name="python3-$(python3 setup.py --name)"
   pkg_exists "$deb_pkg_name" "$version" && return
 
+  local version_link; version_link=$(source_link "${version%"$DEB_DISTRO"}") || true
+  rm -rf .git
+
   ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command sdist_dsc --debian-version "$debian_version" bdist_deb || return 4
 
-  BUILT_PACKAGES+=("$deb_pkg_name: $version")
+  BUILT_PACKAGES+=("$deb_pkg_name: $version_link")
 
   # Move created files to $DEBS_PATH for deployment
   mv deb_dist/*.dsc deb_dist/*.tar.?z deb_dist/*.deb deb_dist/*.changes deb_dist/*.buildinfo "$DEBS_PATH"
@@ -293,7 +318,7 @@ function build_source {
 
     local exit_code=0
     if [ -f "${PKG_FOLDERS[$idx]}/package.xml" ]; then
-      build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" "$old_path/$1" || exit_code=$?
+      build_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
     elif [ -f "${PKG_FOLDERS[$idx]}/setup.py" ]; then
       build_python_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
     else
@@ -332,3 +357,4 @@ function build_all_sources {
 }
 
 export FAIL_EVENTUALLY
+export WS_SOURCE # current workspace source
