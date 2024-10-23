@@ -143,7 +143,7 @@ jobs:
 
       - name: Download debs from previous run
         uses: actions/download-artifact@v4
-        if: inputs.DOWNLOAD_DEBS
+        if: inputs.DOWNLOAD_DEBS && (inputs.CONTINUE_FROM_PKG != 'DONE')
         continue-on-error: true
         with:
           name: debs
@@ -154,13 +154,14 @@ jobs:
         run: echo "CCACHE_ID=ccache-${DEB_DISTRO}-$(dpkg --print-architecture)-${ROS_SOURCES}" | tee -a "$GITHUB_OUTPUT"
       - name: Restore ccache
         id: restore-ccache
+        if: runner.environment == 'github-hosted'
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-id.outputs.CCACHE_ID }}
 
       - name: Build .deb packages
-        uses: ubi-agni/ros-builder-action@main
+        uses: ./
         id: build
         with:
           EXPECT_EXIT_CODE: ${{ inputs.EXPECT_EXIT_CODE }}
@@ -178,7 +179,7 @@ jobs:
 
       - name: Remove files comprising invalid chars # they would break artifact upload
         if: always() # always prepare files for upload
-        run: find ${{ env.DEBS_PATH }} -name '*[<>:"\\|?*]*' -print -delete
+        run: find ${{ env.DEBS_PATH }} -name '*[<>:"\\|?*]*' -print -delete || true
 
       - name: Delete old ccache
         if: always() && steps.restore-ccache.outputs.cache-hit
@@ -188,7 +189,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
       - name: Store ccache
         uses: actions/cache/save@v4
-        if: always() # save cache on timeout or cancel too
+        if: always() && (runner.environment == 'github-hosted')
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
@@ -196,7 +197,7 @@ jobs:
       - name: Upload debs
         uses: actions/upload-artifact@v4
         # always upload except if name is skip (i.e. also on timeout or cancel)
-        if: always() && (inputs.DEBS_ARTIFACT_NAME != 'skip')
+        if: always() && (inputs.DEBS_ARTIFACT_NAME != 'skip') && (inputs.CONTINUE_FROM_PKG != 'DONE')
         with:
           name: ${{ inputs.DEBS_ARTIFACT_NAME || 'debs' }}
           path: ${{ env.DEBS_PATH }}
