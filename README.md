@@ -54,7 +54,7 @@ jobs:
       SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}  # used for other repo
 ```
 
-More complex usage examples can be found in [interactive.yaml](.github/workflows/interactive.yaml) or [splitted.yaml](.github/workflows/splitted.yaml).
+More complex usage examples can be found in [interactive.yaml](.github/workflows/interactive.yaml).
 
 ### Environment variables
 
