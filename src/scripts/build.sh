@@ -18,8 +18,8 @@ if [ "${#BUILT_PACKAGES[@]}" -gt 0 ]; then
 	printf -- '- %s\n' "${BUILT_PACKAGES[@]}" >> "$GITHUB_STEP_SUMMARY"
 fi
 
+gha_report_result "LATEST_PACKAGE" "DONE"
+
 if [ "$FAIL_EVENTUALLY" != 0 ]; then
 	ici_exit 1 ici_color_output RED "Some packages failed to build"
 fi
-
-gha_report_result "LATEST_PACKAGE" "DONE"
