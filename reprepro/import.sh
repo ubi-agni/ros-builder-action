@@ -49,6 +49,10 @@ for f in "$INCOMING_DIR"/*.deb; do
 	reprepro -A "$ARCH" includedeb "$DISTRO" "$f" | filter
 done
 
+# Save log files
+mkdir -p "log/${DISTRO%-testing}.$ARCH"
+mv "$INCOMING_DIR"/*.log "log/${DISTRO%-testing}.$ARCH"
+
 # Cleanup files
 (cd "$INCOMING_DIR" || exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
 
