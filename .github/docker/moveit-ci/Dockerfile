@@ -4,8 +4,8 @@
 ARG DEB_DISTRO=jammy
 FROM ubiagni/ros:${DEB_DISTRO}-ros-base
 
-ENV TERM xterm
-ENV IN_DOCKER 1
+ENV TERM=xterm
+ENV IN_DOCKER=1
 
 # Commands are combined in single RUN statement with "apt/lists" folder removal to reduce image size
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers

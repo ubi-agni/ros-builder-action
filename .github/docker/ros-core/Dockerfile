@@ -18,17 +18,14 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # setup sources.list
-# Configure ROS 2 apt repository (for python3-rosdep, pythron3-colcon)
-RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /etc/apt/keyrings/ros-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main" | tee /etc/apt/sources.list.d/ros2.list && \
-    curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg && \
+RUN curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net jammy main" | tee /etc/apt/sources.list.d/ros1.list
 
 # setup environment
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
-ENV ROS_DISTRO one
+ENV ROS_DISTRO=one
 
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
