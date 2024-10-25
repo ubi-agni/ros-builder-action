@@ -36,6 +36,14 @@ octomap:
   debian: [liboctomap-dev]
   ubuntu: [liboctomap-dev]
 
-python-serial:
+python-serial: # needed for libuvc_camera
   debian: [python3-serial]
   ubuntu: [python3-serial]
+
+orocos_kdl: # needed for robot_calibration, pr2_head_action, ...
+  debian: [liborocos-kdl-dev]
+  ubuntu: [liborocos-kdl-dev]
+
+bfl: # needed for robot_pose_ekf
+  debian: [liborocos-bfl-dev]
+  ubuntu: [liborocos-bfl-dev]
