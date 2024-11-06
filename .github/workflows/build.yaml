@@ -128,6 +128,7 @@ env:
 jobs:
   debs:
     runs-on: ${{ inputs.ARCH  == 'x64' && 'ubuntu-22.04' || inputs.ARCH }}
+    timeout-minutes: ${{ inputs.BUILD_TIMEOUT || (inputs.ARCH  == 'x64' && 340 || 2880) }}
     name: build debs
     continue-on-error: true
     outputs:
@@ -165,7 +166,7 @@ jobs:
         id: build
         with:
           EXPECT_EXIT_CODE: ${{ inputs.EXPECT_EXIT_CODE }}
-          BUILD_TIMEOUT: ${{ inputs.BUILD_TIMEOUT || vars.BUILD_TIMEOUT }}
+          BUILD_TIMEOUT: ${{ inputs.BUILD_TIMEOUT || (runner.environment == 'github-hosted' && '340' || '2880') }}
         env:
           COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
           CONTINUE_FROM_PKG: ${{ inputs.CONTINUE_FROM_PKG }}
