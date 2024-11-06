@@ -208,9 +208,13 @@ function build_pkg {
   rm -rf .git
 
   # Fetch sbuild options from .repos yaml file
-  [ -f "$WS_SOURCE" ] && opts=$(yq ".sbuild_options.\"$pkg_name\"" "$WS_SOURCE") || opts=""
-  [ "$opts" != "null" ] || opts=""
-  [ -z "$opts" ] || opts="$EXTRA_SBUILD_OPTS $opts"
+  opts=""
+  if [ -f "$WS_SOURCE" ]; then
+    opts=$(yq ".sbuild_options.\"$pkg_name\".$ARCH" "$WS_SOURCE")
+    if [ "$opts" == "null" ]; then opts=$(yq ".sbuild_options.\"$pkg_name\"" "$WS_SOURCE"); fi
+    if [ "$opts" == "null" ]; then opts=""; fi
+  fi
+  if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
 
   SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
   ici_label "${SBUILD_QUIET[@]}" sg sbuild -c "sbuild $SBUILD_OPTS" || return 4

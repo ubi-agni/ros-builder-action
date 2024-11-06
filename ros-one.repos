@@ -1049,4 +1049,6 @@ repositories:
     version: noetic-devel
 
 sbuild_options:
-  eigenpy: --jobs=2
+  eigenpy:
+    amd64: --jobs=2
+    arm64: --jobs=1

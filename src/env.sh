@@ -7,6 +7,7 @@ set -euo pipefail # exit script on errors
 ## target names
 export ROS_DISTRO=${ROS_DISTRO:-one}
 export DEB_DISTRO=${DEB_DISTRO:-$(lsb_release -cs)}
+export ARCH=${ARCH:-$(dpkg --print-architecture)}
 
 ## package repository options
 export INSTALL_GPG_KEYS=${INSTALL_GPG_KEYS:-} # hook to install GPG keys
