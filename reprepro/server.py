@@ -8,6 +8,7 @@ import os
 import queue
 import subprocess
 import time
+import colorama
 from threading import Thread
 from pathlib import Path
 import logging
@@ -21,6 +22,7 @@ if not (Path(os.getcwd()) / "conf" / "distributions").is_file():
     exit(1)
 
 running = None
+colorama.init()
 app = FastAPI()
 
 
@@ -114,7 +116,7 @@ def reprepro_import(request: Request, distro: str, run_id: str, arch: str = "x64
                     elif status == Status.IMPORTING:
                         size += 1
                         if size >= 10:
-                            yield "Import stalled. Killing unzstd."
+                            yield f"{colorama.Fore.RED}Import stalled. Killing unzstd.{colorama.Style.RESET_ALL}"
                             subprocess.run(["pkill", "unzstd"], check=False)
 
                     await asyncio.sleep(1)
