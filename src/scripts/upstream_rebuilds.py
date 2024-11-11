@@ -83,6 +83,9 @@ def stamp(pkg_name):
         return datetime.datetime.strptime(result["stamp"], "%Y%m%d.%H%M")
     except IndexError:
         return datetime.datetime.fromtimestamp(0)
+    except AttributeError:
+        print(f"AttributeError: candidate={candidate} regex={regex.pattern}")
+        return datetime.datetime.fromtimestamp(0)
 
 
 current = stamp(pkg.name)
