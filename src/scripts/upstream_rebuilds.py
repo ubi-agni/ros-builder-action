@@ -13,8 +13,8 @@ from rosdep2.sources_list import get_sources_cache_dir
 from dataclasses import dataclass, field
 from pathlib import Path
 import argparse
+import apt
 import datetime
-import subprocess
 import os, re
 
 
@@ -50,6 +50,9 @@ installer, installer_keys, default_key, os_name, os_version = get_default_instal
 
 view = lookup.get_rosdep_view(DEFAULT_VIEW_KEY, verbose=options.verbose)
 
+apt_cache = apt.Cache()
+apt_cache.open()
+
 
 def resolve(rosdep_name):
     "Resolve rosdep package name to required system package name(s)"
@@ -75,10 +78,7 @@ def stamp(pkg_name):
         if not deb_name.startswith("ros-"):
             return datetime.datetime.fromtimestamp(0)
 
-        # run shell command: LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p"
-        candidate = subprocess.getoutput(
-            f'apt-cache policy "{deb_name}" | sed -n "s#^\\s*Candidate:\\s\\(.*\\)#\\1#p"'
-        )
+        candidate = apt_cache[deb_name].candidate.version
         result = regex.match(candidate).groupdict()
         return datetime.datetime.strptime(result["stamp"], "%Y%m%d.%H%M")
     except IndexError:
