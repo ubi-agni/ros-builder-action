@@ -41,4 +41,4 @@ jobs:
       - name: Import build artifacts to reprepro server
         uses: ubi-agni/ros-builder-action/reprepro@main
         with:
-          url: "${{ vars.DEPLOY_URL }}?distro=${{ matrix.DEB_DISTRO }}&run_id=${{ github.run_id }}&arch=x64"
+          url: "${{ vars.DEPLOY_URL }}?run_id=${{ github.run_id }}&arch=x64"

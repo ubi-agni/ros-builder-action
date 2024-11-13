@@ -79,7 +79,9 @@ def process(q: queue.Queue, distro: str, repo: str, arch: str, run_id: str):
 
 
 @app.get("/import")
-def reprepro_import(request: Request, distro: str, run_id: str, arch: str = "x64"):
+def reprepro_import(
+    request: Request, run_id: str, arch: str = "x64", distro: str = "jammy"
+):
     kwargs = dict(
         repo="ubi-agni/ros-builder-action", distro=distro, run_id=run_id, arch=arch
     )
@@ -96,8 +98,9 @@ def reprepro_import(request: Request, distro: str, run_id: str, arch: str = "x64
             while True:
                 try:
                     response = q.get_nowait()
-                    if status == Status.STARTED and response.startswith("Fetching "):
+                    if response.startswith("Fetching "):
                         status = Status.DOWNLOADING
+                        size = -1
                     elif status == Status.DOWNLOADING or status == Status.IMPORTING:
                         status = Status.IMPORTING
                         size = 0
@@ -116,6 +119,7 @@ def reprepro_import(request: Request, distro: str, run_id: str, arch: str = "x64
                     elif status == Status.IMPORTING:
                         size += 1
                         if size >= 10:
+                            size = 0
                             yield f"{colorama.Fore.RED}Import stalled. Killing unzstd.{colorama.Style.RESET_ALL}"
                             subprocess.run(["pkill", "unzstd"], check=False)
 
