@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [jammy]
+        DEB_DISTRO: [jammy, noble]
         ROS_DISTRO: [one]
 
     uses: ./.github/workflows/docker.build.yaml
@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [jammy]
+        DEB_DISTRO: [jammy, noble]
 
     uses: ./.github/workflows/docker.build.yaml
     secrets: inherit
@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [jammy]
+        DEB_DISTRO: [jammy, noble]
 
     uses: ./.github/workflows/docker.build.yaml
     secrets: inherit
@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [jammy]
+        DEB_DISTRO: [jammy, noble]
 
     uses: ./.github/workflows/docker.build.yaml
     secrets: inherit
@@ -82,7 +82,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [jammy]
+        DEB_DISTRO: [jammy, noble]
 
     uses: ./.github/workflows/docker.build.yaml
     secrets: inherit
@@ -97,7 +97,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [jammy]
+        DEB_DISTRO: [jammy, noble]
 
     uses: ./.github/workflows/docker.build.yaml
     secrets: inherit

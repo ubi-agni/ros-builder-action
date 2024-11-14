@@ -56,14 +56,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [ bookworm, jammy ]
+        DEB_DISTRO: [ bookworm, jammy, noble ]
         BUILD_TIMEOUT: [ 0 ]
         include:
           # defaults (can be overriden with values from include w/o adding jobs)
           - { ROS_SOURCES: 'good', DEBS: false, VERBOSE: false }
           # override/add settings for specific distros
           - { DEB_DISTRO: bookworm, DEBS: true, VERBOSE: bloom }
-          - { DEB_DISTRO: jammy, VERBOSE: true }
+          - { DEB_DISTRO: noble, VERBOSE: true }
           - { DEB_DISTRO: jammy, BUILD_TIMEOUT: 3, ROS_SOURCES: 'good', DEBS: true, EXPECT_EXIT_CODE: 143 }
           # add failing jobs
           - { DEB_DISTRO: focal, ROS_SOURCES: broken, EXPECT_EXIT_CODE: 2, CONTINUE_ON_ERROR: false, DEBS: true }
