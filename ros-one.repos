@@ -243,6 +243,10 @@ repositories:
     type: git
     url: https://github.com/ros/genmsg.git
     version: kinetic-devel
+  genmypy:
+    type: git
+    url: https://github.com/rospypi/genmypy.git
+    version: master
   gennodejs:
     type: git
     url: https://github.com/RethinkRobotics-opensource/gennodejs.git
