@@ -1,6 +1,7 @@
 name: scheduled
 
 on:
+  workflow_dispatch:
   schedule:
     # 8 PM UTC every day
     - cron: "0 20 * * *"
@@ -30,7 +31,7 @@ jobs:
 
   deploy:
     needs: build
-    if: success() && vars.DEPLOY_URL
+    if: always() && vars.DEPLOY_URL
     timeout-minutes: 15
     runs-on: ubuntu-latest
     concurrency:

@@ -292,6 +292,19 @@ function build_python_pkg {
   ici_label update_repo
 }
 
+function known_to_fail {
+  local pkg_path=$1
+  for key in all "$DEB_DISTRO"; do
+    while IFS= read -r failure; do
+      # shellcheck disable=SC2053
+      if [[ "$pkg_path" == $failure ]]; then
+        return 0
+      fi
+    done < <(yq ".known_failures.${key}[]" "$WS_SOURCE" 2> /dev/null)
+  done
+  return 1
+}
+
 function build_source {
   local old_path=$PWD
   local ws_path="$PWD/ws"
@@ -339,7 +352,9 @@ function build_source {
         *) msg_prefix="unnamed step failed ($exit_code)" ;;
       esac
 
-      if [ "$CONTINUE_ON_ERROR" = false ]; then
+      if known_to_fail "${PKG_FOLDERS[$idx]}"; then
+        gha_warning "$msg_prefix on $pkg_desc."
+      elif [ "$CONTINUE_ON_ERROR" = false ]; then
         # exit with custom error message
         ici_exit "$exit_code" gha_error "$msg_prefix on $pkg_desc."
       else

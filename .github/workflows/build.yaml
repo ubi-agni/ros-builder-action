@@ -130,7 +130,6 @@ jobs:
     runs-on: ${{ inputs.ARCH  == 'x64' && 'ubuntu-22.04' || inputs.ARCH }}
     timeout-minutes: ${{ inputs.BUILD_TIMEOUT || (inputs.ARCH  == 'x64' && 340 || 2880) }}
     name: build debs
-    continue-on-error: true
     outputs:
       LATEST_PACKAGE: ${{ steps.build.outputs.LATEST_PACKAGE }}
 
