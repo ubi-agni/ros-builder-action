@@ -24,4 +24,4 @@ if [ "$ARCH" == "amd64" ]; then
 	done
 fi
 
-# reprepro remove "$DISTRO-testing" $pkgs
+# reprepro -A $ARCH remove "$DISTRO-testing" $pkgs

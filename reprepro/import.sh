@@ -74,14 +74,14 @@ if [ "$(ls -A "$INCOMING_DIR")" ]; then
 	echo "Importing existing files from incoming directory"
 	import "$DISTRO"
 else
-	if [ -n "$RUN_ID" ] ; then
+	if [ -z "$RUN_ID" ] ; then
 		# Retrieve RUN_ID of latest workflow run
 		RUN_ID=$(gh api -X GET "/repos/$REPO/actions/runs" | jq ".workflow_runs[0] | .id")
 	fi
 	# Retrieve names of artifacts in that workflow run
 	artifacts=$(gh api -X GET "/repos/$REPO/actions/artifacts" | jq --raw-output ".artifacts[] | select(.workflow_run.id == $RUN_ID) | .name")
 	for a in $artifacts; do
-		echo "Fetching artifact \"$a\" from https://github.com/$REPO"
+		echo "Fetching artifact \"$a\" from https://github.com/$REPO/actions/runs/$RUN_ID"
 		gh --repo "$REPO" run download --name "$a" --dir "$INCOMING_DIR" "$RUN_ID" || continue
 		if [ "$distro" == "debs" ]; then
 			distro=$DISTRO
