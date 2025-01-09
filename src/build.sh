@@ -111,6 +111,17 @@ function prepare_ws {
       ici_import file "$ws_path" "$src"
       ;;
   esac
+
+  if [ "$SKIP_KNOWN_FAILING" = true ] ; then
+    # mark all folders of known-to-fail packages with COLCON_IGNORE
+    for key in all "$DEB_DISTRO"; do
+      while IFS= read -r failure; do
+        while IFS= read -r -d '' pkg_path; do
+          touch "$pkg_path/COLCON_IGNORE"
+        done <   <(find "$ws_path" -type d -wholename "*/$failure" -print0)
+      done < <(yq ".known_failures.${key}[]" "$WS_SOURCE" 2> /dev/null)
+    done
+  fi
 }
 
 function source_link {

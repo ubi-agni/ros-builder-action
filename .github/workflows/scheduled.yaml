@@ -26,6 +26,7 @@ jobs:
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
       DEBS_ARTIFACT_NAME: ${{ matrix.DEB_DISTRO }}-debs
       SKIP_EXISTING: true
+      SKIP_KNOWN_FAILING: true
       CONTINUE_ON_ERROR: true
       INSTALL_TO_CHROOT: false
 

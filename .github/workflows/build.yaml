@@ -32,6 +32,10 @@ on:
         type: boolean
         description: Skip building packages already existing in the repository
         required: false
+      SKIP_KNOWN_FAILING:
+        type: boolean
+        description: Skip building packages known to fail
+        required: false
       DOWNLOAD_DEBS:
         type: boolean
         description: Continue building from previous debs artifact?
@@ -174,6 +178,7 @@ jobs:
           DEB_BUILD_OPTIONS: ${{ inputs.DEB_BUILD_OPTIONS || vars.DEB_BUILD_OPTIONS || 'nocheck' }}
           CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR || vars.CONTINUE_ON_ERROR || false }}
           SKIP_EXISTING: ${{ inputs.SKIP_EXISTING || vars.SKIP_EXISTING || false }}
+          SKIP_KNOWN_FAILING: ${{ inputs.SKIP_KNOWN_FAILING || false }}
           INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT || vars.INSTALL_TO_CHROOT || false }}
           VERBOSE: ${{ inputs.VERBOSE || vars.VERBOSE || '' }}
 
