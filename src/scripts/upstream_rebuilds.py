@@ -68,7 +68,7 @@ def resolve(rosdep_name):
     return installer_context.get_installer(rule_installer).resolve(rule)
 
 # regex to extract version number and build time from "1.16.0-14jammy.20240914.2055"
-regex = re.compile(f'(?P<version>.*){os.environ["DEB_DISTRO"]}\.(?P<stamp>.*)')
+regex = re.compile(f'(?P<version>.*){os.environ["DEB_DISTRO"]}\\.(?P<stamp>.*)')
 
 
 def stamp(pkg_name):
