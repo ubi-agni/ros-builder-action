@@ -512,7 +512,7 @@ function ici_cmd {
 
 function ici_asroot {
   if [ "$EUID" -ne 0 ] && command -v sudo > /dev/null; then
-      sudo "$@"
+      sudo -E "$@"
   else
       "$@"
   fi

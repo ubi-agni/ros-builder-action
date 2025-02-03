@@ -43,6 +43,8 @@ if [ "${DEBUG_BASH:-}" ] && [ "$DEBUG_BASH" == true ]; then
 	set -x;
 fi
 
+# Allow pip to install into system directories
+export PIP_BREAK_SYSTEM_PACKAGES=1
 
 # sanity checks
 
