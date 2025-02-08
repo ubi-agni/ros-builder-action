@@ -107,6 +107,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/catkin.git
     version: obese-devel
+  catkin_grpc:
+    type: git
+    url: https://github.com/CogRob/catkin_grpc.git
+    version: 0.0.16
   catkin_virtualenv:
     type: git
     url: https://github.com/locusrobotics/catkin_virtualenv.git
