@@ -13,34 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         DEB_DISTRO: [jammy, noble]
-    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
+        ARCH: [x64, arm64]
+    uses: ./.github/workflows/scheduled_job.yaml
     with:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
-      ROS_SOURCES: ros-one.repos
-      INSTALL_GPG_KEYS: |
-        sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
-        sudo mkdir -p /etc/ros/rosdep/sources.list.d
-        echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ matrix.DEB_DISTRO }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
-      EXTRA_DEB_SOURCES: "deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net ${{matrix.DEB_DISTRO}}-testing main"
-      # proceed from existing debs artifact if run_attempt > 1
-      DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
-      DEBS_ARTIFACT_NAME: ${{ matrix.DEB_DISTRO }}-debs
-      SKIP_EXISTING: true
-      SKIP_KNOWN_FAILING: true
-      CONTINUE_ON_ERROR: true
-      INSTALL_TO_CHROOT: false
-
-  deploy:
-    needs: build
-    if: always() && vars.DEPLOY_URL
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    concurrency:
-      # Ensure exclusive access to deployment target
-      group: ${{ vars.DEPLOY_URL }}
-      cancel-in-progress: false
-    steps:
-      - name: Import build artifacts to reprepro server
-        uses: ubi-agni/ros-builder-action/reprepro@main
-        with:
-          url: "${{ vars.DEPLOY_URL }}?run_id=${{ github.run_id }}&arch=x64"
+      ARCH: ${{ matrix.ARCH }}
