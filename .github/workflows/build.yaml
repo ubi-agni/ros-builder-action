@@ -131,7 +131,7 @@ env:
 
 jobs:
   debs:
-    runs-on: ${{ (inputs.ARCH  == 'x64' && 'ubuntu-22.04') || (inputs.ARCH == 'arm64' && 'ubuntu-22.04-arm') || inputs.ARCH }}
+    runs-on: ${{ inputs.ARCH  == 'x64' && 'ubuntu-22.04' || (inputs.ARCH == 'arm64' && 'ubuntu-22.04-arm' || inputs.ARCH) }}
     timeout-minutes: ${{ inputs.ARCH  == 'x64' && 340 || 2880 }}
     name: build debs
     outputs:
