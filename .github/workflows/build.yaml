@@ -188,8 +188,7 @@ jobs:
 
       - name: Delete old ccache
         if: always() && steps.restore-ccache.outputs.cache-hit
-        continue-on-error: true
-        run: gh cache delete "${{ steps.restore-ccache.outputs.cache-primary-key }}"
+        run: gh cache delete "${{ steps.restore-ccache.outputs.cache-primary-key }}" || true
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Store ccache
