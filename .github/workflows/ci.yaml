@@ -48,7 +48,7 @@ jobs:
 
   build:
     needs: unittests
-    name: "${{ matrix.DEB_DISTRO }}, ${{ matrix.ROS_SOURCES }}\
+    name: "${{ matrix.DEB_DISTRO }}, ${{ matrix.ARCH }}, ${{ matrix.ROS_SOURCES }}\
            ${{ matrix.VERBOSE && format(', verbose={0}', matrix.VERBOSE) || '' }}\
            ${{ matrix.BUILD_TIMEOUT && format(', timeout={0}', matrix.BUILD_TIMEOUT) || '' }}\
            ${{ matrix.CONTINUE_ON_ERROR && ', cont-on-err' || '' }}"
@@ -57,6 +57,7 @@ jobs:
       fail-fast: false
       matrix:
         DEB_DISTRO: [ bookworm, jammy, noble ]
+        ARCH: [ x64, arm64 ]
         BUILD_TIMEOUT: [ 0 ]
         include:
           # defaults (can be overriden with values from include w/o adding jobs)
@@ -72,6 +73,7 @@ jobs:
     uses: ./.github/workflows/build.yaml
     with:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ARCH: ${{ matrix.ARCH }}
       ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
       ROS_SOURCES: .github/workflows/${{ matrix.ROS_SOURCES }}.repos
       INSTALL_TO_CHROOT: ${{ matrix.BUILD_TIMEOUT > 0 }}  # slow down for timeout test
