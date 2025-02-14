@@ -13,9 +13,11 @@ jobs:
       fail-fast: false
       matrix:
         DEB_DISTRO: [jammy, noble]
-    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
+        ARCH: [x64, arm64]
+    uses: ./.github/workflows/build.yaml
     with:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ARCH: ${{ matrix.ARCH }}
       ROS_SOURCES: ros-one.repos
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
