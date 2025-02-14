@@ -63,7 +63,7 @@ on:
 
 jobs:
   stage-1:
-    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
+    uses: ./.github/workflows/build.yaml
     with:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
       ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
@@ -87,7 +87,7 @@ jobs:
   stage-2:
     needs: stage-1
     if: needs.stage-1.result == 'success' || ${{ inputs.CONTINUE_ON_ERROR }}
-    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
+    uses: ./.github/workflows/build.yaml
     with:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
       ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
@@ -111,7 +111,7 @@ jobs:
   stage-3:
     needs: stage-2
     if: needs.stage-2.result == 'success' || ${{ inputs.CONTINUE_ON_ERROR }}
-    uses: ubi-agni/ros-builder-action/.github/workflows/build.yaml@main
+    uses: ./.github/workflows/build.yaml
     with:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
       ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
@@ -142,7 +142,8 @@ jobs:
       group: ${{ vars.DEPLOY_URL }}
       cancel-in-progress: false
     steps:
+      - uses: actions/checkout@v4
       - name: Import build artifacts to reprepro server
-        uses: ubi-agni/ros-builder-action/reprepro@main
+        uses: ./reprepro
         with:
           url: "${{ vars.DEPLOY_URL }}?distro=${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}&run_id=${{ github.run_id }}&arch=${{ inputs.ARCH || vars.ARCH || 'x64' }}"

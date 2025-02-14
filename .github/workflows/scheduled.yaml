@@ -42,7 +42,8 @@ jobs:
       group: ${{ vars.DEPLOY_URL }}
       cancel-in-progress: false
     steps:
+      - uses: actions/checkout@v4
       - name: Import build artifacts to reprepro server
-        uses: ubi-agni/ros-builder-action/reprepro@main
+        uses: ./reprepro
         with:
           url: "${{ vars.DEPLOY_URL }}?run_id=${{ github.run_id }}&arch=x64"
