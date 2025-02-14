@@ -227,9 +227,8 @@ function build_pkg {
   fi
   if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
 
-  # The `sg` command without `sudo` does not work on Ubuntu Arm64 environment in Github Actions.
   SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
-  ici_label "${SBUILD_QUIET[@]}" sudo -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
+  ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
   BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version_link")
