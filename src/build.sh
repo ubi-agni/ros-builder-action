@@ -102,13 +102,13 @@ function prepare_ws {
 
   case "$src" in
     git* | bitbucket:* | bb:* | gh:* | gl:*)
-      ici_import_repository "$ws_path" "$src"
+      ici_import_repository "$ws_path" "$src" || ici_exit 1
       ;;
     http://* | https://*)
-      ici_import url "$ws_path" "$src"
+      ici_import url "$ws_path" "$src" || ici_exit 1
       ;;
     *)
-      ici_import file "$ws_path" "$src"
+      ici_import file "$ws_path" "$src" || ici_exit 1
       ;;
   esac
 
