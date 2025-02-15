@@ -77,6 +77,7 @@ function import {
 
 	# Remove remaining files
 	rm -rf "${INCOMING_DIR:?}"/*
+	ici_log
 }
 
 # Download debs artifact(s)

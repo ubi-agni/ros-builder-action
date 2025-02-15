@@ -227,6 +227,7 @@ function build_pkg {
   fi
   if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
 
+  ici_log
   SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 

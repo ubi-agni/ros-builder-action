@@ -511,7 +511,6 @@ function ici_guard {
 
 function ici_label {
     local cmd; cmd=$(ici_get_log_cmd "$@")
-    ici_log
     ici_color_output BOLD "$ $cmd"
     "$@"
 }
