@@ -17,7 +17,8 @@ export ANSI_RESET=0
 export TRACE=${TRACE:-false}
 export ICI_FOLD_NAME=${ICI_FOLD_NAME:-}
 export ICI_START_TIME=${ICI_START_TIME:-}
-_CLEANUP=""
+_CLEANUP_FILES=""
+declare -a _CLEANUP_CMDS
 
 __ici_log_fd=1
 __ici_err_fd=2
@@ -243,6 +244,11 @@ function ici_timed {
     ici_time_end
 }
 
+# Register command to be executed on teardown
+function ici_on_teardown {
+    _CLEANUP_CMDS+=("$@")
+}
+
 function ici_teardown {
     local exit_code=${1:-$?}; shift || true
 
@@ -253,7 +259,7 @@ function ici_teardown {
 
         local cleanup=()
         # shellcheck disable=SC2016
-        IFS=: command eval 'cleanup=(${_CLEANUP})'
+        IFS=: command eval 'cleanup=(${_CLEANUP_FILES})'
         for c in "${cleanup[@]}"; do
           rm -rf "${c/#\~/$HOME}"
         done
@@ -277,6 +283,10 @@ function ici_teardown {
               ici_end_fold "$ICI_FOLD_NAME" # close untimed fold
             fi
         fi
+
+        for c in "${_CLEANUP_CMDS[@]}"; do
+          $c
+        done
 
         if [ "$__ici_setup_called" = true ]; then
             # These will fail if ici_setup was not called
@@ -598,7 +608,7 @@ function ici_join_array {
 
 function ici_cleanup_later {
   ici_trace "$@"
-  _CLEANUP=$(ici_join_array : "$_CLEANUP" "$@")
+  _CLEANUP_FILES=$(ici_join_array : "$_CLEANUP_FILES" "$@")
 }
 
 function ici_make_temp_dir {
