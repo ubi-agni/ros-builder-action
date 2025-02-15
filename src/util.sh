@@ -260,7 +260,7 @@ function ici_teardown {
 
         if [ "$exit_code" -ne 0 ]; then
             local addon=""
-            [ -n "$ICI_FOLD_NAME" ] && addon=" (in '$ICI_FOLD_NAME')"
+            [ -n "$ICI_FOLD_NAME" ] && addon="(in '$ICI_FOLD_NAME')"
 
             if [ -n "$*" ]; then # issue custom error message
               "$@" "$addon" || true
@@ -289,16 +289,19 @@ function ici_teardown {
 
 function ici_trap_exit {
     local exit_code=${1:-$?}
-
+    local cmd=gha_error
     local msg
     if [ "$exit_code" -gt "128" ]; then
         msg="Terminating on signal $(kill -l $((exit_code - 128)))"
+        # simple message instead of error for SIGINT
+        [ "$exit_code" -eq "130" ] && cmd="ici_log"
     else
         msg="Unexpected failure with exit code '$exit_code'"
+        TRACE=true
     fi
 
-    TRACE=true ici_backtrace "$@"
-    ici_teardown "$exit_code" gha_error "$msg"
+    ici_backtrace "$@"
+    ici_teardown "$exit_code" "$cmd" "$msg"
     exit "$exit_code"
 }
 

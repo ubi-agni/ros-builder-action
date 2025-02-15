@@ -28,9 +28,7 @@ function script_paths() {
 var [generic, action] = script_paths()
 var child = child_process.spawn(generic, [action], { stdio: 'inherit' })
 
-// kill child on signals SIGINT and SIGTERM
-function handle(signal) {
-  console.log('[33mForwarding signal ' + signal + ' to child process[0m')
+function forward(signal) {
   child.kill(signal)
 
   ps.lookup({ ppid: child.pid }, function (err, resultList) {
@@ -40,6 +38,11 @@ function handle(signal) {
     })
   })
 }
+function handle(signal) {
+  console.log('[33mForwarding signal ' + signal + ' to child process[0m')
+  forward(signal)
+}
+// kill child (and sub processes) on signals SIGINT and SIGTERM
 process.on('SIGINT', handle)
 process.on('SIGTERM', handle)
 
@@ -56,10 +59,11 @@ child.on('exit', function (exit_code, signal) {
 // cancel build after given timout (github default: 6h - 20min slack)
 const timeout_minutes = core.getInput('BUILD_TIMEOUT') || (6 * 60 - 20)
 function cancel() {
+  console.log('')
   core.warning('Cancelling build due to timeout')
-  child.kill('SIGINT')
+  forward('SIGINT')
   // escalate to SIGTERM after 5s
   // https://github.com/ringerc/github-actions-signal-handling-demo
-  setTimeout(function () { child.kill('SIGTERM') }, 5 * 1000)
+  setTimeout(function () { forward('SIGTERM') }, 5 * 1000)
 }
 setTimeout(cancel, timeout_minutes * 60 * 1000)
