@@ -1070,7 +1070,7 @@ sbuild_options:
     arm64: --jobs=1
 
 known_failures:
-  all:
+  */*:
     - jsk_3rdparty/*
     - jsk_common/jsk_data
     - jsk_common/jsk_ros_patch/multi_map_server
@@ -1078,8 +1078,8 @@ known_failures:
     - jsk_recognition/*
     - jsk_roseus/roseus_tutorials
     - pr2_robot/imu_monitor
-  jammy:
-  noble:
+  */jammy:
+  */noble:
     - librealsense2
     - realsense_ros/*
     - gazebo_ros_pkgs/* # Gazebo classic not available anymore
@@ -1093,3 +1093,8 @@ known_failures:
     - people/leg_detector
     - robot_pose_ekf # missing bfl?
     - moveit_calibration/* # missing bfl?
+  arm64/*:
+    - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
+    - prosilica_*  # cmake error: No SOURCES given to target: PvAPI
+    - gazebo_ros_pkgs/*  # Gazebo not available on arm64
+    - multisense_ros/*  # Eigen issue

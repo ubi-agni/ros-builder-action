@@ -114,7 +114,7 @@ function prepare_ws {
 
   if [ "$SKIP_KNOWN_FAILING" = true ] ; then
     # mark all folders of known-to-fail packages with COLCON_IGNORE
-    for key in all "$DEB_DISTRO"; do
+    for key in "*/*" "*/$DEB_DISTRO" "$ARCH/*" "$ARCH/$DEB_DISTRO"; do
       while IFS= read -r failure; do
         while IFS= read -r -d '' pkg_path; do
           touch "$pkg_path/COLCON_IGNORE"
