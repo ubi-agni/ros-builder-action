@@ -80,7 +80,7 @@ def process(q: queue.Queue, distro: str, repo: str, arch: str, run_id: str):
 
 @app.get("/import")
 def reprepro_import(
-    request: Request, run_id: str, arch: str = "x64", distro: str = "jammy"
+    request: Request, run_id: str, arch: str = "", distro: str = "jammy"
 ):
     kwargs = dict(
         repo="ubi-agni/ros-builder-action", distro=distro, run_id=run_id, arch=arch

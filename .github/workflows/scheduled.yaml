@@ -26,7 +26,7 @@ jobs:
       EXTRA_DEB_SOURCES: "deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net ${{matrix.DEB_DISTRO}}-testing main"
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
-      DEBS_ARTIFACT_NAME: ${{ matrix.DEB_DISTRO }}-debs
+      DEBS_ARTIFACT_NAME: ${{ matrix.DEB_DISTRO }}-${{ matrix.ARCH }}-debs
       SKIP_EXISTING: true
       SKIP_KNOWN_FAILING: true
       CONTINUE_ON_ERROR: true
@@ -46,4 +46,4 @@ jobs:
       - name: Import build artifacts to reprepro server
         uses: ./reprepro
         with:
-          url: "${{ vars.DEPLOY_URL }}?run_id=${{ github.run_id }}&arch=x64"
+          url: "${{ vars.DEPLOY_URL }}?run_id=${{ github.run_id }}"

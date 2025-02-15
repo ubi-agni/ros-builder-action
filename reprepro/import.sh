@@ -7,21 +7,24 @@ fi
 
 # Sanity checks
 [ ! -d "$INCOMING_DIR" ] && echo "Invalid incoming directory" && exit 1
-[ -z "$ARCH" ] && echo "ARCH undefined" && exit 1
 [ -z "$REPO" ] && echo "github repo undefined" && exit 1
-
-# Translate ARCH x64 -> amd64
-[ "$ARCH" == "x64" ] && ARCH="amd64"
 
 function filter {
 	grep -vE "Exporting indices...|Deleting files no longer referenced..."
 }
 
 function import {
+	[ -z "$1" ] && echo "DISTRO undefined" && exit 1
+	[ -z "$2" ] && echo "ARCH undefined" && exit 1
+
 	local distro="$1-testing" # operate on -testing distro
+	local arch="$2"
+
+	# Translate arch x64 -> amd64
+	[ "$arch" == "x64" ] && arch="amd64"
 
 	# Import sources
-	if [ "$ARCH" == "amd64" ]; then
+	if [ "$arch" == "amd64" ]; then
 		printf "\nImporting source packages\n"
 		for f in "$INCOMING_DIR"/*.dsc; do
 			[ -f "$f" ] || break  # Handle case of no files found
@@ -35,12 +38,12 @@ function import {
 	for f in "$INCOMING_DIR"/*.deb; do
 		[ -f "$f" ] || break  # Handle case of no files found
 		echo "${f#"$INCOMING_DIR/"}"
-		reprepro -A "$ARCH" includedeb "$distro" "$f" | filter
+		reprepro -A "$arch" includedeb "$distro" "$f" | filter
 	done
 
 	# Save log files
-	mkdir -p "log/${distro%-testing}.$ARCH"
-	mv "$INCOMING_DIR"/*.log "log/${distro%-testing}.$ARCH"
+	mkdir -p "log/${distro%-testing}.$arch"
+	mv "$INCOMING_DIR"/*.log "log/${distro%-testing}.$arch"
 
 	# Cleanup files
 	(cd "$INCOMING_DIR" || exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
@@ -53,7 +56,7 @@ function import {
 		# remove .ddeb suffix
 		f=${f%.ddeb}
 		mv "${f}.ddeb" "${f}.deb"
-		reprepro -A "$ARCH" -C main-dbg includedeb "$distro" "${f}.deb" | filter
+		reprepro -A "$arch" -C main-dbg includedeb "$distro" "${f}.deb" | filter
 	done
 	(cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
 
@@ -70,9 +73,9 @@ function import {
 
 # Download debs artifact(s)
 if [ "$(ls -A "$INCOMING_DIR")" ]; then
-	[ -z "$DISTRO" ] && echo "Distribution undefined" && exit 1
 	echo "Importing existing files from incoming directory"
-	import "$DISTRO"
+	# shellcheck disable=SC2153 # DISTRO and ARCH might be unset
+	import "$DISTRO" "$ARCH"
 else
 	if [ -z "$RUN_ID" ] ; then
 		# Retrieve RUN_ID of latest workflow run
@@ -83,11 +86,15 @@ else
 	for a in $artifacts; do
 		echo "Fetching artifact \"$a\" from https://github.com/$REPO/actions/runs/$RUN_ID"
 		gh --repo "$REPO" run download --name "$a" --dir "$INCOMING_DIR" "$RUN_ID" || continue
-		if [ "$distro" == "debs" ]; then
-			distro=$DISTRO
+
+		# parse distro and arch from artifact name <distro>-<arch>-debs
+		if [[ $a =~ ([^-]+)-([^-]+)(-debs)? ]]; then
+			distro=${BASH_REMATCH[1]}
+			arch=${BASH_REMATCH[2]}
 		else
-			distro=${a%-debs}  # Remove -debs suffix from <distro>-debs artifact name
+			distro=$DISTRO
+			arch=$ARCH
 		fi
-		import "$distro"
+		import "$distro" "$arch"
 	done
 fi
