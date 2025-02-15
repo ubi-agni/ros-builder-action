@@ -258,25 +258,23 @@ function ici_teardown {
           rm -rf "${c/#\~/$HOME}"
         done
 
+        if [ "$exit_code" -ne 0 ]; then
+            local addon=""
+            [ -n "$ICI_FOLD_NAME" ] && addon=" (in '$ICI_FOLD_NAME')"
+
+            if [ -n "$*" ]; then # issue custom error message
+              "$@" "$addon" || true
+            else # issue default error message
+              gha_error "Failure with exit code: $exit_code" "$addon"
+            fi
+        fi
+
         # end fold/timing if needed
         if [ -n "$ICI_FOLD_NAME" ]; then
-            if [ -n "$*" ]; then # issue custom error message
-              "$@" || true
-            else # issue default error message
-              gha_error "Failure with exit code: $exit_code (in '$ICI_FOLD_NAME')"
-            fi
-
-            # close (timed) fold
             if [ -n "$ICI_START_TIME" ]; then
-              ici_time_end "$exit_code"
+              ici_time_end "$exit_code" # close timed fold
             else
-              ici_end_fold "$ICI_FOLD_NAME"
-            fi
-        elif [ "$exit_code" -ne 0 ]; then
-            if [ -n "$*" ]; then # issue custom error message
-              "$@" || true
-            else # issue default error message
-              gha_error "Failure with exit code: $exit_code"
+              ici_end_fold "$ICI_FOLD_NAME" # close untimed fold
             fi
         fi
 
@@ -298,7 +296,6 @@ function ici_trap_exit {
     else
         msg="Unexpected failure with exit code '$exit_code'"
     fi
-    [ -n "$ICI_FOLD_NAME" ] && msg+=" (in '$ICI_FOLD_NAME')"
 
     TRACE=true ici_backtrace "$@"
     ici_teardown "$exit_code" gha_error "$msg"
