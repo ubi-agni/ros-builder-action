@@ -22,14 +22,12 @@ jobs:
       fail-fast: false
       matrix:
         DEB_DISTRO: [jammy, noble]
-        ROS_DISTRO: [one]
 
     uses: ./.github/workflows/docker.build.yaml
     secrets: inherit
     with:
       CONTEXT: ros-core
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
-      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
 
 
   ros-base:
@@ -44,7 +42,6 @@ jobs:
     with:
       CONTEXT: ros-base
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
-      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
 
 
   ros-robot:
@@ -59,7 +56,6 @@ jobs:
     with:
       CONTEXT: ros-robot
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
-      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
 
 
   ros-desktop:
@@ -74,7 +70,6 @@ jobs:
     with:
       CONTEXT: ros-desktop
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
-      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
 
 
   ros-desktop-full:
@@ -89,7 +84,6 @@ jobs:
     with:
       CONTEXT: ros-desktop-full
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
-      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
 
 
   moveit-ci:
@@ -105,4 +99,17 @@ jobs:
       CONTEXT: moveit-ci
       IMAGE: moveit/moveit:${{ matrix.DEB_DISTRO }}-ci
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
-      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
+
+  moveit-ci-testing:
+    needs: moveit-ci
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [jammy, noble]
+
+    uses: ./.github/workflows/docker.build.yaml
+    secrets: inherit
+    with:
+      CONTEXT: moveit-ci-testing
+      IMAGE: moveit/moveit:${{ matrix.DEB_DISTRO }}-ci-testing
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}

@@ -1,8 +1,9 @@
 # moveit/moveit:jammy-ci
-# Sets up a base image to use for running Continuous Integration on Travis
+# Sets up a base image to use for running Continuous Integration
 
 ARG DEB_DISTRO=jammy
 FROM ubiagni/ros:${DEB_DISTRO}-ros-base
+LABEL org.opencontainers.image.authors="Robert Haschke <rhaschke@techfak.uni-bielefeld.de>"
 
 ENV TERM=xterm
 ENV IN_DOCKER=1

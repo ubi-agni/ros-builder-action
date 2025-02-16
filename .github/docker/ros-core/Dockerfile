@@ -1,5 +1,6 @@
 ARG DEB_DISTRO=jammy
 FROM ubuntu:${DEB_DISTRO}
+LABEL org.opencontainers.image.authors="Robert Haschke <rhaschke@techfak.uni-bielefeld.de>"
 
 # setup timezone
 RUN echo 'Etc/UTC' > /etc/timezone && \

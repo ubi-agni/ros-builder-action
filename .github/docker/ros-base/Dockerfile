@@ -1,5 +1,6 @@
 ARG DEB_DISTRO=jammy
 FROM ubiagni/ros:${DEB_DISTRO}-ros-core
+LABEL org.opencontainers.image.authors="Robert Haschke <rhaschke@techfak.uni-bielefeld.de>"
 
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
