@@ -35,7 +35,7 @@ EOF
 }
 
 function ici_vcs_import {
-  ici_guard vcs import --recursive --force --treeless "$@"
+  ici_guard vcs import --recursive --force "$@"
 }
 
 function ici_import_repository {
