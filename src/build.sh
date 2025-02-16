@@ -354,6 +354,7 @@ function build_source {
       ici_warn "No package.xml or setup.py found"
       exit_code=0
     fi
+    rm -rf "${PKG_FOLDERS[$idx]}"  # free disk space
 
     if [ "$exit_code" != 0 ] ; then
       case "$exit_code" in
