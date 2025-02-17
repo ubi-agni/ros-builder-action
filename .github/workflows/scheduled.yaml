@@ -7,6 +7,11 @@ on:
     - cron: "0 20 * * *"
 
 
+# Don't allow concurrent runs of workflows deploying to same target
+concurrency:
+  group: build-and-deploy-to-${{ vars.DEPLOY_URL }}
+  cancel-in-progress: false
+
 jobs:
   build:
     strategy:
@@ -37,10 +42,6 @@ jobs:
     if: always() && vars.DEPLOY_URL
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    concurrency:
-      # Ensure exclusive access to deployment target
-      group: ${{ vars.DEPLOY_URL }}
-      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - name: Import build artifacts to reprepro server

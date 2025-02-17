@@ -16,6 +16,7 @@ env:
   DEBS_PATH: ${{ vars.DEBS_PATH || '~/debs' }}
   TERM: xterm  # needed for colored output of unittests
 
+# New workflow run replaces previous one
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true

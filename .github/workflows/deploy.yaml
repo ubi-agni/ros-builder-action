@@ -71,7 +71,7 @@ env:
 
 concurrency:
   # Ensure exclusive access to deployment target
-  group: ${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
+  group: deploy-to-${{ inputs.DEPLOY_URL || vars.DEPLOY_URL }}
   cancel-in-progress: false
 
 jobs:
