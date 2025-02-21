@@ -63,6 +63,10 @@ repositories:
     type: git
     url: https://github.com/AprilRobotics/apriltag_ros.git
     version: master
+  ar_track_alvar:
+    type: git
+    url: https://github.com/ros-o/ar_track_alvar.git
+    version: obese-devel
   audio_common:
     type: git
     url: https://github.com/ros-drivers/audio_common.git
@@ -103,6 +107,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/camera_info_manager_py.git
     version: obese-devel
+  camera_umd:
+    type: git
+    url: https://github.com/ros-drivers/camera_umd.git
+    version: master
   catkin:
     type: git
     url: https://github.com/ros-o/catkin.git
@@ -191,10 +199,6 @@ repositories:
     type: git
     url: https://github.com/ros-o/ethercat_grant.git
     version: obese-devel
-  euslisp:
-    type: git
-    url: https://github.com/tork-a/euslisp-release.git
-    version: release/noetic/euslisp
   executive_smach:
     type: git
     url: https://github.com/ros/executive_smach.git
@@ -259,6 +263,10 @@ repositories:
     type: git
     url: https://github.com/ros/genpy.git
     version: main
+  geographic_info:
+    type: git
+    url: https://github.com/ros-geographic-info/geographic_info.git
+    version: master
   geometric_shapes:
     type: git
     url: https://github.com/moveit/geometric_shapes.git
@@ -341,11 +349,19 @@ repositories:
     version: master
   jsk_common:
     type: git
-    url: https://github.com/ros-o/jsk_common.git
-    version: obese-devel
+    url: https://github.com/jsk-ros-pkg/jsk_common.git
+    version: master
   jsk_common_msgs:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_common_msgs.git
+    version: master
+  jsk_model_tools:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_model_tools.git
+    version: master
+  jsk_pr2eus:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
     version: master
   jsk_recognition:
     type: git
@@ -357,12 +373,8 @@ repositories:
     version: master
   jsk_visualization:
     type: git
-    url: https://github.com/ros-o/jsk_visualization.git
-    version: obese-devel
-  jskeus:
-    type: git
-    url: https://github.com/tork-a/jskeus-release.git
-    version: release/noetic/jskeus
+    url: https://github.com/jsk-ros-pkg/jsk_visualization.git
+    version: master
   kdl_parser:
     type: git
     url: https://github.com/ros-o/kdl_parser.git
@@ -427,6 +439,10 @@ repositories:
     type: git
     url: https://github.com/sniekum/ml_classifiers.git
     version: master
+  mocap_optitrack:
+    type: git
+    url: https://github.com/ros-o/mocap_optitrack.git
+    version: obese-devel
   mongodb_store:
     type: git
     url: https://github.com/ros-o/mongodb_store.git
@@ -455,6 +471,10 @@ repositories:
     type: git
     url: https://github.com/JeroenDM/moveit_opw_kinematics_plugin.git
     version: noetic-devel
+  moveit_pr2:
+    type: git
+    url: https://github.com/moveit/moveit_pr2.git
+    version: obese-devel
   moveit_python:
     type: git
     url: https://github.com/mikeferguson/moveit_python.git
@@ -491,6 +511,10 @@ repositories:
     type: git
     url: https://github.com/ros-planning/navigation_msgs.git
     version: ros1
+  openslam_gmapping:
+    type: git
+    url: https://github.com/ros-perception/openslam_gmapping.git
+    version: melodic-devel
   nodelet_core:
     type: git
     url: https://github.com/ros/nodelet_core.git
@@ -579,10 +603,18 @@ repositories:
     type: git
     url: https://github.com/ros-o/pluginlib.git
     version: obese-devel
+  pr2_apps:
+    type: git
+    url: https://github.com/pr2/pr2_apps.git
+    version: melodic-devel
   pr2_common:
     type: git
     url: https://github.com/pr2/pr2_common.git
     version: melodic-devel
+  pr2_common_actions:
+    type: git
+    url: https://github.com/pr2/pr2_common_actions.git
+    version: kinetic-devel
   pr2_controllers:
     type: git
     url: https://github.com/pr2/pr2_controllers.git
@@ -603,6 +635,10 @@ repositories:
     type: git
     url: https://github.com/pr2/pr2_mechanism_msgs.git
     version: master
+  pr2_navigation:
+    type: git
+    url: https://github.com/pr2/pr2_navigation.git
+    version: kinetic-devel
   pr2_power_drivers:
     type: git
     url: https://github.com/pr2/pr2_power_drivers.git
@@ -610,6 +646,10 @@ repositories:
   pr2_robot:
     type: git
     url: https://github.com/pr2/pr2_robot.git
+    version: kinetic-devel
+  pr2_simulator:
+    type: git
+    url: https://github.com/PR2/pr2_simulator.git
     version: kinetic-devel
   prosilica_driver:
     type: git
@@ -659,6 +699,10 @@ repositories:
     type: git
     url: https://github.com/ros-controls/realtime_tools.git
     version: melodic-devel
+  realtime_urdf_filter:
+    type: git
+    url: https://github.com/blodow/realtime_urdf_filter.git
+    version: master
   resource_retriever:
     type: git
     url: https://github.com/ros-o/resource_retriever.git
@@ -930,7 +974,7 @@ repositories:
   ruckig:
     type: git
     url: https://github.com/pantor/ruckig.git
-    version: v0.14.0
+    version: main
   rviz:
     type: git
     url: https://github.com/ros-visualization/rviz.git
@@ -1019,6 +1063,10 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/usb_cam.git
     version: develop
+  unique_identifier:
+    type: git
+    url: https://github.com/ros-geographic-info/unique_identifier.git
+    version: master
   view_controller_msgs:
     type: git
     url: https://github.com/ros-visualization/view_controller_msgs.git
@@ -1059,6 +1107,10 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/wifi_ddwrt.git
     version: noetic-devel
+  willow_maps:
+    type: git
+    url: https://github.com/pr2/willow_maps.git
+    version: kinetic-devel
   wu_ros_tools:
     type: git
     url: https://github.com/DLu/wu_ros_tools.git
