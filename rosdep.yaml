@@ -47,3 +47,10 @@ orocos_kdl: # needed for robot_calibration, pr2_head_action, ...
 bfl: # needed for robot_pose_ekf
   debian: [liborocos-bfl-dev]
   ubuntu: [liborocos-bfl-dev]
+
+euslisp:
+  debian: [euslisp-dev]
+  ubuntu: [euslisp-dev]
+jskeus:
+  debian: [jskeus-dev]
+  ubuntu: [jskeus-dev]
