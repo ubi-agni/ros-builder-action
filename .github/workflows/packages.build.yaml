@@ -1,0 +1,54 @@
+name: reusable packages workflow
+
+on:
+  # make this workflow reusable (and only so)
+  workflow_call:
+    inputs:
+      ARCH:
+        type: string
+        description: build architecture
+        required: true
+      DEB_DISTRO:
+        type: string
+        description: build distribution
+        required: true
+
+env:
+  TERM: xterm  # needed for colored output of unittests
+
+jobs:
+  build:
+    name: "${{ inputs.DEB_DISTRO }}-${{ inputs.ARCH }}"
+    runs-on: ${{ inputs.ARCH  == 'x64' && 'ubuntu-22.04' || (inputs.ARCH == 'arm64' && 'ubuntu-22.04-arm' || inputs.ARCH) }}
+
+    steps:
+      - run: pip install gitpython
+      - uses: actions/checkout@v4
+      - name: fetch ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags --depth=1 origin ${{ github.base_ref }}
+          git checkout ${{ github.base_ref }}
+          git checkout HEAD@{1}
+      - name: determine new packages
+        run: python3 src/scripts/pkg_diffs.py "${{ github.base_ref }}"
+      - name: Build new packages
+        uses: ./
+        env:
+          DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
+          ARCH: ${{ inputs.ARCH }}
+          ROS_SOURCES: /tmp/diff.repos
+          INSTALL_GPG_KEYS: |
+            sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
+            sudo mkdir -p /etc/ros/rosdep/sources.list.d
+            echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ inputs.DEB_DISTRO }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
+          EXTRA_DEB_SOURCES: "deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net ${{inputs.DEB_DISTRO}}-testing main"
+          EXTRA_SBUILD_CONFIG: ${{ vars.EXTRA_SBUILD_CONFIG }}
+          EXTRA_SBUILD_OPTS: ${{ vars.EXTRA_SBUILD_OPTS }}
+          DEB_BUILD_OPTIONS: ${{ vars.DEB_BUILD_OPTIONS || 'nocheck' }}
+          CONTINUE_ON_ERROR: ${{ vars.CONTINUE_ON_ERROR || true }}
+          SKIP_EXISTING: ${{ vars.SKIP_EXISTING || false }}
+          SKIP_KNOWN_FAILING: false
+          INSTALL_TO_CHROOT: false
+          VERBOSE: ${{ vars.VERBOSE || '' }}
+          DOWNLOAD_DEBS: false
+          DEBS_ARTIFACT_NAME: ${{ inputs.DEB_DISTRO }}-${{ inputs.ARCH }}-debs
