@@ -1,0 +1,24 @@
+name: packages
+
+on:
+  pull_request:
+    paths:
+      - '*.repos'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        DEB_DISTRO: [ jammy, noble ]
+        ARCH: [ x64, arm64 ]
+
+    uses: ./.github/workflows/packages.build.yaml
+    secrets: inherit
+    with:
+      DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
+      ARCH: ${{ matrix.ARCH }}
