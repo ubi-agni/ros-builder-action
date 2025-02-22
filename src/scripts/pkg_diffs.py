@@ -34,11 +34,6 @@ if __name__ == "__main__":
     old = load_from_commit(os.getcwd(), args.sha, args.files)
     new = load_from_commit(os.getcwd(), "HEAD", args.files)
 
-    try:
-        del new["known_failures"]
-    except KeyError:
-        pass
-
     # Remove entries from new that already exist in old
     for key, val in old["repositories"].items():
         if key in new["repositories"] and is_same(new["repositories"][key], val):
