@@ -39,7 +39,7 @@ jobs:
 
   deploy:
     needs: build
-    if: always() && vars.DEPLOY_URL
+    if: ${{ !cancelled() && vars.DEPLOY_URL }}
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:

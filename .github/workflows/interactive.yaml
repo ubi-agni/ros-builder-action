@@ -139,7 +139,7 @@ jobs:
 
   deploy:
     needs: [stage-1, stage-2, stage-3]
-    if: success() && vars.DEPLOY_URL
+    if: ${{ !cancelled() && vars.DEPLOY_URL }}
     timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
