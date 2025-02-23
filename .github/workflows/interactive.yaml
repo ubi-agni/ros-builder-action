@@ -60,6 +60,11 @@ on:
         type: boolean
         description: Incrementally fill chroot?
         required: false
+      DEPLOY:
+        type: boolean
+        description: Deploy to reprepro server?
+        required: true
+        default: false
 
 # Don't allow concurrent runs of workflows deploying to same target
 concurrency:
