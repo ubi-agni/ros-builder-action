@@ -99,7 +99,11 @@ else
 		# parse distro and arch from artifact name <distro>-<arch>-debs
 		if [[ $a =~ ([^-]+)-([^-]+)(-debs)? ]]; then
 			distro=${BASH_REMATCH[1]}
-			arch=${BASH_REMATCH[2]}
+			if [ "${BASH_REMATCH[2]}" == "debs" ]; then
+				arch=$ARCH
+			else
+				arch=${BASH_REMATCH[2]}
+			fi
 		else
 			distro=$DISTRO
 			arch=$ARCH
