@@ -189,8 +189,8 @@ repositories:
     version: main
   ethercat_grant:
     type: git
-    url: https://github.com/shadow-robot/ethercat_grant.git
-    version: noetic-devel
+    url: https://github.com/ros-o/ethercat_grant.git
+    version: obese-devel
   euslisp:
     type: git
     url: https://github.com/tork-a/euslisp-release.git
