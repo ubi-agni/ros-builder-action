@@ -98,7 +98,7 @@ def reprepro_import(
             while True:
                 try:
                     response = q.get_nowait()
-                    if response.startswith("Fetching "):
+                    if "Fetching artifact " in response:
                         status = Status.DOWNLOADING
                         size = -1
                     elif status == Status.DOWNLOADING or status == Status.IMPORTING:
