@@ -613,8 +613,8 @@ repositories:
     version: melodic-devel
   pr2_common_actions:
     type: git
-    url: https://github.com/pr2/pr2_common_actions.git
-    version: kinetic-devel
+    url: https://github.com/mqcmd196/pr2_common_actions.git
+    version: ros-o
   pr2_controllers:
     type: git
     url: https://github.com/pr2/pr2_controllers.git
