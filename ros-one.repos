@@ -350,7 +350,7 @@ repositories:
   jsk_common:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_common.git
-    version: master
+    version: techfak-ros-o
   jsk_common_msgs:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_common_msgs.git
