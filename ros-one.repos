@@ -473,7 +473,7 @@ repositories:
     version: noetic-devel
   moveit_pr2:
     type: git
-    url: https://github.com/moveit/moveit_pr2.git
+    url: https://github.com/mqcmd196/moveit_pr2.git
     version: obese-devel
   moveit_python:
     type: git
