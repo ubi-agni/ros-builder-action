@@ -184,7 +184,7 @@ function build_pkg {
   local version_stamped
 
   cd "$pkg_path" || return 1
-  trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
+  trap 'cd "$old_path"' RETURN # cleanup on return
 
   test -f "./CATKIN_IGNORE" && echo "Skipped (CATKIN_IGNORE)" && return
   test -f "./COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
@@ -198,6 +198,8 @@ function build_pkg {
   # Check availability of all required packages (bloom-generate waits for input on rosdep issues)
   rosdep install --os="$DISTRIBUTION:$DEB_DISTRO" --simulate --from-paths . > /dev/null || return 2
   ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
+
+  trap 'rm -f ../*.dsc ../*.tar.gz; cd "$old_path"' RETURN # cleanup on build failure
 
   # Enable CATKIN_INSTALL_INTO_PREFIX_ROOT for catkin package
   if [ "$pkg_name" = "catkin" ]; then
@@ -243,6 +245,7 @@ EOF
   fi
   # Move .dsc + .tar.gz files from workspace folder to $DEBS_PATH for deployment
   mv ../*.dsc ../*.tar.gz "$DEBS_PATH"
+  trap 'cd "$old_path"' RETURN # cleanup on return
 
   ## Rename .build log file, which has invalid characters (:) for artifact upload
   local log;
@@ -280,7 +283,7 @@ function build_python_pkg {
   local version_stamped
 
   cd "$pkg_path" || return 1
-  trap 'trap - RETURN; cd "$old_path"' RETURN # cleanup on return
+  trap 'cd "$old_path"' RETURN # cleanup on return
 
   test -f "./CATKIN_IGNORE" && echo "Skipped (CATKIN_IGNORE)" && return
   test -f "./COLCON_IGNORE" && echo "Skipped (COLCON_IGNORE)" && return
@@ -354,6 +357,7 @@ function build_source {
       ici_warn "No package.xml or setup.py found"
       exit_code=0
     fi
+    trap - RETURN # remove return trap
     rm -rf "${PKG_FOLDERS[$idx]}"  # free disk space
 
     if [ "$exit_code" != 0 ] ; then
