@@ -196,7 +196,7 @@ function build_pkg {
   pkg_exists "$(deb_pkg_name "$pkg_name")" "$version" && return
 
   # Check availability of all required packages (bloom-generate waits for input on rosdep issues)
-  rosdep install --os="$DISTRIBUTION:$DEB_DISTRO" --simulate --from-paths . > /dev/null || return 2
+  rosdep install --os="$DISTRIBUTION:$DEB_DISTRO" --simulate -t build -t buildtool_export -t buildtool -t build_export -t exec --from-paths . > /dev/null || return 2
   ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
 
   trap 'rm -f ../*.dsc ../*.tar.gz; cd "$old_path"' RETURN # cleanup on build failure
