@@ -207,6 +207,10 @@ function build_pkg {
   fi
   # Configure ament python packages to install into lib/python3/dist-packages (instead of lib/python3.x/site-packages)
   sed -i 's@lib/{interpreter}/site-packages@lib/python3/dist-packages@' debian/rules
+  # skip dh_shlibdeps, because some pip modules, speech_recognition for example, contains x86/x86_64/win32/mac binaries
+  sed -i '/dh_shlibdeps / s@$@ || echo "Skip dh_shlibdeps error!!!"@' debian/rules
+  # ignore dh_strip error, from jammy, 'objcopy' added '--compress-debug-sections' and this cause error on 'numpy/core/_multiarray_umath.cpython-310-x86_64-linux-gnu.so has a corrupt string table index - ignoring'
+  echo -e 'override_dh_strip:\n	dh_strip || true\n' |tee -a debian/rules
 
   # https://github.com/ros-infrastructure/bloom/pull/643
   echo 11 > debian/compat
@@ -231,6 +235,8 @@ function build_pkg {
 
   ici_log
   SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
+  # create logger directgory for venv
+  SBUILD_OPTS="$SBUILD_OPTS --chroot-setup-commands='mkdir -p /sbuild-nonexistent/.ros/log/; chmod a+rw -R /sbuild-nonexistent/'"
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
