@@ -359,10 +359,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/jsk_model_tools.git
     version: obese-devel
-  # jsk_pr2eus:
-  #   type: git
-  #   url: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
-  #   version: master
+  jsk_pr2eus:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
+    version: master
   jsk_recognition:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_recognition.git
@@ -371,10 +371,10 @@ repositories:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_roseus.git
     version: master
-  # jsk_visualization:
-  #   type: git
-  #   url: https://github.com/jsk-ros-pkg/jsk_visualization.git
-  #   version: master
+  jsk_visualization:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_visualization.git
+    version: master
   kdl_parser:
     type: git
     url: https://github.com/ros-o/kdl_parser.git
