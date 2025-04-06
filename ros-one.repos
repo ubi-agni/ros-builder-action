@@ -363,10 +363,10 @@ repositories:
   #   type: git
   #   url: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
   #   version: master
-  # jsk_recognition:
-  #   type: git
-  #   url: https://github.com/jsk-ros-pkg/jsk_recognition.git
-  #   version: master
+  jsk_recognition:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_recognition.git
+    version: master
   jsk_roseus:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_roseus.git
@@ -1128,10 +1128,7 @@ sbuild_options:
 known_failures:
   "*/*":
     - jsk_3rdparty/*
-    - jsk_common/jsk_data
-    - jsk_common/jsk_ros_patch/multi_map_server
     - jsk_visualization/*
-    - jsk_recognition/*
     - jsk_roseus/roseus_tutorials
     - pr2_robot/imu_monitor
   "*/jammy":
