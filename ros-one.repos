@@ -1128,8 +1128,6 @@ sbuild_options:
 known_failures:
   "*/*":
     - jsk_3rdparty/*
-    - jsk_visualization/*
-    - jsk_roseus/roseus_tutorials
     - pr2_robot/imu_monitor
   "*/jammy":
   "*/noble":
