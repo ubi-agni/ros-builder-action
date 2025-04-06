@@ -473,7 +473,7 @@ repositories:
     version: noetic-devel
   moveit_pr2:
     type: git
-    url: https://github.com/mqcmd196/moveit_pr2.git
+    url: https://github.com/ros-o/moveit_pr2.git
     version: obese-devel
   moveit_python:
     type: git
@@ -613,8 +613,8 @@ repositories:
     version: melodic-devel
   pr2_common_actions:
     type: git
-    url: https://github.com/mqcmd196/pr2_common_actions.git
-    version: ros-o
+    url: https://github.com/ros-o/pr2_common_actions.git
+    version: obese-devel
   pr2_controllers:
     type: git
     url: https://github.com/pr2/pr2_controllers.git
