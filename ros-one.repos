@@ -365,15 +365,15 @@ repositories:
     version: master
   jsk_recognition:
     type: git
-    url: https://github.com/jsk-ros-pkg/jsk_recognition.git
-    version: master
+    url: https://github.com/ros-o/jsk_recognition.git
+    version: obese-devel
   jsk_roseus:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_roseus.git
     version: master
   jsk_visualization:
     type: git
-    url: https://github.com/ros-o/jsk_visualization.git
+    url: https://github.com/jsk-ros-pkg/jsk_visualization.git
     version: obese-devel
   kdl_parser:
     type: git
@@ -1129,6 +1129,7 @@ known_failures:
   "*/*":
     - jsk_3rdparty/*
     - pr2_robot/imu_monitor
+    - jsk_pr2eus/pr2eus_tutorials # skip because jsk_maps is not released
   "*/jammy":
   "*/noble":
     - librealsense2
