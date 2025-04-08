@@ -411,6 +411,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/libuvc_ros.git
     version: obese-devel
+  magic_enum:
+    type: git
+    url: https://github.com/Neargye/magic_enum.git
+    version: master
   media_export:
     type: git
     url: https://github.com/ros/media_export.git
