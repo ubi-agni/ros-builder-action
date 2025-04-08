@@ -947,6 +947,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/rviz_visual_tools.git
     version: obese-devel
+  serial:
+    type: git
+    url: https://github.com/wjwwood/serial.git
+    version: main
   slam_gmapping:
     type: git
     url: https://github.com/ros-perception/slam_gmapping.git
