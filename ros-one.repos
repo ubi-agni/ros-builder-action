@@ -103,6 +103,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/camera_info_manager_py.git
     version: obese-devel
+  catch_ros:
+    type: git
+    url: https://github.com/AIS-Bonn/catch_ros.git
+    version: master
   catkin:
     type: git
     url: https://github.com/ros-o/catkin.git
