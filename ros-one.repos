@@ -673,8 +673,8 @@ repositories:
     version: melodic-devel
   resource_retriever:
     type: git
-    url: https://github.com/ros-o/resource_retriever.git
-    version: obese-devel
+    url: https://github.com/ros/resource_retriever.git
+    version: noetic-devel
   rgbd_launch:
     type: git
     url: https://github.com/ros-drivers/rgbd_launch.git
