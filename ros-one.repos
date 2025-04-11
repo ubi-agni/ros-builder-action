@@ -63,6 +63,10 @@ repositories:
     type: git
     url: https://github.com/AprilRobotics/apriltag_ros.git
     version: master
+  ar_track_alvar:
+    type: git
+    url: https://github.com/ros-o/ar_track_alvar.git
+    version: obese-devel
   audio_common:
     type: git
     url: https://github.com/ros-drivers/audio_common.git
