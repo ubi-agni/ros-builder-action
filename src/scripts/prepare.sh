@@ -35,7 +35,7 @@ DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT
 	python3-stdeb python3-all dh-python build-essential
 
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
-ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
+ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/k-okada/bloom.git@ros-one
 # Install patched vcstool to allow for treeless clones
 ici_timed "Install vcstool" ici_asroot pip install -U git+https://github.com/rhaschke/vcstool.git@master
 
