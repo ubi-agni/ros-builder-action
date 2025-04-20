@@ -421,7 +421,7 @@ repositories:
     version: master
   mavlink:
     type: git
-    url: https://github.com/sugikazu75/mavlink-gbp-release.git
+    url: https://github.com/ros-o/mavlink-gbp-release.git
     version: obese-devel
   mavros:
     type: git
