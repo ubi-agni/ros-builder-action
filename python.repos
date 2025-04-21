@@ -1,4 +1,8 @@
 repositories:
+  catkin-sphinx
+    type: git
+    url: https://github.com/ros-infrastructure/catkin-sphinx.git
+    version: master
   catkin_tools:
     type: git
     url: https://github.com/catkin/catkin_tools
