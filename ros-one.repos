@@ -327,6 +327,14 @@ repositories:
     type: git
     url: https://github.com/ros-perception/image_transport_plugins.git
     version: noetic-devel
+  imu_pipeline:
+    type: git
+    url: https://github.com/ros-perception/imu_pipeline.git
+    version: noetic-devel
+  imu_tools:
+    type: git
+    url: https://github.com/ros-o/imu_tools.git
+    version: obese-devel
   industrial_core:
     type: git
     url: https://github.com/ros-o/industrial_core.git
@@ -423,6 +431,14 @@ repositories:
     type: git
     url: https://github.com/Neargye/magic_enum.git
     version: master
+  mavlink:
+    type: git
+    url: https://github.com/ros-o/mavlink-gbp-release.git
+    version: obese-devel
+  mavros:
+    type: git
+    url: https://github.com/ros-o/mavros.git
+    version: obese-devel
   media_export:
     type: git
     url: https://github.com/ros/media_export.git
@@ -447,6 +463,10 @@ repositories:
     type: git
     url: https://github.com/sniekum/ml_classifiers.git
     version: master
+  mocap_optitrack:
+    type: git
+    url: https://github.com/ros-o/mocap_optitrack
+    version: obese-devel
   mongodb_store:
     type: git
     url: https://github.com/ros-o/mongodb_store.git
