@@ -1127,7 +1127,6 @@ sbuild_options:
 known_failures:
   "*/*":
     - pr2_robot/imu_monitor
-    - jsk_3rdparty/3rdparty/aques_talk  # download error
   "*/jammy":
   "*/noble":
     - librealsense2
