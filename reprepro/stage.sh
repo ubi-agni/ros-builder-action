@@ -6,22 +6,26 @@ if [ -r ~/.reprepro.env ]; then
 fi
 
 # Sanity checks
-[ ! -d "$INCOMING_DIR" ] && echo "Invalid incoming directory" && exit 1
-[ -z "$DISTRO" ] && echo "Distribution undefined" && exit 1
-[ -z "$ARCH" ] && echo "ARCH undefined" && exit 1
-[ -z "$REPO" ] && echo "github repo undefined" && exit 1
+[ -z "$DISTRO" ] && DISTRO=(jammy noble)
+[ -z "$ARCH" ] && ARCH=(amd64 arm64)
 
-# Move deb packages from testing to production stage
-pkgs=$(reprepro -A "$ARCH" -T deb list "$DISTRO-testing" | cut -s -d " " -f 2)
-# shellcheck disable=SC2086
-reprepro -A "$ARCH" copy "$DISTRO" "$DISTRO-testing" $pkgs
+for d in "${DISTRO[@]}"; do
+	for a in "${ARCH[@]}"; do
+		echo
+		echo "Moving packages from $d-testing -> $d ($a)"
+		# Move deb packages from testing to production stage
+		pkgs=$(reprepro -A "$a" -T deb list "$d-testing" | cut -s -d " " -f 2)
+		# shellcheck disable=SC2086
+		reprepro -A "$a" copy "$d" "$d-testing" $pkgs
 
-# Move dsc packages from testing to production stage
-if [ "$ARCH" == "amd64" ]; then
-	pkgs=$(reprepro -T dsc list "$DISTRO-testing" | cut -s -d " " -f 2)
-	for pkg in $pkgs; do
-		reprepro -T dsc copysrc "$DISTRO" "$DISTRO-testing" "$pkg"
+		# Move dsc packages from testing to production stage
+		if [ "$a" == "amd64" ]; then
+			pkgs=$(reprepro -T dsc list "$d-testing" | cut -s -d " " -f 2)
+			for pkg in $pkgs; do
+				reprepro -T dsc copysrc "$d" "$d-testing" "$pkg"
+			done
+		fi
 	done
-fi
+done
 
 # reprepro -A $ARCH remove "$DISTRO-testing" $pkgs

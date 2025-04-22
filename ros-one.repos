@@ -110,6 +110,9 @@ repositories:
   camera_umd:
     type: git
     url: https://github.com/ros-drivers/camera_umd.git
+  catch_ros:
+    type: git
+    url: https://github.com/AIS-Bonn/catch_ros.git
     version: master
   catkin:
     type: git
@@ -267,6 +270,10 @@ repositories:
     type: git
     url: https://github.com/ros/genpy.git
     version: main
+  geographic_info:
+    type: git
+    url: https://github.com/ros-geographic-info/geographic_info.git
+    version: master
   geometric_shapes:
     type: git
     url: https://github.com/moveit/geometric_shapes.git
@@ -319,6 +326,14 @@ repositories:
     type: git
     url: https://github.com/ros-perception/image_transport_plugins.git
     version: noetic-devel
+  imu_pipeline:
+    type: git
+    url: https://github.com/ros-perception/imu_pipeline.git
+    version: noetic-devel
+  imu_tools:
+    type: git
+    url: https://github.com/ros-o/imu_tools.git
+    version: obese-devel
   industrial_core:
     type: git
     url: https://github.com/ros-o/industrial_core.git
@@ -411,6 +426,18 @@ repositories:
     type: git
     url: https://github.com/ros-o/libuvc_ros.git
     version: obese-devel
+  magic_enum:
+    type: git
+    url: https://github.com/Neargye/magic_enum.git
+    version: master
+  mavlink:
+    type: git
+    url: https://github.com/ros-o/mavlink-gbp-release.git
+    version: obese-devel
+  mavros:
+    type: git
+    url: https://github.com/ros-o/mavros.git
+    version: obese-devel
   media_export:
     type: git
     url: https://github.com/ros/media_export.git
@@ -435,6 +462,10 @@ repositories:
     type: git
     url: https://github.com/sniekum/ml_classifiers.git
     version: master
+  mocap_optitrack:
+    type: git
+    url: https://github.com/ros-o/mocap_optitrack
+    version: obese-devel
   mongodb_store:
     type: git
     url: https://github.com/ros-o/mongodb_store.git
@@ -669,8 +700,8 @@ repositories:
     version: melodic-devel
   resource_retriever:
     type: git
-    url: https://github.com/ros-o/resource_retriever.git
-    version: obese-devel
+    url: https://github.com/ros/resource_retriever.git
+    version: noetic-devel
   rgbd_launch:
     type: git
     url: https://github.com/ros-drivers/rgbd_launch.git
@@ -803,6 +834,10 @@ repositories:
     type: git
     url: http://github.com/DFKI-NI/rospy_message_converter
     version: master
+  rosserial:
+    type: git
+    url: https://github.com/ros-drivers/rosserial.git
+    version: noetic-devel
   rqt:
     type: git
     url: https://github.com/ros-o/rqt.git
@@ -947,6 +982,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/rviz_visual_tools.git
     version: obese-devel
+  serial:
+    type: git
+    url: https://github.com/wjwwood/serial.git
+    version: main
   slam_gmapping:
     type: git
     url: https://github.com/ros-perception/slam_gmapping.git
@@ -987,6 +1026,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/trac_ik.git
     version: obese-devel
+  unique_identifier:
+    type: git
+    url: https://github.com/ros-geographic-info/unique_identifier.git
+    version: master
   universal_robot:
     type: git
     url: https://github.com/ros-industrial/universal_robot.git
@@ -1025,8 +1068,8 @@ repositories:
     version: obese-devel
   usb_cam:
     type: git
-    url: https://github.com/ros-drivers/usb_cam.git
-    version: develop
+    url: https://github.com/ros-o/usb_cam.git
+    version: obese-devel
   view_controller_msgs:
     type: git
     url: https://github.com/ros-visualization/view_controller_msgs.git
