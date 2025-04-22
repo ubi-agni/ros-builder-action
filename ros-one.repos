@@ -107,6 +107,9 @@ repositories:
     type: git
     url: https://github.com/ros-o/camera_info_manager_py.git
     version: obese-devel
+  camera_umd:
+    type: git
+    url: https://github.com/ros-drivers/camera_umd.git
   catch_ros:
     type: git
     url: https://github.com/AIS-Bonn/catch_ros.git
@@ -381,8 +384,8 @@ repositories:
     version: master
   jsk_visualization:
     type: git
-    url: https://github.com/ros-o/jsk_visualization.git
-    version: obese-devel
+    url: https://github.com/jsk-ros-pkg/jsk_visualization.git
+    version: master
   jskeus:
     type: git
     url: https://github.com/tork-a/jskeus-release.git
@@ -1139,29 +1142,23 @@ sbuild_options:
 
 known_failures:
   "*/*":
-    - jsk_3rdparty/*
-    - jsk_common/jsk_data
-    - jsk_common/jsk_ros_patch/multi_map_server
-    - jsk_visualization/*
-    - jsk_recognition/*
-    - jsk_roseus/roseus_tutorials
+    - jsk_3rdparty/3rdparty/aques_talk  # download error
     - pr2_robot/imu_monitor
     - ros-utils/tf_static_publisher
   "*/jammy":
   "*/noble":
     - librealsense2
     - realsense_ros/*
-    - gazebo_ros_pkgs/* # Gazebo classic not available anymore
+    - gazebo_ros_pkgs/*  # Gazebo classic not available anymore
     - qbdevice-ros/qb_device_gazebo
     - qbhand-ros/qb_hand_gazebo
     - franka_ros/franka_gazebo
-    - catkin_virtualenv/* # removal of deprecated pkgutil.ImpImporter in Python 3.12
-    - pr2_ethercat_drivers/ethercat_hardware # deprecation of boost/timer.hpp
+    - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
-    - people/people_tracking_filter # missing bfl?
+    - people/people_tracking_filter  # missing bfl?
     - people/leg_detector
-    - robot_pose_ekf # missing bfl?
-    - moveit_calibration/* # missing bfl?
+    - robot_pose_ekf  # missing bfl?
+    - moveit_calibration/*  # missing bfl?
   "arm64/*":
     - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
     - prosilica_*  # cmake error: No SOURCES given to target: PvAPI
