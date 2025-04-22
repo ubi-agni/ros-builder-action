@@ -341,7 +341,7 @@ function build_source {
   while read -r name folder unused; do
     PKG_NAMES+=("$name")
     PKG_FOLDERS+=("$folder")
-  done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
+  done < <(colcon list --topological-order $COLCON_PKG_SELECTION || kill $$)
 
   ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
   ici_timed update_repo
