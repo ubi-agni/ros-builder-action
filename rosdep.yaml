@@ -9,23 +9,6 @@ prbt_ikfast_manipulator_plugin:
 mongodb:
   ubuntu: []
 
-# Add empty rosdep keys for Gazebo-related packages, since most dependencies on Gazebo-related packages are marked as exec_depend rather than build_depend, allowing Gazebo-dependent packages to build smoothly.
-gazebo_ros:
-  debian: []
-  ubuntu: []
-
-gazebo_plugins:
-  debian: []
-  ubuntu: []
-
-pr2_gazebo_plugins:
-  debian: []
-  ubuntu: []
-
-gazebo:
-  debian: []
-  ubuntu: []
-
 libfltk-dev:
   debian:
     bookworm: [libfltk1.3-dev]
