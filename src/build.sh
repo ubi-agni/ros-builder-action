@@ -208,7 +208,7 @@ function build_pkg {
   # Configure ament python packages to install into lib/python3/dist-packages (instead of lib/python3.x/site-packages)
   sed -i 's@lib/{interpreter}/site-packages@lib/python3/dist-packages@' debian/rules
 
-  if [[ "$pkg_name" =~ "sound_classification"|"ros_speech_recognition"|"respeaker_ros"|"lpg_planner" ]]; then
+  if [[ "$pkg_name" =~ "sound_classification"|"ros_speech_recognition"|"respeaker_ros"|"lpg_planner"|"voicevox" ]]; then
     # skip dh_shlibdeps, because some pip modules contain x86/x86_64/win32/mac binaries
     sed -i '/dh_shlibdeps / s@$@ || echo "Skip dh_shlibdeps error!!!"@' debian/rules
     # ignore dh_strip error 'numpy/core/_multiarray_umath.cpython-310-x86_64-linux-gnu.so has a corrupt string table index'
