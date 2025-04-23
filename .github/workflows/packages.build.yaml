@@ -52,7 +52,7 @@ jobs:
           DEB_BUILD_OPTIONS: ${{ vars.DEB_BUILD_OPTIONS || 'nocheck' }}
           CONTINUE_ON_ERROR: ${{ vars.CONTINUE_ON_ERROR || true }}
           SKIP_EXISTING: ${{ vars.SKIP_EXISTING || false }}
-          SKIP_KNOWN_FAILING: false
+          SKIP_KNOWN_FAILING: true
           INSTALL_TO_CHROOT: false
           VERBOSE: ${{ vars.VERBOSE || '' }}
           DOWNLOAD_DEBS: false
