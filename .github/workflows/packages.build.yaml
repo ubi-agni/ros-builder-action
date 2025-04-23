@@ -16,10 +16,6 @@ on:
         type: string
         description: Path to a rosdep-compatible yaml file specifying custom dependency mappings
         required: false
-      SKIP_KNOWN_FAILING:
-        type: boolean
-        description: Skip building packages known to fail
-        required: false
 
 env:
   TERM: xterm  # needed for colored output of unittests
@@ -50,13 +46,13 @@ jobs:
             sudo mkdir -p /etc/ros/rosdep/sources.list.d
             echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ inputs.DEB_DISTRO }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
           EXTRA_DEB_SOURCES: "deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net ${{inputs.DEB_DISTRO}}-testing main"
-          EXTRA_ROSDEP_SOURCES: ${{ inputs.EXTRA_ROSDEP_SOURCES }}
+          EXTRA_ROSDEP_SOURCES: ${{ inputs.EXTRA_ROSDEP_SOURCES || vars.EXTRA_ROSDEP_SOURCES }}
           EXTRA_SBUILD_CONFIG: ${{ vars.EXTRA_SBUILD_CONFIG }}
           EXTRA_SBUILD_OPTS: ${{ vars.EXTRA_SBUILD_OPTS }}
           DEB_BUILD_OPTIONS: ${{ vars.DEB_BUILD_OPTIONS || 'nocheck' }}
           CONTINUE_ON_ERROR: ${{ vars.CONTINUE_ON_ERROR || true }}
           SKIP_EXISTING: ${{ vars.SKIP_EXISTING || false }}
-          SKIP_KNOWN_FAILING: ${{ inputs.SKIP_KNOWN_FAILING }}
+          SKIP_KNOWN_FAILING: true
           INSTALL_TO_CHROOT: false
           VERBOSE: ${{ vars.VERBOSE || '' }}
           DOWNLOAD_DEBS: false

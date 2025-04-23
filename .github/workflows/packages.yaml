@@ -22,5 +22,3 @@ jobs:
     with:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
       ARCH: ${{ matrix.ARCH }}
-      EXTRA_ROSDEP_SOURCES: rosdep.yaml
-      SKIP_KNOWN_FAILING: true
