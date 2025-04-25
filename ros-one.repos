@@ -732,8 +732,8 @@ repositories:
     version: noetic-devel
   ros_babel_fish:
     type: git
-    url: https://github.com/StefanFabian/ros_babel_fish.git
-    version: kinetic
+    url: https://github.com/tokoro10g/ros_babel_fish.git
+    version: obese-devel
   ros_comm:
     type: git
     url: https://github.com/ros-o/ros_comm.git
