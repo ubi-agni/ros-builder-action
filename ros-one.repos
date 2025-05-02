@@ -166,6 +166,10 @@ repositories:
     type: git
     url: https://github.com/crigroup/criutils.git
     version: master
+  cv_camera:
+    type: git
+    url: https://github.com/OTL/cv_camera.git
+    version: master
   ddynamic_reconfigure:
     type: git
     url: https://github.com/ros-o/ddynamic_reconfigure.git
