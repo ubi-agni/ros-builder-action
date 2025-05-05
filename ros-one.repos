@@ -1078,6 +1078,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/usb_cam.git
     version: obese-devel
+  video_stream_opencv:
+    type: git
+    url: https://github.com/ros-drivers/video_stream_opencv.git
+    version: master
   view_controller_msgs:
     type: git
     url: https://github.com/ros-visualization/view_controller_msgs.git
