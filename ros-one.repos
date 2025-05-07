@@ -718,6 +718,10 @@ repositories:
     type: git
     url: https://github.com/mikeferguson/robot_calibration.git
     version: ros1
+  robot_localization:
+    type: git
+    url: https://github.com/cra-ros-pkg/robot_localization.git
+    version: noetic-devel
   robot_pose_ekf:
     type: git
     url: https://github.com/ros-planning/robot_pose_ekf.git
