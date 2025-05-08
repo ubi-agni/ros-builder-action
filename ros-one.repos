@@ -162,6 +162,10 @@ repositories:
     type: git
     url: https://github.com/ros/convex_decomposition.git
     version: melodic-devel
+  cras_msgs:
+    type: git
+    url: https://github.com/ctu-vras/cras_msgs.git
+    version: master
   criutils:
     type: git
     url: https://github.com/crigroup/criutils.git
@@ -626,6 +630,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/pluginlib.git
     version: obese-devel
+  point_cloud_transport:
+    type: git
+    url: https://github.com/ctu-vras/point_cloud_transport.git
+    version: master
   pr2_common:
     type: git
     url: https://github.com/pr2/pr2_common.git
@@ -797,6 +805,10 @@ repositories:
   ros_type_introspection:
     type: git
     url: https://github.com/ros-o/ros_type_introspection.git
+    version: master
+  ros-utils:
+    type: git
+    url: https://github.com/ctu-vras/ros-utils.git
     version: master
   rosauth:
     type: git
@@ -998,6 +1010,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/rviz_visual_tools.git
     version: obese-devel
+  sensor_filters:
+    type: git
+    url: https://github.com/ctu-vras/sensor_filters.git
+    version: master
   serial:
     type: git
     url: https://github.com/wjwwood/serial.git
@@ -1143,6 +1159,7 @@ sbuild_options:
 known_failures:
   "*/*":
     - pr2_robot/imu_monitor
+    - ros-utils/tf_static_publisher
   "*/jammy":
   "*/noble":
     - librealsense2
