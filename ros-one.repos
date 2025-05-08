@@ -474,6 +474,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/mongodb_store.git
     version: obese-devel
+  move_base_flex:
+    type: git
+    url: https://github.com/naturerobots/move_base_flex.git
+    version: master
   moveit:
     type: git
     url: https://github.com/moveit/moveit.git
