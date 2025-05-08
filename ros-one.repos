@@ -164,8 +164,8 @@ repositories:
     version: melodic-devel
   costmap_converter:
     type: git
-    url: https://github.com/rst-tu-dortmund/costmap_converter.git
-    version: master
+    url: https://github.com/ros-o/costmap_converter.git
+    version: obese-devel
   criutils:
     type: git
     url: https://github.com/crigroup/criutils.git
