@@ -162,6 +162,10 @@ repositories:
     type: git
     url: https://github.com/ros/convex_decomposition.git
     version: melodic-devel
+  costmap_converter:
+    type: git
+    url: https://github.com/rst-tu-dortmund/costmap_converter.git
+    version: master
   criutils:
     type: git
     url: https://github.com/crigroup/criutils.git
