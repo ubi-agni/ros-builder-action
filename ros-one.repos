@@ -162,6 +162,10 @@ repositories:
     type: git
     url: https://github.com/ros/convex_decomposition.git
     version: melodic-devel
+  costmap_converter:
+    type: git
+    url: https://github.com/ros-o/costmap_converter.git
+    version: obese-devel
   criutils:
     type: git
     url: https://github.com/crigroup/criutils.git
@@ -422,6 +426,10 @@ repositories:
     type: git
     url: https://github.com/rhaschke/libfranka.git
     version: master
+  libg2o:
+    type: git
+    url: https://github.com/ros-gbp/libg2o-release.git
+    version: upstream
   librealsense2:
     type: git
     url: https://github.com/ros-o/librealsense.git
@@ -1030,6 +1038,10 @@ repositories:
     type: git
     url: https://github.com/ros/std_msgs.git
     version: kinetic-devel
+  teb_local_planner:
+    type: git
+    url: https://github.com/ros-o/teb_local_planner.git
+    version: obese-devel
   teleop_tools:
     type: git
     url: https://github.com/ros-teleop/teleop_tools.git
