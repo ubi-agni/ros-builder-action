@@ -1080,8 +1080,8 @@ repositories:
     version: obese-devel
   video_stream_opencv:
     type: git
-    url: https://github.com/ros-drivers/video_stream_opencv.git
-    version: master
+    url: https://github.com/ros-o/video_stream_opencv.git
+    version: obese-devel
   view_controller_msgs:
     type: git
     url: https://github.com/ros-visualization/view_controller_msgs.git
