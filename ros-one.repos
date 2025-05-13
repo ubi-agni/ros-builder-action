@@ -1147,9 +1147,7 @@ known_failures:
     - qbdevice-ros/qb_device_gazebo
     - qbhand-ros/qb_hand_gazebo
     - franka_ros/franka_gazebo
-    - pr2_simulator/pr2_simulator
-    - pr2_simulator/pr2_gazebo*
-    - pr2_simulator/pr2_controller_configuration_gazebo
+    - pr2_simulator/*
     - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
     - people/people_tracking_filter  # missing bfl?
