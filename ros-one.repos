@@ -378,6 +378,14 @@ repositories:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_common_msgs.git
     version: master
+  jsk_model_tools:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_model_tools.git
+    version: master
+  jsk_pr2eus:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
+    version: master
   jsk_recognition:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_recognition.git
@@ -665,6 +673,10 @@ repositories:
   pr2_robot:
     type: git
     url: https://github.com/pr2/pr2_robot.git
+    version: kinetic-devel
+  pr2_simulator:
+    type: git
+    url: https://github.com/PR2/pr2_simulator.git
     version: kinetic-devel
   prosilica_driver:
     type: git
@@ -1167,6 +1179,7 @@ known_failures:
     - qbdevice-ros/qb_device_gazebo
     - qbhand-ros/qb_hand_gazebo
     - franka_ros/franka_gazebo
+    - pr2_simulator/*
     - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
     - people/people_tracking_filter  # missing bfl?
