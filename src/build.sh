@@ -196,8 +196,8 @@ function build_pkg {
   pkg_exists "$(deb_pkg_name "$pkg_name")" "$version" && return
 
   # Check availability of all required packages (bloom-generate waits for input on rosdep issues)
-  rosdep install --os="$DISTRIBUTION:$DEB_DISTRO" --simulate --from-paths . > /dev/null || return 2
-  ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" || return 2
+  rosdep install --os="$DISTRIBUTION:$DEB_DISTRO" --simulate -t build -t buildtool_export -t buildtool -t build_export -t exec --from-paths . > /dev/null || return 2
+  ici_label "${BLOOM_QUIET[@]}" bloom-generate "${BLOOM_GEN_CMD}" --os-name="$DISTRIBUTION" --os-version="$DEB_DISTRO" --ros-distro="$ROS_DISTRO" --skip-test-dependencies --skip-pip || return 2
 
   trap 'rm -f ../*.dsc ../*.tar.gz; cd "$old_path"' RETURN # cleanup on build failure
 
@@ -207,6 +207,13 @@ function build_pkg {
   fi
   # Configure ament python packages to install into lib/python3/dist-packages (instead of lib/python3.x/site-packages)
   sed -i 's@lib/{interpreter}/site-packages@lib/python3/dist-packages@' debian/rules
+
+  if [[ "$pkg_name" =~ "sound_classification"|"ros_speech_recognition"|"respeaker_ros"|"lpg_planner"|"voicevox" ]]; then
+    # skip dh_shlibdeps, because some pip modules contain x86/x86_64/win32/mac binaries
+    sed -i '/dh_shlibdeps / s@$@ || echo "Skip dh_shlibdeps error!!!"@' debian/rules
+    # ignore dh_strip error 'numpy/core/_multiarray_umath.cpython-310-x86_64-linux-gnu.so has a corrupt string table index'
+    echo -e 'override_dh_strip:\n	dh_strip || true\n' >> debian/rules
+  fi
 
   # https://github.com/ros-infrastructure/bloom/pull/643
   echo 11 > debian/compat
@@ -334,7 +341,7 @@ function build_source {
   while read -r name folder unused; do
     PKG_NAMES+=("$name")
     PKG_FOLDERS+=("$folder")
-  done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
+  done < <(colcon list --topological-order $COLCON_PKG_SELECTION || kill $$)
 
   ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
   ici_timed update_repo

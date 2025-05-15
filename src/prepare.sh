@@ -127,11 +127,13 @@ EOF
   sed -e 's#\(union-type\)=overlay#\1=none#' -e 's#\[sbuild\]#[sbuild-rw]#'\
     /etc/schroot/chroot.d/sbuild | ici_asroot tee /etc/schroot/chroot.d/sbuild-rw
 
+  mkdir /tmp/cache
   ici_log
   ici_color_output BOLD "Add mount points to sbuild's fstab"
   cat <<- EOF | ici_asroot tee -a /etc/schroot/sbuild/fstab
 $CCACHE_DIR  /build/ccache   none    rw,bind         0       0
 $DEBS_PATH   /build/repo     none    rw,bind         0       0
+/tmp/cache   /build/cache    none    rw,bind         0       0
 EOF
 
   ici_log
@@ -142,7 +144,12 @@ EOF
 function configure_sbuildrc {
   # https://wiki.ubuntu.com/SimpleSbuild
   cat << EOF | tee ~/.sbuildrc
-\$build_environment = { 'CCACHE_DIR' => '/build/ccache' };
+\$build_environment = {
+  'CCACHE_DIR' => '/build/ccache',
+  'ROS_HOME' => '/build/cache/ros',
+  'PIP_CACHE_DIR' => '/build/cache/pip',
+  'PIP_TOOLS_CACHE_DIR' => '/build/cache/pip'
+};
 \$path = '/usr/lib/ccache:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games';
 \$dsc_dir = "package";
 \$build_path = "/build/package/";

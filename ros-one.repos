@@ -2,7 +2,7 @@ repositories:
   BehaviorTree.CPP:
     type: git
     url: https://github.com/BehaviorTree/BehaviorTree.CPP.git
-    version: master
+    version: 3c62813b84fa9b26d8cb88dc38da17deb852f6a7
   Stage:
     type: git
     url: https://github.com/ros-o/Stage.git
@@ -87,6 +87,10 @@ repositories:
     type: git
     url: https://github.com/RethinkRobotics/baxter_common.git
     version: master
+  bfl:
+    type: git
+    url: https://github.com/ros-gbp/bfl-release.git
+    version: upstream
   bio_ik:
     type: git
     url: https://github.com/TAMS-Group/bio_ik.git
@@ -107,6 +111,9 @@ repositories:
     type: git
     url: https://github.com/ros-o/camera_info_manager_py.git
     version: obese-devel
+  camera_umd:
+    type: git
+    url: https://github.com/ros-drivers/camera_umd.git
   catch_ros:
     type: git
     url: https://github.com/AIS-Bonn/catch_ros.git
@@ -159,6 +166,10 @@ repositories:
     type: git
     url: https://github.com/ros/convex_decomposition.git
     version: melodic-devel
+  costmap_converter:
+    type: git
+    url: https://github.com/ros-o/costmap_converter.git
+    version: obese-devel
   cras_msgs:
     type: git
     url: https://github.com/ctu-vras/cras_msgs.git
@@ -166,6 +177,10 @@ repositories:
   criutils:
     type: git
     url: https://github.com/crigroup/criutils.git
+    version: master
+  cv_camera:
+    type: git
+    url: https://github.com/OTL/cv_camera.git
     version: master
   ddynamic_reconfigure:
     type: git
@@ -371,6 +386,14 @@ repositories:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_common_msgs.git
     version: master
+  jsk_model_tools:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_model_tools.git
+    version: master
+  jsk_pr2eus:
+    type: git
+    url: https://github.com/jsk-ros-pkg/jsk_pr2eus.git
+    version: master
   jsk_recognition:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_recognition.git
@@ -381,8 +404,8 @@ repositories:
     version: master
   jsk_visualization:
     type: git
-    url: https://github.com/ros-o/jsk_visualization.git
-    version: obese-devel
+    url: https://github.com/jsk-ros-pkg/jsk_visualization.git
+    version: master
   jskeus:
     type: git
     url: https://github.com/tork-a/jskeus-release.git
@@ -419,6 +442,10 @@ repositories:
     type: git
     url: https://github.com/rhaschke/libfranka.git
     version: master
+  libg2o:
+    type: git
+    url: https://github.com/ros-gbp/libg2o-release.git
+    version: upstream
   librealsense2:
     type: git
     url: https://github.com/ros-o/librealsense.git
@@ -471,6 +498,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/mongodb_store.git
     version: obese-devel
+  move_base_flex:
+    type: git
+    url: https://github.com/naturerobots/move_base_flex.git
+    version: master
   moveit:
     type: git
     url: https://github.com/moveit/moveit.git
@@ -655,6 +686,10 @@ repositories:
     type: git
     url: https://github.com/pr2/pr2_robot.git
     version: kinetic-devel
+  pr2_simulator:
+    type: git
+    url: https://github.com/PR2/pr2_simulator.git
+    version: kinetic-devel
   prosilica_driver:
     type: git
     url: https://github.com/ros-o/prosilica_driver.git
@@ -719,6 +754,10 @@ repositories:
     type: git
     url: https://github.com/mikeferguson/robot_calibration.git
     version: ros1
+  robot_localization:
+    type: git
+    url: https://github.com/cra-ros-pkg/robot_localization.git
+    version: noetic-devel
   robot_pose_ekf:
     type: git
     url: https://github.com/ros-planning/robot_pose_ekf.git
@@ -735,6 +774,10 @@ repositories:
     type: git
     url: https://github.com/ros/ros.git
     version: noetic-devel
+  ros_babel_fish:
+    type: git
+    url: https://github.com/ros-o/ros_babel_fish.git
+    version: obese-devel
   ros_comm:
     type: git
     url: https://github.com/ros-o/ros_comm.git
@@ -1027,6 +1070,10 @@ repositories:
     type: git
     url: https://github.com/ros/std_msgs.git
     version: kinetic-devel
+  teb_local_planner:
+    type: git
+    url: https://github.com/ros-o/teb_local_planner.git
+    version: obese-devel
   teleop_tools:
     type: git
     url: https://github.com/ros-teleop/teleop_tools.git
@@ -1082,6 +1129,10 @@ repositories:
   usb_cam:
     type: git
     url: https://github.com/ros-o/usb_cam.git
+    version: obese-devel
+  video_stream_opencv:
+    type: git
+    url: https://github.com/ros-o/video_stream_opencv.git
     version: obese-devel
   view_controller_msgs:
     type: git
@@ -1139,29 +1190,20 @@ sbuild_options:
 
 known_failures:
   "*/*":
-    - jsk_3rdparty/*
-    - jsk_common/jsk_data
-    - jsk_common/jsk_ros_patch/multi_map_server
-    - jsk_visualization/*
-    - jsk_recognition/*
-    - jsk_roseus/roseus_tutorials
     - pr2_robot/imu_monitor
     - ros-utils/tf_static_publisher
   "*/jammy":
   "*/noble":
     - librealsense2
     - realsense_ros/*
-    - gazebo_ros_pkgs/* # Gazebo classic not available anymore
+    - gazebo_ros_pkgs/*  # Gazebo classic not available anymore
     - qbdevice-ros/qb_device_gazebo
     - qbhand-ros/qb_hand_gazebo
     - franka_ros/franka_gazebo
-    - catkin_virtualenv/* # removal of deprecated pkgutil.ImpImporter in Python 3.12
-    - pr2_ethercat_drivers/ethercat_hardware # deprecation of boost/timer.hpp
+    - pr2_simulator/*
+    - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
-    - people/people_tracking_filter # missing bfl?
-    - people/leg_detector
-    - robot_pose_ekf # missing bfl?
-    - moveit_calibration/* # missing bfl?
+    - moveit_calibration/*  # missing numpy/arrayobject.h
   "arm64/*":
     - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
     - prosilica_*  # cmake error: No SOURCES given to target: PvAPI
