@@ -208,6 +208,12 @@ function build_pkg {
   # Configure ament python packages to install into lib/python3/dist-packages (instead of lib/python3.x/site-packages)
   sed -i 's@lib/{interpreter}/site-packages@lib/python3/dist-packages@' debian/rules
 
+  # Enforce CXX_STANDARD=17 on Jammy
+  if [ "$DEB_DISTRO" = "jammy" ]; then
+    # shellcheck disable=SC2016
+    sed -i 's@$(BUILD_TESTING_ARG)@-DCMAKE_CXX_STANDARD=17 $(BUILD_TESTING_ARG)@' debian/rules
+  fi
+
   if [[ "$pkg_name" =~ "sound_classification"|"ros_speech_recognition"|"respeaker_ros"|"lpg_planner"|"voicevox" ]]; then
     # skip dh_shlibdeps, because some pip modules contain x86/x86_64/win32/mac binaries
     sed -i '/dh_shlibdeps / s@$@ || echo "Skip dh_shlibdeps error!!!"@' debian/rules
