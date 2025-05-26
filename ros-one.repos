@@ -322,6 +322,10 @@ repositories:
     type: git
     url: https://github.com/crigroup/handeye.git
     version: master
+  hector_slam:
+    type: git
+    url: https://github.com/tu-darmstadt-ros-pkg/hector_slam.git
+    version: noetic-devel
   hpp-fcl:
     type: git
     url: https://github.com/humanoid-path-planner/hpp-fcl.git
