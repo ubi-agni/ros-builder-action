@@ -324,8 +324,8 @@ repositories:
     version: master
   hector_slam:
     type: git
-    url: https://github.com/mcamurri/hector_slam.git
-    version: ros-o-devel
+    url: https://github.com/tu-darmstadt-ros-pkg/hector_slam.git
+    version: noetic-devel
   hpp-fcl:
     type: git
     url: https://github.com/humanoid-path-planner/hpp-fcl.git
