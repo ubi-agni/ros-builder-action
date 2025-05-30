@@ -124,7 +124,7 @@ repositories:
     version: obese-devel
   catkin_grpc:
     type: git
-    url: https://github.com/CogRob/catkin_grpc.git
+    url: https://github.com/rhaschke/catkin_grpc.git
     version: master
   catkin_virtualenv:
     type: git
