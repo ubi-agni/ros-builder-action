@@ -1197,6 +1197,7 @@ known_failures:
     - moveit_calibration/*  # missing numpy/arrayobject.h
   "arm64/*":
     - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
+    - pr2_gripper_sensor/*  # relies on rosrt
     - prosilica_*  # cmake error: No SOURCES given to target: PvAPI
     - gazebo_ros_pkgs/*  # Gazebo not available on arm64
     - multisense_ros/*  # Eigen issue
