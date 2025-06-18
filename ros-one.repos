@@ -73,8 +73,8 @@ repositories:
     version: master
   axis_camera:
     type: git
-    url: https://github.com/ros-drivers/axis_camera.git
-    version: noetic-devel
+    url: https://github.com/ros-o/axis_camera.git
+    version: obese-devel
   backward_ros:
     type: git
     url: https://github.com/pal-robotics/backward_ros.git
