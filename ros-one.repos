@@ -1078,6 +1078,10 @@ repositories:
     type: git
     url: https://github.com/ros-teleop/teleop_tools.git
     version: noetic-devel
+  teleop_twist_joy:
+    type: git
+    url: https://github.com/ros-teleop/teleop_twist_joy.git
+    version: indigo-devel
   teleop_twist_keyboard:
     type: git
     url: https://github.com/ros-teleop/teleop_twist_keyboard.git
