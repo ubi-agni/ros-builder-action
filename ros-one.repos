@@ -786,6 +786,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/ros_babel_fish.git
     version: obese-devel
+  ros_canopen:
+    type: git
+    url: https://github.com/ros-industrial/ros_canopen.git
+    version: melodic-devel
   ros_comm:
     type: git
     url: https://github.com/ros-o/ros_comm.git
