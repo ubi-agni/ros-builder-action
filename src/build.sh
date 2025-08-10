@@ -168,6 +168,12 @@ function pkg_exists {
   fi
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$candidate" ] && \
      dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py"; then
+    local build_stamp="${candidate#*"$DEB_DISTRO".}" # timestamp of last build
+    local git_stamp; git_stamp=$(git log -1 --format="%cd" --date=format:'%Y%m%d.%H%M') # timestamp of last commit
+    if [ "$git_stamp" -gt "$build_stamp" ]; then
+      echo "Building version $pkg_version (git stamp $git_stamp > build stamp $build_stamp)"
+      return 1
+    fi
     echo "Skipped (existing version $candidate >= $pkg_version)"
     return 0
   fi
