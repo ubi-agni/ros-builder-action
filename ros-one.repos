@@ -1202,6 +1202,10 @@ repositories:
     type: git
     url: https://github.com/ros/xacro.git
     version: noetic-devel
+  zbar_ros:
+    type: git
+    url: https://github.com/ros-drivers/zbar_ros.git
+    version: melodic-devel
 
 sbuild_options:
   eigenpy:
