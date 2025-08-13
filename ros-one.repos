@@ -970,6 +970,10 @@ repositories:
     type: git
     url: https://github.com/ros-visualization/rqt_pose_view.git
     version: master
+  rqt_pr2_dashboard:
+    type: git
+    url: https://github.com/PR2/rqt_pr2_dashboard.git
+    version: kinetic-devel
   rqt_publisher:
     type: git
     url: https://github.com/ros-visualization/rqt_publisher.git
