@@ -318,6 +318,38 @@ repositories:
     type: git
     url: https://github.com/PickNikRobotics/graph_msgs.git
     version: jade-devel
+  gazebo:
+    type: git
+    url: https://github.com/furushchev/gazebo-classic.git
+    version: obese-devel
+  gz-tools:
+    type: git
+    url: https://github.com/gazebosim/gz-tools.git
+    version: ignition-tools_1.5.0
+  gz-cmake:
+    type: git
+    url: https://github.com/gazebosim/gz-cmake.git
+    version: ignition-cmake2_2.15.0
+  gz-math:
+    type: git
+    url: https://github.com/gazebosim/gz-math.git
+    version: ignition-math6_6.15.1
+  gz-common:
+    type: git
+    url: https://github.com/furushchev/gz-common.git
+    version: obese-devel
+  gz-msgs:
+    type: git
+    url: https://github.com/gazebosim/gz-msgs.git
+    version: ignition-msgs5_5.10.0
+  gz-fuel-tools:
+    type: git
+    url: https://github.com/gazebosim/gz-fuel-tools.git
+    version: ignition-fuel-tools4_4.6.0
+  gz-transport:
+    type: git
+    url: https://github.com/gazebosim/gz-transport.git
+    version: ignition-transport8_8.3.0
   handeye:
     type: git
     url: https://github.com/crigroup/handeye.git
@@ -1046,6 +1078,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/rviz_visual_tools.git
     version: obese-devel
+  sdformat:
+    type: git
+    url: https://github.com/gazebosim/sdformat.git
+    version: sdformat9_9.10.2
   serial:
     type: git
     url: https://github.com/wjwwood/serial.git
@@ -1215,11 +1251,6 @@ known_failures:
   "*/noble":
     - librealsense2
     - realsense_ros/*
-    - gazebo_ros_pkgs/*  # Gazebo classic not available anymore
-    - qbdevice-ros/qb_device_gazebo
-    - qbhand-ros/qb_hand_gazebo
-    - franka_ros/franka_gazebo
-    - pr2_simulator/*
     - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
     - moveit_calibration/*  # missing numpy/arrayobject.h
@@ -1227,5 +1258,4 @@ known_failures:
     - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
     - pr2_gripper_sensor/*  # relies on rosrt
     - prosilica_*  # cmake error: No SOURCES given to target: PvAPI
-    - gazebo_ros_pkgs/*  # Gazebo not available on arm64
     - multisense_ros/*  # Eigen issue
