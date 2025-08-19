@@ -14,12 +14,12 @@ libfltk-dev:
     bookworm: [libfltk1.3-dev]
 
 gazebo11:
-  debian:
-    bookworm: [gazebo11]
+  ubuntu: [ros-one-gazebo]
+  debian: [ros-one-gazebo]
 
 libgazebo11-dev:
-  debian:
-    bookworm: [libgazebo11-dev]
+  ubuntu: [ros-one-gazebo]
+  debian: [ros-one-gazebo]
 
 log4cxx:
   debian:
