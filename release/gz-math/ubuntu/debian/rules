@@ -1,0 +1,36 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=ignition-math6
+
+DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+.PHONY: override_dh_auto_configure \
+        override_dh_strip \
+        override_dh_install \
+        override_dh_auto_test
+
+%:
+	dh $@  --with python3
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+	    -DUSE_SYSTEM_PATHS_FOR_PYTHON_INSTALLATION=ON \
+	    -DUSE_DIST_PACKAGES_FOR_PYTHON=ON \
+	    -DUSE_SYSTEM_PATHS_FOR_RUBY_INSTALLATION=ON
+
+override_dh_strip:
+	dh_strip -a --dbg-package=libignition-math6-dbg
+
+override_dh_install:
+	dh_install
+	# remove duplicate eigen files from mathx-dev.install regexp
+	cd debian/libignition-math6-eigen3-dev; find . -type f -exec rm -f ../libignition-math6-dev/{} \;
+	find debian/libignition-math6-dev -type d -empty -delete
+
+override_dh_auto_test:
+ifeq ($(DEB_HOST_ARCH),armhf)
+	true
+else
+	dh_auto_test $@ --no-parallel --buildsystem=cmake
+endif

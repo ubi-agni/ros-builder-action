@@ -710,10 +710,6 @@ repositories:
     type: git
     url: https://github.com/moveit/py_binding_tools.git
     version: main
-  pybind11_catkin:
-    type: git
-    url: https://github.com/rhaschke/pybind11_catkin.git
-    version: master
   python_qt_binding:
     type: git
     url: https://github.com/ros-o/python_qt_binding.git
@@ -1223,11 +1219,6 @@ known_failures:
   "*/noble":
     - librealsense2
     - realsense_ros/*
-    - gazebo_ros_pkgs/*  # Gazebo classic not available anymore
-    - qbdevice-ros/qb_device_gazebo
-    - qbhand-ros/qb_hand_gazebo
-    - franka_ros/franka_gazebo
-    - pr2_simulator/*
     - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
     - moveit_calibration/*  # missing numpy/arrayobject.h
@@ -1235,5 +1226,4 @@ known_failures:
     - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
     - pr2_gripper_sensor/*  # relies on rosrt
     - prosilica_*  # cmake error: No SOURCES given to target: PvAPI
-    - gazebo_ros_pkgs/*  # Gazebo not available on arm64
     - multisense_ros/*  # Eigen issue

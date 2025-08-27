@@ -1,0 +1,66 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# If dpkg-buildflags is available, retrieve hardened compilation flags.
+# In all cases, add -as-needed as recent Ubuntu versions enables it by default.
+CPPFLAGS:=$(shell dpkg-buildflags --get CPPFLAGS 2>/dev/null)
+CFLAGS:=$(shell dpkg-buildflags --get CFLAGS 2>/dev/null)
+CXXFLAGS:=$(shell dpkg-buildflags --get CXXFLAGS 2>/dev/null)
+LDFLAGS:=$(shell dpkg-buildflags --get LDFLAGS 2>/dev/null) -Wl,--as-needed
+
+# Duplicate flags as CMake is ignoring CPPFLAGS.
+CFLAGS+=$(CPPFLAGS)
+CXXFLAGS+=$(CPPFLAGS)
+
+# Multiarch (if supported).
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null)
+
+# Configuration flags.
+CONFIGURE_ARGS=
+
+# Adjust cflags in arm
+ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),amd64 i386))
+  CMAKE_HOST_CFLAGS="True"
+else
+  CMAKE_HOST_CFLAGS="False"
+endif
+
+# If multiarch is supported, override CMAKE_INSTALL_LIB
+ifneq ($(DEB_HOST_MULTIARCH),)
+CONFIGURE_ARGS+=-DCMAKE_INSTALL_LIBDIR:STRING="lib/${DEB_HOST_MULTIARCH}"
+endif
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	        -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+	        -DUSE_HOST_CFLAGS:BOOL=${CMAKE_HOST_CFLAGS} \
+	        $(CONFIGURE_ARGS) \
+
+# Generate Doxygen HTML documentation.
+# Currently broken:
+# https://bitbucket.org/osrf/gazebo/issue/1141
+#override_dh_auto_build-indep:
+	#dh_auto_build -- doc
+
+override_dh_install:
+	dh_install -- # Install.
+
+	# Install icon
+	mkdir -p debian/gazebo11/usr/share/icons/hicolor/scalable/apps/
+	install -m 644 gazebo/gui/images/gazebo.svg \
+	    debian/gazebo11/usr/share/icons/hicolor/scalable/apps/gazebo.svg
+        # Install desktop file
+	mkdir -p debian/gazebo11/usr/share/applications/
+	install -m 644 ./debian/gazebo.desktop \
+	    debian/gazebo11/usr/share/applications/
+
+# No test for now. Need some refactor work first
+override_dh_auto_test:
+	true
+	#dh_auto_test || true
+
+override_dh_strip:
+	dh_strip -a --dbg-package=gazebo11-dbg
+
+%:
+	dh $@ --parallel --with bash-completion

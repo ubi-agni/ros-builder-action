@@ -1,0 +1,9 @@
+Document: gazebo
+Title: Gazebo C++ API reference
+Author: Gazebo Team
+Abstract: Describe the Gazebo library C++ API.
+Section: Programming/C++
+
+Format: HTML
+Index: /usr/share/doc/gazebo-doc/html/index.html
+Files: /usr/share/doc/gazebo-doc/html/*

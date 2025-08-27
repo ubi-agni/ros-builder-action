@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Gazebo
+Comment=3-D Robot simulator
+Exec=/usr/bin/gazebo
+Icon=gazebo
+Type=Application
+Categories=Development;Education;Science;
+StartupNotify=true
+OnlyShowIn=GNOME;Unity;
+Keywords=Run;
+Name[en_US]=gazebo11.desktop

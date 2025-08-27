@@ -143,13 +143,22 @@ function source_link {
 }
 
 function pkg_exists {
-  local pkg_version="${2%"$DEB_DISTRO"}"
-  local candidate; candidate=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
-  [ "$candidate" = "(none)" ] && candidate=""
+  local name="$1"
+  local candidate; candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
   local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
+  if [ "$candidate" == "(none)" ] || [ -z "$candidate" ]; then
+    candidate=""
+    # look for alternative package name
+    read -r name candidate unused < <(apt list 2> /dev/null | grep "$name" | grep -v "ros-" | head -n 1)
+    # remove everything after first invalid character (no digit)
+    available="${candidate%%[^0-9.-]*}"
+    echo "Found: ${name%/*}  $candidate"
+  fi
+
+  local pkg_version="${2%"$DEB_DISTRO"}"
 
   if [ -n "$candidate" ] && ! dpkg --compare-versions "$available" "<=" "$pkg_version" ; then
-    gha_warning "$1: existing version newer: $available > $pkg_version"
+    gha_warning "$name: existing version newer: $available > $pkg_version"
   fi
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$candidate" ] && \
      dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py"; then

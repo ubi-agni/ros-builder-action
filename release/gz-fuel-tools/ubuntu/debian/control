@@ -1,0 +1,50 @@
+Source: ignition-fuel-tools4
+Standards-Version: 3.9.8
+Maintainer: Jose Luis Rivero <jrivero@osrfoundation.org>
+Section: science
+Priority: optional
+Build-Depends: cmake,
+               doxygen,
+               pkg-config,
+               debhelper (>= 9),
+               libignition-cmake2-dev (>= 2.13.0),
+               libignition-common3-core-dev (>= 3.0.0),
+               libignition-math6-dev,
+               libignition-msgs5-dev,
+               libzip-dev,
+               libjsoncpp-dev,
+               libcurl4-openssl-dev,
+               libyaml-dev,
+               libtinyxml2-dev
+Vcs-Browser: https://github.com/gazebosim/gz-fuel-tools
+Vcs-Git: https://github.com/gazebosim/gz-fuel-tools
+Homepage: http://gazebosim.org/
+
+Package: libignition-fuel-tools4
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo fuel-tools classes and functions for robot apps - Shared library
+  Gazebo fuel-tools is a component in the Gazebo framework, a set of libraries
+  designed to rapidly develop robot applications.
+
+Package: libignition-fuel-tools4-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-cmake2-dev (>= 2.13.0),
+       libignition-common3-core-dev (>= 3.0.0),
+       libignition-math6-dev,
+       libignition-msgs5-dev,
+       libzip-dev,
+       libjsoncpp-dev,
+       libcurl4-openssl-dev,
+       libyaml-dev,
+       libtinyxml2-dev,
+       libignition-fuel-tools4 (= ${binary:Version}),
+       ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo fuel-tools classes and functions for robot apps - Development files
+  Gazebo fuel-tools is a component in the Gazebo framework, a set of libraries
+  designed to rapidly develop robot applications.

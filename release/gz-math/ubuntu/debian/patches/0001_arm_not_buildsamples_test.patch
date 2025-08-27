@@ -1,0 +1,15 @@
+From: Jose Luis Rivero" <jrivero@osrfoundation.org>
+Subject: arm emulation is too slow to finish it on time
+
+diff --git a/test/integration/ExamplesBuild_TEST.cc b/test/integration/ExamplesBuild_TEST.cc
+index 8ae5f5e..a3245b8 100644
+--- a/test/integration/ExamplesBuild_TEST.cc
++++ b/test/integration/ExamplesBuild_TEST.cc
+@@ -373,7 +373,7 @@ void removeAll(const std::string &_path)
+ TEST(ExamplesBuild, Build)
+ {
+   // \todo(nkoenig) Fix windows.
+-#ifndef _WIN32
++#if defined(__arm__)
+   // Path to examples of the given type
+   std::string examplesDir = std::string(PROJECT_SOURCE_PATH) + "/examples/";

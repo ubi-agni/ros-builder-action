@@ -1,0 +1,4 @@
+usr/lib/*/*.so.*
+usr/lib/ruby/ignition/*.rb
+usr/share/gz/*
+usr/share/ignition/*.yaml

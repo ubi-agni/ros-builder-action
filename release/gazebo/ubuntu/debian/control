@@ -1,0 +1,252 @@
+Source: gazebo11
+Standards-Version: 3.9.5
+Maintainer: Nate Koenig <nate@osrfoundation.org>
+Section: science
+Priority: extra
+Build-Depends: cmake,
+     debhelper (>= 9),
+     bash-completion,
+     doxygen,
+     doxygen-latex,
+     texlive-fonts-recommended,
+     libfreeimage-dev,
+     libprotoc-dev,
+     libprotobuf-dev,
+     protobuf-compiler,
+     freeglut3-dev,
+     libcurl4-openssl-dev,
+     libtinyxml-dev,
+     libtinyxml2-dev,
+     libtar-dev,
+     libtbb-dev,
+     libogre-1.9-dev,
+     libxml2-dev,
+     pkg-config,
+     qtbase5-dev,
+     libqwt-qt5-dev,
+     libqt5opengl5-dev,
+     libltdl-dev,
+     libboost-dev,
+     libboost-thread-dev,
+     libboost-system-dev,
+     libboost-filesystem-dev,
+     libboost-program-options-dev,
+     libboost-regex-dev,
+     libboost-iostreams-dev,
+     libgts-dev,
+     libavformat-dev,
+     libavcodec-dev,
+     libswscale-dev,
+     libavdevice-dev,
+     libusb-1.0-0-dev,
+     libspnav-dev,
+     libgdal-dev,
+     libsdformat9-dev (>=9.8.0),
+     libignition-math6-dev,
+     libignition-transport8-dev,
+     libignition-msgs5-dev,
+     libignition-fuel-tools4-dev,
+     libignition-common3-dev,
+     libignition-common3-graphics-dev,
+     libignition-common3-profiler-dev,
+     libsimbody-dev (>= 3.0.0),
+     libsimbody-dev (<< 4.0.0),
+     libbullet-dev,
+# dart without major version number to get versions coming from Debian/Ubuntu upstream
+     libdart-collision-bullet-dev,
+     libdart-collision-ode-dev,
+     libdart-utils-urdf-dev,
+     libdart-external-odelcpsolver-dev,
+     libdart-external-ikfast-dev,
+     ruby-ronn
+Vcs-Browser: https://github.com/ignition-release/gazebo11-elease
+Vcs-Git: https://github.com/ignition-release/gazebo11-release
+Homepage: http://gazebosim.org
+
+Package: gazebo11-common
+Architecture: all
+Depends: fonts-dejavu-core, ${misc:Depends}
+Multi-Arch: foreign
+Conflicts: gazebo6-common,
+           gazebo6-common-prerelease,
+           gazebo7-common,
+           gazebo7-common-prerelease,
+           gazebo8-common,
+           gazebo9-common,
+           gazebo10-common,
+Description: Open Source Robotics Simulator - Shared files
+ Gazebo is a multi-robot simulator for outdoor environments. Like
+ Stage (part of the Player project), it is capable of simulating a
+ population of robots, sensors and objects, but does so in a
+ three-dimensional world. It generates both realistic sensor feedback
+ and physically plausible interactions between objects (it includes an
+ accurate simulation of rigid-body physics).
+ .
+ This package contains shared files such as 3d models, worlds and
+ robots.
+
+Package: gazebo11
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libgazebo11 (= ${binary:Version}),
+         gazebo11-common (>= 11.2.0)
+Recommends: gazebo11-plugin-base
+Suggests: gazebo11-doc
+Multi-Arch: foreign
+Conflicts: gazebo2,
+           gazebo3,
+           gazebo5,
+           gazebo6,
+           gazebo7,
+           gazebo8,
+           gazebo9,
+           gazebo10
+Description: Open Source Robotics Simulator
+ Gazebo is a multi-robot simulator for outdoor environments. Like
+ Stage (part of the Player project), it is capable of simulating a
+ population of robots, sensors and objects, but does so in a
+ three-dimensional world. It generates both realistic sensor feedback
+ and physically plausible interactions between objects (it includes an
+ accurate simulation of rigid-body physics).
+
+Package: libgazebo11
+Section: libs
+Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Conflicts: libgazebo5,
+           libgazebo6,
+           libgazebo7,
+           libgazebo8,
+           libgazebo9,
+           libgazebo10
+Description: Open Source Robotics Simulator - shared library
+ Gazebo is a multi-robot simulator for outdoor environments. Like
+ Stage (part of the Player project), it is capable of simulating a
+ population of robots, sensors and objects, but does so in a
+ three-dimensional world. It generates both realistic sensor feedback
+ and physically plausible interactions between objects (it includes an
+ accurate simulation of rigid-body physics).
+ .
+ This package gathers shared libraries used
+
+Package: libgazebo11-dev
+Architecture: any
+Section: libdevel
+Depends: libtbb-dev,
+         libxml2-dev,
+         qtbase5-dev,
+         libqwt-qt5-dev,
+         libprotoc-dev,
+         libfreeimage-dev,
+         libprotobuf-dev,
+         libboost-all-dev,
+         freeglut3-dev,
+         libogre-1.9-dev,
+         libtar-dev,
+         libcurl4-openssl-dev,
+         libgts-dev,
+         libusb-1.0-0-dev,
+         libgdal-dev,
+         libavformat-dev,
+         libavcodec-dev,
+         libswscale-dev,
+         libavdevice-dev,
+         libsdformat9-dev (>=9.8.0),
+         libignition-math6-dev,
+         libignition-transport8-dev,
+         libignition-msgs5-dev,
+         libignition-fuel-tools4-dev,
+         libignition-common3-dev,
+         libignition-common3-graphics-dev,
+         libignition-common3-profiler-dev,
+         libsimbody-dev (>= 3.0.0),
+         libsimbody-dev (<< 4.0.0),
+         libbullet-dev,
+# dart without major version number to get versions coming from Debian/Ubuntu upstream
+         libdart-collision-bullet-dev,
+         libdart-collision-ode-dev,
+         libdart-utils-urdf-dev,
+         libdart-external-odelcpsolver-dev,
+         libdart-external-ikfast-dev,
+         libgazebo11 (= ${binary:Version}),
+         gazebo11-common (>= 11.2.0),
+         gazebo11-plugin-base (= ${source:Version}),
+         ${misc:Depends}
+Multi-Arch: same
+Conflicts: gazebo2,
+           libgazebo-dev (<< 10.0.0),
+           libgazebo-dev (>= 9.0.0),
+           libgazebo3-dev,
+           libgazebo5-dev,
+           libgazebo6-dev,
+           libgazebo7-dev,
+           libgazebo8-dev,
+           libgazebo9-dev,
+           libgazebo10-dev
+Description: Open Source Robotics Simulator - Development Files
+ Gazebo is a multi-robot simulator for outdoor environments. Like
+ Stage (part of the Player project), it is capable of simulating a
+ population of robots, sensors and objects, but does so in a
+ three-dimensional world. It generates both realistic sensor feedback
+ and physically plausible interactions between objects (it includes an
+ accurate simulation of rigid-body physics).
+ .
+ This package contains development files (headers, shared library
+ symbolic link and pkg-config file).
+
+Package: gazebo11-plugin-base
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         gazebo11 (= ${binary:Version})
+Enhances: gazebo11
+Multi-Arch: foreign
+Conflicts: gazebo5-plugins-base,
+           gazebo6-plugins-base,
+           gazebo7-plugins-base,
+           gazebo8-plugins-base,
+           gazebo9-plugins-base,
+           gazebo10-plugins-base
+Description: Open Source Robotics Simulator - base plug-ins
+ Gazebo is a multi-robot simulator for outdoor environments. Like
+ Stage (part of the Player project), it is capable of simulating a
+ population of robots, sensors and objects, but does so in a
+ three-dimensional world. It generates both realistic sensor feedback
+ and physically plausible interactions between objects (it includes an
+ accurate simulation of rigid-body physics).
+ .
+ This package gathers built-in plugins.
+
+Package: gazebo11-dbg
+Architecture: any
+Section: debug
+Depends: gazebo11 (= ${binary:Version}),
+         ${misc:Depends}
+Multi-Arch: foreign
+Description: Open Source Robotics Simulator - Debugging Symbols
+ Gazebo is a multi-robot simulator for outdoor environments. Like
+ Stage (part of the Player project), it is capable of simulating a
+ population of robots, sensors and objects, but does so in a
+ three-dimensional world. It generates both realistic sensor feedback
+ and physically plausible interactions between objects (it includes an
+ accurate simulation of rigid-body physics).
+ .
+ This package contains the debugging symbols.
+
+Package: gazebo11-doc
+Architecture: all
+Section: doc
+Depends: ${misc:Depends}
+Multi-Arch: foreign
+Description: Open Source Robotics Simulator - Documentation
+ Gazebo is a multi-robot simulator for outdoor environments. Like
+ Stage (part of the Player project), it is capable of simulating a
+ population of robots, sensors and objects, but does so in a
+ three-dimensional world. It generates both realistic sensor feedback
+ and physically plausible interactions between objects (it includes an
+ accurate simulation of rigid-body physics).
+ .
+ This package contains the program documentation.

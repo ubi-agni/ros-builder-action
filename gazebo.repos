@@ -1,0 +1,41 @@
+repositories:
+  gazebo:
+    type: git
+    url: https://github.com/ros-o/gazebo.git
+    version: gazebo11
+  gz-tools:
+    type: git
+    url: https://github.com/ros-o/gz-tools.git
+    version: ign-tools1
+  gz-cmake:
+    type: git
+    url: https://github.com/ros-o/gz-cmake.git
+    version: ign-cmake2
+  gz-math:
+    type: git
+    url: https://github.com/gazebosim/gz-math.git
+    version: ign-math6
+  gz-common:
+    type: git
+    url: https://github.com/ros-o/gz-common.git
+    version: ign-common3
+  gz-msgs:
+    type: git
+    url: https://github.com/gazebosim/gz-msgs.git
+    version: ign-msgs5
+  gz-fuel-tools:
+    type: git
+    url: https://github.com/ros-o/gz-fuel-tools.git
+    version: ign-fuel-tools4
+  gz-transport:
+    type: git
+    url: https://github.com/ros-o/gz-transport.git
+    version: ign-transport8
+  pybind11_catkin:
+    type: git
+    url: https://github.com/rhaschke/pybind11_catkin.git
+    version: master
+  sdformat:
+    type: git
+    url: https://github.com/ros-o/sdformat.git
+    version: sdf9

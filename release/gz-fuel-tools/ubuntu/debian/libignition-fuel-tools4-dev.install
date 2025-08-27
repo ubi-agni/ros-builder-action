@@ -1,0 +1,6 @@
+usr/include/*
+usr/lib/*/*.so
+usr/lib/*/pkgconfig/*.pc
+usr/lib/*/cmake/ignition-*/*
+usr/share/ignition/fuel[0-99].yaml
+usr/share/ignition/ignition-fuel_tools[0-99]/ignition-fuel_tools*.tag.xml

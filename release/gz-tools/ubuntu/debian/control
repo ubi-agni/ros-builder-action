@@ -1,0 +1,44 @@
+Source: ignition-tools
+Maintainer: Jose Luis Rivero <jrivero@osrfoundation.org>
+Section: science
+Priority: optional
+Build-Depends: debhelper (>= 11),
+               cmake,
+               gem2deb,
+               libbackward-cpp-dev,
+               ruby,
+               pkg-config
+XS-Ruby-Versions: all
+Vcs-Browser: https://github.com/gazebosim/gz-tools
+Vcs-Git: https://github.com/gazebosim/gz-tools.git
+Standards-Version: 4.5.1
+Homepage: http://gazebosim.org/
+
+Package: ignition-tools
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+XB-Ruby-Versions: ${ruby:Versions}
+Depends: ruby | ruby-interpreter,
+         ${misc:Depends}
+Multi-Arch: same
+Description: Entry point for using all the suite of Gazebo tools - app
+ Gazebo tools provide the ign command line tool that accepts multiple
+ subcommands. Each subcommand is implemented in a plugin that belongs to a
+ specific Gazebo project.
+ .
+ Package contains the ign app
+
+Package: libignition-tools-dev
+Architecture: any
+Section: libdevel
+Depends: cmake,
+         ignition-tools,
+         ${misc:Depends}
+Multi-Arch: same
+Description: Entry point for using all the suite of Gazebo tools - cmake support
+ Gazebo tools provide the ign command line tool that accepts multiple
+ subcommands. Each subcommand is implemented in a plugin that belongs to a
+ specific Gazebo project.
+ .
+ Package contains the cmake helpers

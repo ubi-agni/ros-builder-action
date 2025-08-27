@@ -1,0 +1,2 @@
+version=3
+http://gazebosim.org/assets/distributions/ignition-transport-(\d\.\d\.\d)\.(?:zip|tgz|tbz|txz|(?:tar\.(?:gz|bz2|xz)))

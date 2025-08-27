@@ -1,0 +1,3 @@
+usr/lib/*/lib*-transport[0-99]-log.so.*
+usr/lib/ruby/*/cmdlog[0-99].rb
+usr/share/*/transportlog[0-99].yaml
