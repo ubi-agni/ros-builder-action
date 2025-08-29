@@ -142,21 +142,6 @@ function source_link {
   echo "[$version]($url)"
 }
 
-function get_release_version {
-  local version
-  local offset="0"
-
-  # version from package.xml
-  version="$(xmllint --xpath "/package/version/text()" package.xml)"
-
-  if git rev-parse --is-inside-work-tree &> /dev/null; then
-    # commit offset from latest version update in package.xml
-    offset="$(git rev-list --count "$(git log -n 1 --pretty=format:'%H' -G"<version>" package.xml)"..HEAD)"
-  fi
-
-  echo "$version-$offset$DEB_DISTRO"
-}
-
 function pkg_exists {
   local pkg_version="${2%"$DEB_DISTRO"}"
   local candidate; candidate=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
@@ -181,6 +166,21 @@ function pkg_exists {
   return 1
 }
 
+function get_package_release_version {
+  local version
+  local offset="0"
+
+  # version from package.xml
+  version="$(xmllint --xpath "/package/version/text()" package.xml)"
+
+  if git rev-parse --is-inside-work-tree &> /dev/null; then
+    # commit offset from latest version update in package.xml
+    offset="$(git rev-list --count "$(git log -n 1 --pretty=format:'%H' -G"<version>" package.xml)"..HEAD)"
+  fi
+
+  echo "$version-$offset$DEB_DISTRO"
+}
+
 function build_pkg {
   local old_path=$PWD
   local pkg_name=$1
@@ -197,8 +197,7 @@ function build_pkg {
 
   # Get + Check release version
   # <release version>-<git offset><debian distro>
-  version="$(get_release_version)" || return 5
-
+  version="$(get_package_release_version)" || return 5
   pkg_exists "$(deb_pkg_name "$pkg_name")" "$version" && return
 
   # Check availability of all required packages (bloom-generate waits for input on rosdep issues)
