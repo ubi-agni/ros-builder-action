@@ -49,7 +49,7 @@ function ici_log {
 
 function ici_ansi {
   local var="ANSI_$1"
-  echo "\e[${!var}m"
+  echo -e "\e[${!var}m"
 }
 
 function ici_colorize() {
