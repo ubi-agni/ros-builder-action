@@ -1,5 +1,5 @@
 name: interactive
-run-name: "interactive: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}-${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one'}}-${{ inputs.ARCH }} ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}"
+run-name: "${{ inputs.DEB_DISTRO }}-${{ inputs.ROS_DISTRO }}-${{ inputs.ARCH }} ${{ inputs.ROS_SOURCES }}"
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
         type: string
         required: true
         description: 'Ubuntu/Debian distro:'
-        default: jammy
+        default: noble
       ROS_DISTRO:
         type: string
         required: true
@@ -76,23 +76,23 @@ jobs:
   stage-1:
     uses: ./.github/workflows/build.yaml
     with:
-      DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
-      ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
+      ROS_DISTRO: ${{ inputs.ROS_DISTRO || 'one' }}
       ARCH: ${{ inputs.ARCH }}
-      ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
+      ROS_SOURCES: ${{ inputs.ROS_SOURCES }}
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
       EXTRA_DEB_SOURCES: >-
           "${{ inputs.CONTINUE_BUILD &&
                format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
-                      inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+                      inputs.DEB_DISTRO) || '' }}"
       EXTRA_ROSDEP_SOURCES: |
         rosdep.yaml
         https://ros.packages.techfak.net/ros-one.yaml
       COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
-      DEBS_ARTIFACT_NAME: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}-debs
+      DEBS_ARTIFACT_NAME: ${{ inputs.DEB_DISTRO }}-debs
       SKIP_EXISTING: ${{ inputs.SKIP_EXISTING }}
       CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
       INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT }}
@@ -102,23 +102,23 @@ jobs:
     if: needs.stage-1.result == 'success' || ${{ inputs.CONTINUE_ON_ERROR }}
     uses: ./.github/workflows/build.yaml
     with:
-      DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
-      ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
+      ROS_DISTRO: ${{ inputs.ROS_DISTRO || 'one' }}
       ARCH: ${{ inputs.ARCH }}
-      ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
+      ROS_SOURCES: ${{ inputs.ROS_SOURCES }}
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
       EXTRA_DEB_SOURCES: >-
           "${{ inputs.CONTINUE_BUILD &&
                format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
-                      inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+                      inputs.DEB_DISTRO) || '' }}"
       EXTRA_ROSDEP_SOURCES: |
         rosdep.yaml
         https://ros.packages.techfak.net/ros-one.yaml
       COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       CONTINUE_FROM_PKG: ${{ needs.stage-1.outputs.LATEST_PACKAGE }}
       DOWNLOAD_DEBS: true
-      DEBS_ARTIFACT_NAME: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}-debs
+      DEBS_ARTIFACT_NAME: ${{ inputs.DEB_DISTRO }}-debs
       SKIP_EXISTING: ${{ inputs.SKIP_EXISTING }}
       CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
       INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT }}
@@ -128,23 +128,23 @@ jobs:
     if: needs.stage-2.result == 'success' || ${{ inputs.CONTINUE_ON_ERROR }}
     uses: ./.github/workflows/build.yaml
     with:
-      DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}
-      ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
+      DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
+      ROS_DISTRO: ${{ inputs.ROS_DISTRO || 'one' }}
       ARCH: ${{ inputs.ARCH }}
-      ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
+      ROS_SOURCES: ${{ inputs.ROS_SOURCES }}
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
       EXTRA_DEB_SOURCES: >-
           "${{ inputs.CONTINUE_BUILD &&
                format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
-                      inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+                      inputs.DEB_DISTRO) || '' }}"
       EXTRA_ROSDEP_SOURCES: |
         rosdep.yaml
         https://ros.packages.techfak.net/ros-one.yaml
       COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       CONTINUE_FROM_PKG: ${{ needs.stage-2.outputs.LATEST_PACKAGE }}
       DOWNLOAD_DEBS: true
-      DEBS_ARTIFACT_NAME: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}-debs
+      DEBS_ARTIFACT_NAME: ${{ inputs.DEB_DISTRO }}-debs
       SKIP_EXISTING: ${{ inputs.SKIP_EXISTING }}
       CONTINUE_ON_ERROR: ${{ inputs.CONTINUE_ON_ERROR }}
       INSTALL_TO_CHROOT: ${{ inputs.INSTALL_TO_CHROOT }}
@@ -159,4 +159,4 @@ jobs:
       - name: Import build artifacts to reprepro server
         uses: ./reprepro
         with:
-          url: "${{ vars.DEPLOY_URL }}?distro=${{ inputs.DEB_DISTRO || vars.DEB_DISTRO }}&run_id=${{ github.run_id }}&arch=${{ inputs.ARCH }}"
+          url: "${{ vars.DEPLOY_URL }}?distro=${{ inputs.DEB_DISTRO }}&run_id=${{ github.run_id }}&arch=${{ inputs.ARCH }}"

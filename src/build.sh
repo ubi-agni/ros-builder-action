@@ -254,7 +254,7 @@ function build_pkg {
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
-  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version_link")
+  BUILT_PACKAGES+=("$((idx+1))/$total $(deb_pkg_name "$pkg_name"): $version_link")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output BOLD "Install package within chroot"
@@ -341,7 +341,7 @@ function sbuild_pkg {
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
-  BUILT_PACKAGES+=("$deb_pkg_name: $version_link")
+  BUILT_PACKAGES+=("$((idx+1))/$total $deb_pkg_name: $version_link")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output BOLD "Install package within chroot"
@@ -398,7 +398,7 @@ function build_python_pkg {
 
   ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command sdist_dsc --debian-version "$debian_version" bdist_deb || return 4
 
-  BUILT_PACKAGES+=("$deb_pkg_name: $version_link")
+  BUILT_PACKAGES+=("$((idx+1))/$total $deb_pkg_name: $version_link")
 
   # Move created files to $DEBS_PATH for deployment
   mv deb_dist/*.dsc deb_dist/*.tar.?z deb_dist/*.deb deb_dist/*.changes deb_dist/*.buildinfo "$DEBS_PATH"

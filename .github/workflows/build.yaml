@@ -119,9 +119,9 @@ on:
 # This variable context originates from the _calling_ workflow. Finally, a hard-coded default is given.
 # https://docs.github.com/en/actions/learn-github-actions/variables#defining-configuration-variables-for-multiple-workflows
 env:
-  DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || 'jammy' }}
-  ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
-  ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES || '*.repos' }}
+  DEB_DISTRO: ${{ inputs.DEB_DISTRO || 'noble' }}
+  ROS_DISTRO: ${{ inputs.ROS_DISTRO || 'one' }}
+  ROS_SOURCES: ${{ inputs.ROS_SOURCES || '*.repos' }}
 
   EXTRA_DEB_SOURCES: ${{ inputs.EXTRA_DEB_SOURCES || vars.EXTRA_DEB_SOURCES }}
   INSTALL_GPG_KEYS: ${{ inputs.INSTALL_GPG_KEYS || vars.INSTALL_GPG_KEYS }}
