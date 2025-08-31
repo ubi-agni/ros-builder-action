@@ -155,7 +155,7 @@ jobs:
 
       - name: Determine CCACHE_ID
         id: ccache-id
-        run: echo "CCACHE_ID=ccache-${DEB_DISTRO}-$(dpkg --print-architecture)-${ROS_SOURCES}" | tee -a "$GITHUB_OUTPUT"
+        run: echo "CCACHE_ID=ccache-${DEB_DISTRO}-$(dpkg --print-architecture):$(echo $ROS_SOURCES | tr ' ' '+')" | tee -a "$GITHUB_OUTPUT"
       - name: Restore ccache
         id: restore-ccache
         if: runner.environment == 'github-hosted'
