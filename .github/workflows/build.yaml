@@ -150,7 +150,7 @@ jobs:
         if: inputs.DOWNLOAD_DEBS && (inputs.CONTINUE_FROM_PKG != 'DONE')
         continue-on-error: true
         with:
-          name: debs
+          name: ${{ inputs.DEBS_ARTIFACT_NAME || 'debs' }}
           path: ${{ env.DEBS_PATH }}
 
       - name: Determine CCACHE_ID
