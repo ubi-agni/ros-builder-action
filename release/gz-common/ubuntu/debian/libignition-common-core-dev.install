@@ -1,0 +1,7 @@
+usr/include/ignition/common[0-99]/*/common.hh
+usr/include/ignition/common[0-99]/*/common/*.hh
+usr/include/ignition/common[0-99]/*/common/detail/*.hh
+usr/lib/*/libignition-common[0-99].so
+usr/lib/*/pkgconfig/ignition-common[0-99].pc
+usr/lib/*/cmake/ignition-common[0-99]/ignition-common*
+usr/share/ignition/ignition-common[0-99]/ignition-common*.tag.xml

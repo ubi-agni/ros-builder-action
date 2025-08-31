@@ -1,0 +1,5 @@
+usr/include/ignition/common*/*/common/graphics.hh
+usr/include/ignition/common*/*/common/graphics/*
+usr/lib/*/cmake/ignition-common[0-99]-graphics/*
+usr/lib/*/libignition-common[0-99]-graphics.so
+usr/lib/*/pkgconfig/ignition-common[0-99]-graphics.pc

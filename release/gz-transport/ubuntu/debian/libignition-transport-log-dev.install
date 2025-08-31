@@ -1,0 +1,6 @@
+usr/include/*/transport*/*/transport/log.hh
+usr/include/*/transport*/*/transport/log/*
+usr/lib/*/cmake/ignition-transport[0-99]-log/*
+usr/lib/*/lib*-transport[0-99]-log.so
+usr/lib/*/pkgconfig/*-transport[0-99]-log.pc
+usr/share/*/*-transport[0-99]/sql/*

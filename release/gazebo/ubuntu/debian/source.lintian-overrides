@@ -1,0 +1,6 @@
+# rationale: package.xml is for catkin, not from PHP PEAR
+pear-package-without-pkg-php-tools-builddep
+# rationale: package.xml is for catkin, not from PHP PEAR
+missing-pkg-php-tools-addon
+# rationale: package.xml is for catkin, not from PHP PEAR
+missing-pkg-php-tools-buildsystem

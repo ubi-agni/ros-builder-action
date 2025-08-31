@@ -1,0 +1,3 @@
+usr/bin/*
+usr/lib/*/libignition-tools-backward.so
+usr/share/*

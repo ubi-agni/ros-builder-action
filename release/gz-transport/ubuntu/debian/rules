@@ -1,0 +1,43 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),amd64 i386))
+  CMAKE_HOST_CFLAGS="True"
+else
+  CMAKE_HOST_CFLAGS="False"
+endif
+
+.PHONY: override_dh_auto_configure \
+        override_dh_install \
+        override_dh_auto_test \
+	override_dh_strip
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+            -DUSE_HOST_CFLAGS:BOOL=${CMAKE_HOST_CFLAGS} \
+	    -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+override_dh_install:
+	dh_install --
+	# need to remove files present in components
+	$(RM) debian/libignition-transport*-core-dev/usr/include/ignition/transport*/ignition/transport/log.hh
+	$(RM) debian/libignition-transport*-core-dev/usr/include/ignition/transport*/gz/transport/log.hh
+	dh_missing --list-missing
+
+# Test can not run in parallel
+override_dh_auto_test:
+	# Fix tests. They need special configuration for networking
+	# dh_auto_test --max-parallel=1
+	true
+
+override_dh_strip:
+	dh_strip -a --dbg-package=libignition-transport8-dbg
