@@ -145,16 +145,20 @@ function source_link {
 function pkg_exists {
   local name="$1"
   local candidate; candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
-  local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
-  if [ "$candidate" == "(none)" ] || [ -z "$candidate" ]; then
-    candidate=""
-    # look for alternative package name
-    read -r name candidate unused < <(apt list 2> /dev/null | grep "$name" | grep -v "ros-" | head -n 1)
-    # remove everything after first invalid character (no digit)
-    available="${candidate%%[^0-9.-]*}"
-    echo "Found: ${name%/*}  $candidate"
+  [ "$candidate" = "(none)" ] && candidate=""
+
+  # if nothing found but a debian control files exists for that package
+  if [ -z "$candidate" ] && grep "Source: $name" debian/control &> /dev/null; then
+    # check all defined packages
+    while read -r name; do
+      candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+      if [ -z "$candidate" ]; then
+        break
+      fi
+    done < <(grep -oP "Package: \K(.*)" debian/control)
   fi
 
+  local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
   local pkg_version="${2%"$DEB_DISTRO"}"
 
   if [ -n "$candidate" ] && ! dpkg --compare-versions "$available" "<=" "$pkg_version" ; then
