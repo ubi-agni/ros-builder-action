@@ -62,8 +62,7 @@ ici_label mkdir -p "$DEBS_PATH"
 ici_label update_repo
 ici_time_end
 
-ici_timed "Declare EXTRA_ROSDEP_SOURCES" declare_extra_rosdep_sources
-ici_timed "Download existing rosdep declarations" load_local_yaml
+ici_timed "Declare rosdep sources" declare_rosdep_sources
 
 export CCACHE_DIR="${CCACHE_DIR:-$HOME/ccache}"
 ici_timed "Configure ccache" ccache --zero-stats --max-size=10.0G

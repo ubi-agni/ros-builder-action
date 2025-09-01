@@ -82,11 +82,13 @@ jobs:
       ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
-        sudo mkdir -p /etc/ros/rosdep/sources.list.d
-        echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || '' }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
-      EXTRA_DEB_SOURCES: "${{ inputs.CONTINUE_BUILD && \
-          format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main', \
-                 inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+      EXTRA_DEB_SOURCES: >-
+          "${{ inputs.CONTINUE_BUILD &&
+               format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
+                      inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+      EXTRA_ROSDEP_SOURCES: |
+        rosdep.yaml
+        https://ros.packages.techfak.net/ros-one.yaml
       COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
@@ -106,11 +108,13 @@ jobs:
       ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
-        sudo mkdir -p /etc/ros/rosdep/sources.list.d
-        echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || '' }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
-      EXTRA_DEB_SOURCES: "${{ inputs.CONTINUE_BUILD && \
-          format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main', \
-                 inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+      EXTRA_DEB_SOURCES: >-
+          "${{ inputs.CONTINUE_BUILD &&
+               format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
+                      inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+      EXTRA_ROSDEP_SOURCES: |
+        rosdep.yaml
+        https://ros.packages.techfak.net/ros-one.yaml
       COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       CONTINUE_FROM_PKG: ${{ needs.stage-1.outputs.LATEST_PACKAGE }}
       DOWNLOAD_DEBS: true
@@ -130,11 +134,13 @@ jobs:
       ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES }}
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
-        sudo mkdir -p /etc/ros/rosdep/sources.list.d
-        echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || '' }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
-      EXTRA_DEB_SOURCES: "${{ inputs.CONTINUE_BUILD && \
-          format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main', \
-                 inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+      EXTRA_DEB_SOURCES: >-
+          "${{ inputs.CONTINUE_BUILD &&
+               format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
+                      inputs.DEB_DISTRO || vars.DEB_DISTRO) || '' }}"
+      EXTRA_ROSDEP_SOURCES: |
+        rosdep.yaml
+        https://ros.packages.techfak.net/ros-one.yaml
       COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION || vars.COLCON_PKG_SELECTION || '' }}
       CONTINUE_FROM_PKG: ${{ needs.stage-2.outputs.LATEST_PACKAGE }}
       DOWNLOAD_DEBS: true

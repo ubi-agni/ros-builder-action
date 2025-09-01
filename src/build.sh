@@ -7,7 +7,7 @@ function deb_pkg_name {
   echo "ros-$ROS_DISTRO-$(echo "$1" | tr '_' '-')$version"
 }
 
-function register_local_pkgs_with_rosdep {
+function register_new_pkgs_with_rosdep {
   #shellcheck disable=SC2086
   local total="${#PKG_NAMES[@]}"
   local idx
@@ -17,17 +17,17 @@ function register_local_pkgs_with_rosdep {
       continue
     fi
     local pkg="${PKG_NAMES[$idx]}"
-    cat << EOF >> "$DEBS_PATH/local.yaml"
+    cat << EOF >> "$DEBS_PATH/rosdep.yaml"
 $pkg:
   ubuntu: [$(deb_pkg_name "$pkg")]
   debian: [$(deb_pkg_name "$pkg")]
 EOF
   done
 
-  if [ -f "$DEBS_PATH/local.yaml" ]; then
-    "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/local.yaml"
+  if [ -f "$DEBS_PATH/rosdep.yaml" ]; then
+    "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/rosdep.yaml"
 
-    echo "yaml file://$DEBS_PATH/local.yaml $ROS_DISTRO" | \
+    echo "yaml file://$DEBS_PATH/rosdep.yaml $ROS_DISTRO" | \
       ici_asroot tee /etc/ros/rosdep/sources.list.d/01-local.list
 
     ici_cmd rosdep update
@@ -441,7 +441,7 @@ function build_source {
     return
   fi
 
-  ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
+  ici_timed "Register new packages with rosdep" register_new_pkgs_with_rosdep
   ici_timed update_repo
 
   local msg_prefix=""

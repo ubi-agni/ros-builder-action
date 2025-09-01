@@ -16,6 +16,6 @@ sudo apt install python3-rosdep
 sudo rosdep init
 
 # Define custom rosdep mapping
-echo "yaml @REPO_URL@/local.yaml @DEB_DISTRO@" | sudo tee /etc/ros/rosdep/sources.list.d/1-@DISTRO_NAME@.list
+echo "yaml @REPO_URL@/rosdep.yaml @DEB_DISTRO@" | sudo tee /etc/ros/rosdep/sources.list.d/1-@DISTRO_NAME@.list
 rosdep update
 ```

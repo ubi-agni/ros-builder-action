@@ -71,8 +71,8 @@ function import {
 
 	ici_cmd reprepro export "$distro"
 
-	# Merge local.yaml into ros-one.yaml
-	cat "$INCOMING_DIR/local.yaml" >> "ros-one.yaml"
+	# Merge rosdep.yaml into ros-one.yaml
+	cat "$INCOMING_DIR/rosdep.yaml" >> "ros-one.yaml"
 	"$(dirname "${BASH_SOURCE[0]}")/../src/scripts/yaml_remove_duplicates.py" ros-one.yaml
 
 	# Remove remaining files

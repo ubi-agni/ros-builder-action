@@ -26,9 +26,10 @@ jobs:
       ROS_SOURCES: gazebo.repos ros-one.repos
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
-        sudo mkdir -p /etc/ros/rosdep/sources.list.d
-        echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ matrix.DEB_DISTRO }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
       EXTRA_DEB_SOURCES: "deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net ${{matrix.DEB_DISTRO}}-testing main"
+      EXTRA_ROSDEP_SOURCES: |
+        rosdep.yaml
+        https://ros.packages.techfak.net/ros-one.yaml
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
       DEBS_ARTIFACT_NAME: ${{ matrix.DEB_DISTRO }}-${{ matrix.ARCH }}-debs
