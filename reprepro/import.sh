@@ -3,6 +3,7 @@ shopt -s nullglob
 
 DIR_THIS="$(dirname "${BASH_SOURCE[0]}")"
 SRC_PATH="$(realpath "$DIR_THIS/../src")"
+FAILURE=0
 
 # shellcheck source=src/util.sh
 source "$SRC_PATH/util.sh"
@@ -16,8 +17,49 @@ fi
 [ ! -d "$INCOMING_DIR" ] && echo "Invalid incoming directory" && exit 1
 [ -z "$REPO" ] && echo "github repo undefined" && exit 1
 
-function filter {
-	grep -vE "Exporting indices...|Deleting files no longer referenced..."
+FILTER="Exporting indices|Deleting files no longer referenced"
+
+function import_file {
+	local file=$1
+	local component="main"
+
+	printf "%s" "${file#"$INCOMING_DIR/"}"
+
+	# Rename *.ddeb files into *.deb and target component main-dbg
+	if [[ $file == *.ddeb ]]; then
+		file=${file%.ddeb} # remove .ddeb suffix
+		mv "${file}.ddeb" "${file}.deb" # rename file
+		file="$file.deb" # add .deb suffix
+		component="main-dbg"
+	fi
+
+	# Check if file already exists in pool
+	local existing; existing=$(find pool -name "$(basename "$file")" -print -quit)
+	if [ -n "$existing" ]; then
+		# Check that both files have same checksum
+		local md5_existing; md5_existing=$(md5sum "$existing" | cut -d ' ' -f 1)
+		local md5_new_file; md5_new_file=$(md5sum "$file" | cut -d ' ' -f 1)
+		if [ "$md5_existing" == "$md5_new_file" ]; then
+			ici_color_output GREEN " (reused)"
+			file="$existing" # mark for reuse of existing file
+		elif [[ $file == *all.deb ]]; then
+			ici_color_output YELLOW " (reused)"
+			file="$existing" # mark for reuse of existing file
+		else
+			FAILURE=1
+			echo # finish line
+			gha_error " conflicts with $existing"
+			return
+		fi
+	else
+		echo # finish line
+	fi
+
+	if [[ "$file" == *.dsc ]]; then
+		ici_filter_out "$FILTER" reprepro includedsc "$distro" "$file" || FAILURE=1
+	else
+		ici_filter_out "$FILTER" reprepro -A "$arch" -C "$component" includedeb "$distro" "$file" || FAILURE=1
+	fi
 }
 
 function import {
@@ -34,8 +76,7 @@ function import {
 	if [ "$arch" == "amd64" ]; then
 		ici_start_fold "$(ici_colorize BLUE BOLD "Importing source packages")"
 		for f in "$INCOMING_DIR"/*.dsc; do
-			echo "${f#"$INCOMING_DIR/"}"
-			reprepro includedsc "$distro" "$f" | filter
+			import_file "$f"
 		done
 		ici_end_fold
 	fi
@@ -43,8 +84,7 @@ function import {
 	# Import packages
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing binary packages")"
 	for f in "$INCOMING_DIR"/*.deb; do
-		echo "${f#"$INCOMING_DIR/"}"
-		reprepro -A "$arch" includedeb "$distro" "$f" | filter
+		import_file "$f"
 	done
 	ici_end_fold
 
@@ -59,16 +99,10 @@ function import {
 	# Rename, Import, and Cleanup ddeb files (if existing)
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing debug packages")"
 	for f in "$INCOMING_DIR"/*.ddeb; do
-		echo "${f#"$INCOMING_DIR/"}"
-		# remove .ddeb suffix
-		f=${f%.ddeb}
-		mv "${f}.ddeb" "${f}.deb"
-		reprepro -A "$arch" -C main-dbg includedeb "$distro" "${f}.deb" | filter
+		import_file "$f"
 	done
 	(cd "$INCOMING_DIR" || exit 1; rm -f ./*.deb)
 	ici_end_fold
-
-	ici_cmd reprepro export "$distro"
 
 	# Merge rosdep.yaml into ros-one.yaml
 	if [ -f "$INCOMING_DIR/rosdep.yaml" ]; then
@@ -112,3 +146,5 @@ else
 		import "$distro" "$arch"
 	done
 fi
+
+exit $FAILURE
