@@ -33,8 +33,8 @@ repositories:
     version: master
   colcon-core:
     type: git
-    url: https://github.com/timonegk/colcon-core.git
-    version: colors
+    url: https://github.com/colcon/colcon-core.git
+    version: master
   colcon-defaults:
     type: git
     url: https://github.com/colcon/colcon-defaults.git
