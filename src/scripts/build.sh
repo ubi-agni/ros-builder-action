@@ -11,6 +11,8 @@ function on_exit() {
 	if [ "${#BUILT_PACKAGES[@]}" -gt 0 ]; then
 		echo "### Successfully built packages: " > "$GITHUB_STEP_SUMMARY"
 		printf -- '- %s\n' "${BUILT_PACKAGES[@]}" >> "$GITHUB_STEP_SUMMARY"
+	elif [ "$FAIL_EVENTUALLY" == 0 ] && [ -n "$COLCON_PKG_SELECTION" ]; then
+		ici_warn "No packages were built"
 	fi
 }
 

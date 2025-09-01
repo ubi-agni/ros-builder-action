@@ -433,7 +433,13 @@ function build_source {
   while read -r name folder unused; do
     PKG_NAMES+=("$name")
     PKG_FOLDERS+=("$folder")
-  done < <(colcon list --topological-order $COLCON_PKG_SELECTION || kill $$)
+  done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
+
+  # early return if PKG_NAMES is empty
+  if [ ${#PKG_NAMES[@]} -eq 0 ]; then
+    cd "$old_path" || ici_exit 1
+    return
+  fi
 
   ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
   ici_timed update_repo
@@ -466,7 +472,7 @@ function build_source {
         ici_warn "No package.xml or setup.py found"; exit_code=0
       fi
     fi
-    trap - RETURN # remove return trap
+    trap - RETURN # remove return trap defined in build_*_pkg()
     rm -rf "${PKG_FOLDERS[$idx]}"  # free disk space
 
     if [ "$exit_code" != 0 ] ; then
