@@ -452,6 +452,10 @@ function ici_get_log_cmd {
                 post=" | grep -E '$2' "
                 shift 1
                 ;;
+            ici_filter_out)
+                post=" | grep -vE '$2' "
+                shift 1
+                ;;
             ici_quiet)
                 post=" > /dev/null "
                 ;;
@@ -478,16 +482,24 @@ function ici_quiet {
 }
 
 # show full output on failure, otherwise filtered stdout
-function ici_filter {
+function ici_filter_helper {
+    local cmd=$1; shift
     local filter=$1; shift
     local out; out=$(mktemp)
-    "$@" | grep -E "$filter" | ici_redirect cat || true
+    "$@" | $cmd "$filter" | ici_redirect cat || true
     local err=${PIPESTATUS[0]}
     if [ "$err" -ne 0 ]; then
         ici_redirect cat "$out"
     fi
     rm -f "$out"
     return "$err"
+}
+
+function ici_filter {
+    ici_filter_helper "grep -E" "$@"
+}
+function ici_filter_out {
+    ici_filter_helper "grep -vE" "$@"
 }
 
 # append new line(s) to a variable
