@@ -1,4 +1,5 @@
 #!/bin/bash
+shopt -s nullglob
 
 DIR_THIS="$(dirname "${BASH_SOURCE[0]}")"
 SRC_PATH="$(realpath "$DIR_THIS/../src")"
@@ -33,7 +34,6 @@ function import {
 	if [ "$arch" == "amd64" ]; then
 		ici_start_fold "$(ici_colorize BLUE BOLD "Importing source packages")"
 		for f in "$INCOMING_DIR"/*.dsc; do
-			[ -f "$f" ] || break  # Handle case of no files found
 			echo "${f#"$INCOMING_DIR/"}"
 			reprepro includedsc "$distro" "$f" | filter
 		done
@@ -43,7 +43,6 @@ function import {
 	# Import packages
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing binary packages")"
 	for f in "$INCOMING_DIR"/*.deb; do
-		[ -f "$f" ] || break  # Handle case of no files found
 		echo "${f#"$INCOMING_DIR/"}"
 		reprepro -A "$arch" includedeb "$distro" "$f" | filter
 	done
@@ -51,7 +50,8 @@ function import {
 
 	# Save log files
 	mkdir -p "log/${distro%-testing}.$arch"
-	mv "$INCOMING_DIR"/*.log "log/${distro%-testing}.$arch"
+	log_files=("$INCOMING_DIR"/*.log)
+	[ -e "${log_files[0]}" ] && mv "${log_files[@]}" "log/${distro%-testing}.$arch"
 
 	# Cleanup files
 	(cd "$INCOMING_DIR" || exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
@@ -59,21 +59,22 @@ function import {
 	# Rename, Import, and Cleanup ddeb files (if existing)
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing debug packages")"
 	for f in "$INCOMING_DIR"/*.ddeb; do
-		[ -f "$f" ] || break  # Handle case of no files found
 		echo "${f#"$INCOMING_DIR/"}"
 		# remove .ddeb suffix
 		f=${f%.ddeb}
 		mv "${f}.ddeb" "${f}.deb"
 		reprepro -A "$arch" -C main-dbg includedeb "$distro" "${f}.deb" | filter
 	done
-	(cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
+	(cd "$INCOMING_DIR" || exit 1; rm -f ./*.deb)
 	ici_end_fold
 
 	ici_cmd reprepro export "$distro"
 
-	# Merge local.yaml into ros-one.yaml
-	cat "$INCOMING_DIR/local.yaml" >> "ros-one.yaml"
-	"$(dirname "${BASH_SOURCE[0]}")/../src/scripts/yaml_remove_duplicates.py" ros-one.yaml
+	# Merge rosdep.yaml into ros-one.yaml
+	if [ -f "$INCOMING_DIR/rosdep.yaml" ]; then
+		cat "$INCOMING_DIR/rosdep.yaml" >> "ros-one.yaml"
+		"$(dirname "${BASH_SOURCE[0]}")/../src/scripts/yaml_remove_duplicates.py" ros-one.yaml
+	fi
 
 	# Remove remaining files
 	rm -rf "${INCOMING_DIR:?}"/*
