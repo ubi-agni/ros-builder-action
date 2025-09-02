@@ -13,13 +13,67 @@ if [ -r ~/.reprepro.env ]; then
 	. ~/.reprepro.env
 fi
 
-FILTER="Exporting indices|Deleting files no longer referenced"
+function find_existing() {
+	find pool -name "$(basename "$1")" -print -quit
+}
+
+function identical() {
+	[ -z "$(diff -q "$1" "$2")" ]
+}
+
+# check that a given field ($1) in both files ($2 $3) have identical values
+function deb_field_identical() {
+	local f1; f1="$(dpkg-deb -f "$2" "$1")"
+	local f2; f2="$(dpkg-deb -f "$3" "$1")"
+	if [ "$f1" == "$f2" ]; then return 0;
+	else echo "  $1 differs: $f1 != $f2"; return 1; fi
+}
+
+function compatible() {
+	# save current stdout and then redirect it to /tmp/diffs
+	exec 3>&1; exec >> /tmp/diffs
+	# register cleanup code to restore stdout on return
+	trap 'exec 1>&3; exec 3>&-; trap - RETURN' RETURN
+
+	# switch over file types
+	local diffs
+	case "$1" in
+		*.deb)
+			for field in architecture version; do
+				if ! deb_field_identical "$field" "$1" "$2"; then return 1; fi
+			done
+			# extract deb files to /tmp/new resp. /tmp/old and compare extracted files
+			for d in new old; do rm -rf /tmp/$d && mkdir -p /tmp/$d; done
+			dpkg-deb -x "$1" /tmp/new
+			dpkg-deb -x "$2" /tmp/old
+			diffs=$(ici_filter_out "changelog" diff --brief --recursive /tmp/new /tmp/old | sed 's|/tmp/.../|/|g;s|^|  |')
+			if [ -n "$diffs" ]; then echo "$diffs"; return 1; fi
+			true;;
+
+		*.orig.tar.gz)
+			# extract files to /tmp/new resp. /tmp/old and compare extracted files
+			for d in new old; do rm -rf /tmp/$d && mkdir -p /tmp/$d; done
+			tar -xzf "$1" -C /tmp/new
+			tar -xzf "$2" -C /tmp/old
+			diffs=$(ici_filter_out "changelog" diff --brief --recursive /tmp/new /tmp/old | sed 's|/tmp/.../|/|g;s|^|  |')
+			if [ -n "$diffs" ]; then echo "$diffs"; return 1; fi
+			true;;
+		*) echo "  $(basename "$1") differs from $2"
+			false;;
+	esac
+}
+
+function report_result {
+	"$@" # report main result via given command
+	# append /tmp/diffs if non-empty
+	if [ -s /tmp/diffs ]; then
+		ici_log "$(cat /tmp/diffs)"
+	fi
+}
 
 function import_file {
 	local file=$1
 	local component="main"
-
-	printf "%s" "${file#"$INCOMING_DIR/"}"
 
 	# Rename *.ddeb files into *.deb and target component main-dbg
 	if [[ $file == *.ddeb ]]; then
@@ -29,32 +83,63 @@ function import_file {
 		component="main-dbg"
 	fi
 
-	# Check if file already exists in pool
-	local existing; existing=$(find pool -name "$(basename "$file")" -print -quit)
-	if [ -n "$existing" ]; then
-		# Check that both files have same checksum
-		local md5_existing; md5_existing=$(md5sum "$existing" | cut -d ' ' -f 1)
-		local md5_new_file; md5_new_file=$(md5sum "$file" | cut -d ' ' -f 1)
-		if [ "$md5_existing" == "$md5_new_file" ]; then
-			ici_color_output GREEN " (reused)"
-			file="$existing" # mark for reuse of existing file
-		elif [[ $file == *all.deb ]]; then
-			ici_color_output YELLOW " (reused)"
-			file="$existing" # mark for reuse of existing file
-		else
-			FAILURE=1
-			echo # finish line
-			gha_error " conflicts with $existing"
-			return
-		fi
-	else
-		echo # finish line
-	fi
+	rm -f /tmp/diffs
 
-	if [[ "$file" == *.dsc ]]; then
-		ici_filter_out "$FILTER" reprepro includedsc "$distro" "$file" || FAILURE=1
-	else
-		ici_filter_out "$FILTER" reprepro -A "$arch" -C "$component" includedeb "$distro" "$file" || FAILURE=1
+	local FILTER="Exporting indices|Deleting files no longer referenced"
+	local existing
+	#####################################################################################################
+	if [[ "$file" == *.deb ]]; then # .deb file
+		existing=$(find_existing "$file")
+		if [ -z "$existing" ]; then
+			ici_log "$(basename "$file")"
+		elif identical "$file" "$existing"; then
+			ici_log "$(basename "$file") $(ici_colorize GREEN "(identical)")"
+		elif compatible "$file" "$existing"; then
+			report_result ici_log "$(basename "$file") $(ici_colorize YELLOW "exists -> skipped")"
+			return 0
+		else
+			report_result gha_error "$(basename "$file") conflicts with $existing"
+			return 1
+		fi
+		ici_label ici_filter_out "$FILTER" reprepro -A "$arch" -C "$component" includedeb "$distro" "$file"
+
+	#####################################################################################################
+	else # .dsc file
+		existing=$(find_existing "$file")
+		local other=$existing
+		local compat="differs from $existing" # fallback
+		if [ -z "$existing" ] || identical "$file" "$existing"; then
+			# all source files should be identical or compatible as well
+			local src
+			compat="new" # re-init compatibility
+			while read -r src; do
+				existing=$(find_existing "$src")
+				if [ -n "$existing" ] && ! identical "$INCOMING_DIR/$src" "$existing"; then
+					[ -z "$other" ] && other=$existing
+					[ "$compat" == "new" ] && compat="identical" # downgrade compatibility
+					if compatible "$INCOMING_DIR/$src" "$existing"; then
+						compat="compatible" # further downgrade compatibility
+					else
+						compat="conflicting"
+						break
+					fi
+				fi
+			done < <(awk '/^Files:/ {f=1; next} f && NF==3 {print $3} f && NF!=3 {exit}' "$file")
+		fi
+
+		case "$compat" in
+			new) ici_log "$(basename "$file")" ;;
+			identical|compatible)
+				report_result ici_log "$(basename "$file"):" \
+					"$(ici_colorize "$([ "$compat" == "identical" ] && echo GREEN || echo YELLOW)" "skipped ($other exists)")"
+				return 0
+				;;
+			conflicting) compat="has conflicts:" ;& # fall through
+			*) report_result gha_error "  $(basename "$file") ${compat}"
+				return 1
+				;;
+		esac
+		ici_label ici_filter_out "$FILTER" reprepro includedsc "$distro" "$file"
 	fi
 }
 
@@ -72,7 +157,7 @@ function import {
 	if [ "$arch" == "amd64" ]; then
 		ici_start_fold "$(ici_colorize BLUE BOLD "Importing source packages")"
 		for f in "$INCOMING_DIR"/*.dsc; do
-			import_file "$f"
+			import_file "$f" || FAILURE=1
 		done
 		ici_end_fold
 	fi
@@ -80,7 +165,7 @@ function import {
 	# Import packages
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing binary packages")"
 	for f in "$INCOMING_DIR"/*.deb; do
-		import_file "$f"
+		import_file "$f" || FAILURE=1
 	done
 	ici_end_fold
 
@@ -95,7 +180,7 @@ function import {
 	# Rename, Import, and Cleanup ddeb files (if existing)
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing debug packages")"
 	for f in "$INCOMING_DIR"/*.ddeb; do
-		import_file "$f"
+		import_file "$f" || FAILURE=1
 	done
 	(cd "$INCOMING_DIR" || exit 1; rm -f ./*.deb)
 	ici_end_fold
