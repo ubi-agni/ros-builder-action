@@ -13,10 +13,6 @@ if [ -r ~/.reprepro.env ]; then
 	. ~/.reprepro.env
 fi
 
-# Sanity checks
-[ ! -d "$INCOMING_DIR" ] && echo "Invalid incoming directory" && exit 1
-[ -z "$REPO" ] && echo "github repo undefined" && exit 1
-
 FILTER="Exporting indices|Deleting files no longer referenced"
 
 function import_file {
@@ -115,12 +111,17 @@ function import {
 	ici_log
 }
 
-# Download debs artifact(s)
+# Sanity check
+[ ! -d "$INCOMING_DIR" ] && ici_exit 1 gha_error "Invalid incoming directory"
+
 if [ "$(ls -A "$INCOMING_DIR")" ]; then
 	ici_color_output CYAN BOLD "Importing existing files from incoming directory"
 	# shellcheck disable=SC2153 # DISTRO and ARCH might be unset
 	import "$DISTRO" "$ARCH"
 else
+	# Download debs artifact(s)
+	[ -z "$REPO" ] && ici_exit 1 gha_error "github repo undefined"
+
 	if [ -z "$RUN_ID" ] ; then
 		# Retrieve RUN_ID of latest workflow run
 		RUN_ID=$(gh api -X GET "/repos/$REPO/actions/runs" | jq ".workflow_runs[0] | .id")
@@ -128,9 +129,6 @@ else
 	# Retrieve names of artifacts in that workflow run
 	artifacts=$(gh api -X GET "/repos/$REPO/actions/artifacts" | jq --raw-output ".artifacts[] | select(.workflow_run.id == $RUN_ID) | .name")
 	for a in $artifacts; do
-		msg="Fetching artifact \"$a\" from https://github.com/$REPO/actions/runs/$RUN_ID"
-		ici_timed "$(ici_colorize CYAN BOLD "$msg")" gh --repo "$REPO" run download --name "$a" --dir "$INCOMING_DIR" "$RUN_ID"
-
 		# parse distro and arch from artifact name <distro>-<arch>-debs
 		if [[ $a =~ ([^-]+)-([^-]+)(-debs)? ]]; then
 			distro=${BASH_REMATCH[1]}
@@ -143,6 +141,19 @@ else
 			distro=$DISTRO
 			arch=$ARCH
 		fi
+
+		if [ -n "$DISTRO" ] && [ "$distro" != "$DISTRO" ]; then
+			ici_warn "Skipping artifact $a: $distro != $DISTRO"
+			continue
+		fi
+		if [ -n "$ARCH" ] && [ "$arch" != "$ARCH" ]; then
+			ici_warn "Skipping artifact $a: $arch != $ARCH"
+			continue
+		fi
+
+		msg="Fetching artifact \"$a\" from https://github.com/$REPO/actions/runs/$RUN_ID"
+		ici_timed "$(ici_colorize CYAN BOLD "$msg")" gh --repo "$REPO" run download --name "$a" --dir "$INCOMING_DIR" "$RUN_ID"
+
 		import "$distro" "$arch"
 	done
 fi
