@@ -7,6 +7,7 @@ FAILURE=0
 
 # shellcheck source=src/util.sh
 source "$SRC_PATH/util.sh"
+ici_setup
 
 if [ -r ~/.reprepro.env ]; then
 	# shellcheck disable=SC1090
@@ -170,8 +171,8 @@ function import_file {
 }
 
 function import {
-	[ -z "$1" ] && echo "DISTRO undefined" && exit 1
-	[ -z "$2" ] && echo "ARCH undefined" && exit 1
+	[ -z "$1" ] && ici_exit 1 gha_error "DISTRO undefined"
+	[ -z "$2" ] && ici_exit 1 gha_error "ARCH undefined"
 
 	local distro="$1-testing" # operate on -testing distro
 	local arch="$2"
@@ -201,14 +202,14 @@ function import {
 	[ -e "${log_files[0]}" ] && mv "${log_files[@]}" "log/${distro%-testing}.$arch"
 
 	# Cleanup files
-	(cd "$INCOMING_DIR" || exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
+	(cd "$INCOMING_DIR" || ici_exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
 
 	# Rename, Import, and Cleanup ddeb files (if existing)
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing debug packages")"
 	for f in "$INCOMING_DIR"/*.ddeb; do
 		import_file "$f" || FAILURE=1
 	done
-	(cd "$INCOMING_DIR" || exit 1; rm -f ./*.deb)
+	(cd "$INCOMING_DIR" || ici_exit 1; rm -f ./*.deb)
 	ici_end_fold
 
 	# Merge rosdep.yaml into ros-one.yaml
@@ -226,7 +227,7 @@ function import {
 [ ! -d "$INCOMING_DIR" ] && ici_exit 1 gha_error "Invalid incoming directory"
 
 if [ "$(ls -A "$INCOMING_DIR")" ]; then
-	ici_color_output CYAN BOLD "Importing existing files from incoming directory"
+	ici_color_output CYAN BOLD "Importing files existing in $(basename "$INCOMING_DIR") folder"
 	# shellcheck disable=SC2153 # DISTRO and ARCH might be unset
 	import "$DISTRO" "$ARCH"
 else
@@ -239,6 +240,7 @@ else
 	fi
 	# Retrieve names of artifacts in that workflow run
 	artifacts=$(gh api -X GET "/repos/$REPO/actions/artifacts" | jq --raw-output ".artifacts[] | select(.workflow_run.id == $RUN_ID) | .name")
+	[ -n "$artifacts" ] || ici_exit 1 gha_warning "No artifacts found for run https://github.com/$REPO/actions/runs/$RUN_ID"
 	for a in $artifacts; do
 		# parse distro and arch from artifact name <distro>-<arch>-debs
 		if [[ $a =~ ([^-]+)-([^-]+)(-debs)? ]]; then
@@ -269,4 +271,4 @@ else
 	done
 fi
 
-exit $FAILURE
+ici_exit $FAILURE
