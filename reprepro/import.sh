@@ -81,20 +81,54 @@ function compatible() {
 			done
 			content_compatible "$1" "$2" dpkg-deb -x "{file}" "{folder}"
 			;;
-		*.orig.tar.gz)
+		*.tar*)
 			content_compatible "$1" "$2" tar -xf "{file}" -C "{folder}"
 			;;
-		*) echo "  $(basename "$1") differs from $2"
+		*) echo "  $(basename "$1") files differ"
 			false
 			;;
 	esac
 }
 
+# filter files and checksums section from .dsc file ($1) and write to specified folder ($2)
+function dsc_filter() {
+	# shellcheck disable=SC2317
+	awk '/^Files:/ {f=1; next} f && NF==3 {next} f && NF!=3 {f=0} {print}' "$1" | \
+		awk '/^Checksums-.*:/ {f=1; next} f && NF==3 {next} f && NF!=3 {f=0} {print}' \
+		> "$2/$(basename "$1")"
+}
+
+# check that all files named in the .dsc file are compatible to existing ones
+function dsc_files_compatible() {
+	# all source files should be identical or compatible as well
+	local src
+	local compat="new"
+	local other
+	while read -r src; do
+		existing=$(find_existing "$src")
+		if [ -n "$existing" ] && ! identical "$INCOMING_DIR/$src" "$existing"; then
+			[ -z "$other" ] && other="$existing exists" # remember first non-identical file
+			if compatible "$INCOMING_DIR/$src" "$existing"; then
+				compat="compatible" # downgrade compatibility from new
+			else
+				echo "diffs in $(basename "$existing")"
+				return
+			fi
+		fi
+	done < <(awk '/^Files:/ {f=1; next} f && NF==3 {print $3} f && NF!=3 {exit}' "$file")
+	echo "$compat$other"
+}
+
 function report_result {
+	local color=$1; shift
 	"$@" # report main result via given command
 	# append /tmp/diffs if non-empty
 	if [ -s /tmp/diffs ]; then
-		ici_log "$(cat /tmp/diffs)"
+		printf "%s" "$(ici_ansi "$color")"
+		cat /tmp/diffs
+		printf "%s\n" "$(ici_ansi RESET)"
+	else
+		ici_color_output GREEN "  no differences"
 	fi
 }
 
@@ -122,10 +156,10 @@ function import_file {
 		elif identical "$file" "$existing"; then
 			ici_log "$(basename "$file") $(ici_colorize GREEN "(identical)")"
 		elif compatible "$file" "$existing"; then
-			report_result ici_log "$(basename "$file") $(ici_colorize YELLOW "exists -> skipped")"
+			report_result GREEN ici_log "$(basename "$file") $(ici_colorize YELLOW "exists -> skipped")"
 			return 0
 		else
-			report_result gha_error "$(basename "$file") conflicts with $existing"
+			report_result "" gha_error "$(basename "$file") conflicts with $existing"
 			return 1
 		fi
 		ici_label ici_filter_out "$FILTER" reprepro -A "$arch" -C "$component" includedeb "$distro" "$file"
@@ -133,40 +167,29 @@ function import_file {
 	#####################################################################################################
 	else # .dsc file
 		existing=$(find_existing "$file")
-		local other=$existing
-		local compat="differs from $existing" # fallback
-		if [ -z "$existing" ] || identical "$file" "$existing"; then
-			# all source files should be identical or compatible as well
-			local src
-			compat="new" # re-init compatibility
-			while read -r src; do
-				existing=$(find_existing "$src")
-				if [ -n "$existing" ] && ! identical "$INCOMING_DIR/$src" "$existing"; then
-					[ -z "$other" ] && other=$existing
-					[ "$compat" == "new" ] && compat="identical" # downgrade compatibility
-					if compatible "$INCOMING_DIR/$src" "$existing"; then
-						compat="compatible" # further downgrade compatibility
-					else
-						compat="conflicting"
-						break
-					fi
-				fi
-			done < <(awk '/^Files:/ {f=1; next} f && NF==3 {print $3} f && NF!=3 {exit}' "$file")
+		if [ -n "$existing" ] && ! content_compatible "$file" "$existing" dsc_filter "{file}" "{folder}" ; then
+			report_result "" gha_error "  $(basename "$file") differs from ${existing}"
+			return 1
 		fi
-
-		case "$compat" in
-			new) ici_log "$(basename "$file")" ;;
-			identical|compatible)
-				report_result ici_log "$(basename "$file"):" \
-					"$(ici_colorize "$([ "$compat" == "identical" ] && echo GREEN || echo YELLOW)" "skipped ($other exists)")"
-				return 0
+		# compare all listed files, both for new .dsc files and for existing ones
+		existing="$(dsc_files_compatible "$file")"
+		case "$existing" in
+			new)
+				# this is the only case causing an actual import
+				ici_log "$(basename "$file")"
+				ici_label ici_filter_out "$FILTER" reprepro includedsc "$distro" "$file"
 				;;
-			conflicting) compat="has conflicts:" ;& # fall through
-			*) report_result gha_error "  $(basename "$file") ${compat}"
+			compatible*)
+				report_result GREEN ici_log "$(basename "$file"):" \
+					"$(ici_colorize YELLOW "skipped (${existing#compatible})")"
+				;;
+			diff*)
+				report_result "" gha_error "  $(basename "$file"): ${existing}:"
 				return 1
 				;;
+			*) ici_exit 1 gha_error "Unknown return value '$existing' from dsc_files_compatible()?!"
+				;;
 		esac
-		ici_label ici_filter_out "$FILTER" reprepro includedsc "$distro" "$file"
 	fi
 }
 
@@ -180,7 +203,7 @@ function import {
 	# Translate arch x64 -> amd64
 	[ "$arch" == "x64" ] && arch="amd64"
 
-	# Import sources
+	# Import sources only once (for amd64)
 	if [ "$arch" == "amd64" ]; then
 		ici_start_fold "$(ici_colorize BLUE BOLD "Importing source packages")"
 		for f in "$INCOMING_DIR"/*.dsc; do
@@ -202,7 +225,7 @@ function import {
 	[ -e "${log_files[0]}" ] && mv "${log_files[@]}" "log/${distro%-testing}.$arch"
 
 	# Cleanup files
-	(cd "$INCOMING_DIR" || ici_exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
+	(cd "$INCOMING_DIR" || ici_exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar* ./*.changes ./*.buildinfo)
 
 	# Rename, Import, and Cleanup ddeb files (if existing)
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing debug packages")"
