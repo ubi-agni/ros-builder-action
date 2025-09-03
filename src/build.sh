@@ -7,7 +7,7 @@ function deb_pkg_name {
   echo "ros-$ROS_DISTRO-$(echo "$1" | tr '_' '-')$version"
 }
 
-function register_local_pkgs_with_rosdep {
+function register_new_pkgs_with_rosdep {
   #shellcheck disable=SC2086
   local total="${#PKG_NAMES[@]}"
   local idx
@@ -17,17 +17,17 @@ function register_local_pkgs_with_rosdep {
       continue
     fi
     local pkg="${PKG_NAMES[$idx]}"
-    cat << EOF >> "$DEBS_PATH/local.yaml"
+    cat << EOF >> "$DEBS_PATH/rosdep.yaml"
 $pkg:
   ubuntu: [$(deb_pkg_name "$pkg")]
   debian: [$(deb_pkg_name "$pkg")]
 EOF
   done
 
-  if [ -f "$DEBS_PATH/local.yaml" ]; then
-    "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/local.yaml"
+  if [ -f "$DEBS_PATH/rosdep.yaml" ]; then
+    "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/rosdep.yaml"
 
-    echo "yaml file://$DEBS_PATH/local.yaml $ROS_DISTRO" | \
+    echo "yaml file://$DEBS_PATH/rosdep.yaml $ROS_DISTRO" | \
       ici_asroot tee /etc/ros/rosdep/sources.list.d/01-local.list
 
     ici_cmd rosdep update
@@ -145,16 +145,20 @@ function source_link {
 function pkg_exists {
   local name="$1"
   local candidate; candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
-  local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
-  if [ "$candidate" == "(none)" ] || [ -z "$candidate" ]; then
-    candidate=""
-    # look for alternative package name
-    read -r name candidate unused < <(apt list 2> /dev/null | grep "$name" | grep -v "ros-" | head -n 1)
-    # remove everything after first invalid character (no digit)
-    available="${candidate%%[^0-9.-]*}"
-    echo "Found: ${name%/*}  $candidate"
+  [ "$candidate" = "(none)" ] && candidate=""
+
+  # if nothing found but a debian control files exists for that package
+  if [ -z "$candidate" ] && grep "Source: $name" debian/control &> /dev/null; then
+    # check all defined packages
+    while read -r name; do
+      candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+      if [ -z "$candidate" ]; then
+        break
+      fi
+    done < <(grep -oP "Package: \K(.*)" debian/control)
   fi
 
+  local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
   local pkg_version="${2%"$DEB_DISTRO"}"
 
   if [ -n "$candidate" ] && ! dpkg --compare-versions "$available" "<=" "$pkg_version" ; then
@@ -254,7 +258,7 @@ function build_pkg {
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
-  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version_link")
+  BUILT_PACKAGES+=("$((idx+1))/$total $(deb_pkg_name "$pkg_name"): $version_link")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output BOLD "Install package within chroot"
@@ -341,7 +345,7 @@ function sbuild_pkg {
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
-  BUILT_PACKAGES+=("$deb_pkg_name: $version_link")
+  BUILT_PACKAGES+=("$((idx+1))/$total $deb_pkg_name: $version_link")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output BOLD "Install package within chroot"
@@ -398,7 +402,7 @@ function build_python_pkg {
 
   ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command sdist_dsc --debian-version "$debian_version" bdist_deb || return 4
 
-  BUILT_PACKAGES+=("$deb_pkg_name: $version_link")
+  BUILT_PACKAGES+=("$((idx+1))/$total $deb_pkg_name: $version_link")
 
   # Move created files to $DEBS_PATH for deployment
   mv deb_dist/*.dsc deb_dist/*.tar.?z deb_dist/*.deb deb_dist/*.changes deb_dist/*.buildinfo "$DEBS_PATH"
@@ -433,9 +437,15 @@ function build_source {
   while read -r name folder unused; do
     PKG_NAMES+=("$name")
     PKG_FOLDERS+=("$folder")
-  done < <(colcon list --topological-order $COLCON_PKG_SELECTION || kill $$)
+  done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
 
-  ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
+  # early return if PKG_NAMES is empty
+  if [ ${#PKG_NAMES[@]} -eq 0 ]; then
+    cd "$old_path" || ici_exit 1
+    return
+  fi
+
+  ici_timed "Register new packages with rosdep" register_new_pkgs_with_rosdep
   ici_timed update_repo
 
   local msg_prefix=""
@@ -466,7 +476,7 @@ function build_source {
         ici_warn "No package.xml or setup.py found"; exit_code=0
       fi
     fi
-    trap - RETURN # remove return trap
+    trap - RETURN # remove return trap defined in build_*_pkg()
     rm -rf "${PKG_FOLDERS[$idx]}"  # free disk space
 
     if [ "$exit_code" != 0 ] ; then

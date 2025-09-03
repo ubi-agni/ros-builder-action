@@ -1,27 +1,201 @@
 #!/bin/bash
+shopt -s nullglob
 
 DIR_THIS="$(dirname "${BASH_SOURCE[0]}")"
 SRC_PATH="$(realpath "$DIR_THIS/../src")"
+FAILURE=0
 
 # shellcheck source=src/util.sh
 source "$SRC_PATH/util.sh"
+ici_setup
 
 if [ -r ~/.reprepro.env ]; then
 	# shellcheck disable=SC1090
 	. ~/.reprepro.env
 fi
 
-# Sanity checks
-[ ! -d "$INCOMING_DIR" ] && echo "Invalid incoming directory" && exit 1
-[ -z "$REPO" ] && echo "github repo undefined" && exit 1
+function find_existing() {
+	find pool -name "$(basename "$1")" -print -quit
+}
 
-function filter {
-	grep -vE "Exporting indices...|Deleting files no longer referenced..."
+function identical() {
+	[ -z "$(diff -q "$1" "$2")" ]
+}
+
+# check that a given field ($1) in both files ($2 $3) have identical values
+function deb_field_identical() {
+	local f1; f1="$(dpkg-deb -f "$2" "$1")"
+	local f2; f2="$(dpkg-deb -f "$3" "$1")"
+	if [ "$f1" == "$f2" ]; then return 0;
+	else echo "  $1 differs: $f1 != $f2"; return 1; fi
+}
+
+# extract files into /tmp/new and /tmp/old and compare folders recursively
+function content_compatible {
+	# shellcheck disable=SC2034
+	local new_file=$1; shift
+	# shellcheck disable=SC2034
+	local old_file=$1; shift
+
+	# extract files
+	for d in new old; do
+		# compose cmdline
+		local cmdline=()
+		local file="${d}_file"
+		# iterate over all arguments and append them to cmdline
+		for arg in "$@"; do
+			case "$arg" in
+				"{file}") arg="${!file}" ;;
+				"{folder}") arg="/tmp/$d" ;;
+			esac
+			cmdline+=("$arg")
+		done
+
+		# perform actual extraction
+		rm -rf /tmp/$d && \
+		mkdir -p /tmp/$d && \
+		ici_quiet "${cmdline[@]}" || return 1
+	done
+
+	# recursively compare folders
+	diffs=$(diff --brief --recursive /tmp/new /tmp/old | sed 's|/tmp/.../|/|g;s|^|  |') || return 1
+	printf "%s" "$diffs" # report all diffs
+
+	# ignore changelog files for compatibility check
+	# shellcheck disable=SC2143  # suggestion breaks the logic
+	[ -z "$(echo "$diffs" | grep -vE "changelog")" ]
+}
+
+function compatible() {
+	# save current stdout and then redirect it to /tmp/diffs
+	exec 3>&1; exec >> /tmp/diffs
+	# register cleanup code to restore stdout on return
+	trap 'exec 1>&3; exec 3>&-; trap - RETURN' RETURN
+
+	# switch over file types
+	local diffs
+	case "$1" in
+		*.deb)
+			for field in architecture version; do
+				if ! deb_field_identical "$field" "$1" "$2"; then return 1; fi
+			done
+			content_compatible "$1" "$2" dpkg-deb -x "{file}" "{folder}"
+			;;
+		*.tar*)
+			content_compatible "$1" "$2" tar -xf "{file}" -C "{folder}"
+			;;
+		*) echo "  $(basename "$1") files differ"
+			false
+			;;
+	esac
+}
+
+# filter files and checksums section from .dsc file ($1) and write to specified folder ($2)
+function dsc_filter() {
+	# shellcheck disable=SC2317
+	awk '/^Files:/ {f=1; next} f && NF==3 {next} f && NF!=3 {f=0} {print}' "$1" | \
+		awk '/^Checksums-.*:/ {f=1; next} f && NF==3 {next} f && NF!=3 {f=0} {print}' \
+		> "$2/$(basename "$1")"
+}
+
+# check that all files named in the .dsc file are compatible to existing ones
+function dsc_files_compatible() {
+	# all source files should be identical or compatible as well
+	local src
+	local compat="new"
+	local other
+	while read -r src; do
+		existing=$(find_existing "$src")
+		if [ -n "$existing" ] && ! identical "$INCOMING_DIR/$src" "$existing"; then
+			[ -z "$other" ] && other="$existing exists" # remember first non-identical file
+			if compatible "$INCOMING_DIR/$src" "$existing"; then
+				compat="compatible" # downgrade compatibility from new
+			else
+				echo "diffs in $(basename "$existing")"
+				return
+			fi
+		fi
+	done < <(awk '/^Files:/ {f=1; next} f && NF==3 {print $3} f && NF!=3 {exit}' "$file")
+	echo "$compat$other"
+}
+
+function report_result {
+	local color=$1; shift
+	"$@" # report main result via given command
+	# append /tmp/diffs if non-empty
+	if [ -s /tmp/diffs ]; then
+		printf "%s" "$(ici_ansi "$color")"
+		cat /tmp/diffs
+		printf "%s\n" "$(ici_ansi RESET)"
+	else
+		ici_color_output GREEN "  no differences"
+	fi
+}
+
+function import_file {
+	local file=$1
+	local component="main"
+
+	# Rename *.ddeb files into *.deb and target component main-dbg
+	if [[ $file == *.ddeb ]]; then
+		file=${file%.ddeb} # remove .ddeb suffix
+		mv "${file}.ddeb" "${file}.deb" # rename file
+		file="$file.deb" # add .deb suffix
+		component="main-dbg"
+	fi
+
+	rm -f /tmp/diffs
+
+	local FILTER="Exporting indices|Deleting files no longer referenced"
+	local existing
+	#####################################################################################################
+	if [[ "$file" == *.deb ]]; then # .deb file
+		existing=$(find_existing "$file")
+		if [ -z "$existing" ]; then
+			ici_log "$(basename "$file")"
+		elif identical "$file" "$existing"; then
+			ici_log "$(basename "$file") $(ici_colorize GREEN "(identical)")"
+		elif compatible "$file" "$existing"; then
+			report_result GREEN ici_log "$(basename "$file") $(ici_colorize YELLOW "exists -> skipped")"
+			return 0
+		else
+			report_result "" gha_error "$(basename "$file") conflicts with $existing"
+			return 1
+		fi
+		ici_label ici_filter_out "$FILTER" reprepro -A "$arch" -C "$component" includedeb "$distro" "$file"
+
+	#####################################################################################################
+	else # .dsc file
+		existing=$(find_existing "$file")
+		if [ -n "$existing" ] && ! content_compatible "$file" "$existing" dsc_filter "{file}" "{folder}" ; then
+			report_result "" gha_error "  $(basename "$file") differs from ${existing}"
+			return 1
+		fi
+		# compare all listed files, both for new .dsc files and for existing ones
+		existing="$(dsc_files_compatible "$file")"
+		case "$existing" in
+			new)
+				# this is the only case causing an actual import
+				ici_log "$(basename "$file")"
+				ici_label ici_filter_out "$FILTER" reprepro includedsc "$distro" "$file"
+				;;
+			compatible*)
+				report_result GREEN ici_log "$(basename "$file"):" \
+					"$(ici_colorize YELLOW "skipped (${existing#compatible})")"
+				;;
+			diff*)
+				report_result "" gha_error "  $(basename "$file"): ${existing}:"
+				return 1
+				;;
+			*) ici_exit 1 gha_error "Unknown return value '$existing' from dsc_files_compatible()?!"
+				;;
+		esac
+	fi
 }
 
 function import {
-	[ -z "$1" ] && echo "DISTRO undefined" && exit 1
-	[ -z "$2" ] && echo "ARCH undefined" && exit 1
+	[ -z "$1" ] && ici_exit 1 gha_error "DISTRO undefined"
+	[ -z "$2" ] && ici_exit 1 gha_error "ARCH undefined"
 
 	local distro="$1-testing" # operate on -testing distro
 	local arch="$2"
@@ -29,13 +203,11 @@ function import {
 	# Translate arch x64 -> amd64
 	[ "$arch" == "x64" ] && arch="amd64"
 
-	# Import sources
+	# Import sources only once (for amd64)
 	if [ "$arch" == "amd64" ]; then
 		ici_start_fold "$(ici_colorize BLUE BOLD "Importing source packages")"
 		for f in "$INCOMING_DIR"/*.dsc; do
-			[ -f "$f" ] || break  # Handle case of no files found
-			echo "${f#"$INCOMING_DIR/"}"
-			reprepro includedsc "$distro" "$f" | filter
+			import_file "$f" || FAILURE=1
 		done
 		ici_end_fold
 	fi
@@ -43,59 +215,56 @@ function import {
 	# Import packages
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing binary packages")"
 	for f in "$INCOMING_DIR"/*.deb; do
-		[ -f "$f" ] || break  # Handle case of no files found
-		echo "${f#"$INCOMING_DIR/"}"
-		reprepro -A "$arch" includedeb "$distro" "$f" | filter
+		import_file "$f" || FAILURE=1
 	done
 	ici_end_fold
 
 	# Save log files
 	mkdir -p "log/${distro%-testing}.$arch"
-	mv "$INCOMING_DIR"/*.log "log/${distro%-testing}.$arch"
+	log_files=("$INCOMING_DIR"/*.log)
+	[ -e "${log_files[0]}" ] && mv "${log_files[@]}" "log/${distro%-testing}.$arch"
 
 	# Cleanup files
-	(cd "$INCOMING_DIR" || exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar.gz ./*.tar.xz ./*.changes ./*.buildinfo)
+	(cd "$INCOMING_DIR" || ici_exit 1; rm -f ./*.log ./*.deb ./*.dsc ./*.tar* ./*.changes ./*.buildinfo)
 
 	# Rename, Import, and Cleanup ddeb files (if existing)
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing debug packages")"
 	for f in "$INCOMING_DIR"/*.ddeb; do
-		[ -f "$f" ] || break  # Handle case of no files found
-		echo "${f#"$INCOMING_DIR/"}"
-		# remove .ddeb suffix
-		f=${f%.ddeb}
-		mv "${f}.ddeb" "${f}.deb"
-		reprepro -A "$arch" -C main-dbg includedeb "$distro" "${f}.deb" | filter
+		import_file "$f" || FAILURE=1
 	done
-	(cd "$INCOMING_DIR" || exit 1; rm ./*.deb)
+	(cd "$INCOMING_DIR" || ici_exit 1; rm -f ./*.deb)
 	ici_end_fold
 
-	ici_cmd reprepro export "$distro"
-
-	# Merge local.yaml into ros-one.yaml
-	cat "$INCOMING_DIR/local.yaml" >> "ros-one.yaml"
-	"$(dirname "${BASH_SOURCE[0]}")/../src/scripts/yaml_remove_duplicates.py" ros-one.yaml
+	# Merge rosdep.yaml into ros-one.yaml
+	if [ -f "$INCOMING_DIR/rosdep.yaml" ]; then
+		cat "$INCOMING_DIR/rosdep.yaml" >> "ros-one.yaml"
+		"$(dirname "${BASH_SOURCE[0]}")/../src/scripts/yaml_remove_duplicates.py" ros-one.yaml
+	fi
 
 	# Remove remaining files
 	rm -rf "${INCOMING_DIR:?}"/*
 	ici_log
 }
 
-# Download debs artifact(s)
+# Sanity check
+[ ! -d "$INCOMING_DIR" ] && ici_exit 1 gha_error "Invalid incoming directory"
+
 if [ "$(ls -A "$INCOMING_DIR")" ]; then
-	ici_color_output CYAN BOLD "Importing existing files from incoming directory"
+	ici_color_output CYAN BOLD "Importing files existing in $(basename "$INCOMING_DIR") folder"
 	# shellcheck disable=SC2153 # DISTRO and ARCH might be unset
 	import "$DISTRO" "$ARCH"
 else
+	# Download debs artifact(s)
+	[ -z "$REPO" ] && ici_exit 1 gha_error "github repo undefined"
+
 	if [ -z "$RUN_ID" ] ; then
 		# Retrieve RUN_ID of latest workflow run
 		RUN_ID=$(gh api -X GET "/repos/$REPO/actions/runs" | jq ".workflow_runs[0] | .id")
 	fi
 	# Retrieve names of artifacts in that workflow run
 	artifacts=$(gh api -X GET "/repos/$REPO/actions/artifacts" | jq --raw-output ".artifacts[] | select(.workflow_run.id == $RUN_ID) | .name")
+	[ -n "$artifacts" ] || ici_exit 1 gha_warning "No artifacts found for run https://github.com/$REPO/actions/runs/$RUN_ID"
 	for a in $artifacts; do
-		msg="Fetching artifact \"$a\" from https://github.com/$REPO/actions/runs/$RUN_ID"
-		ici_timed "$(ici_colorize CYAN BOLD "$msg")" gh --repo "$REPO" run download --name "$a" --dir "$INCOMING_DIR" "$RUN_ID"
-
 		# parse distro and arch from artifact name <distro>-<arch>-debs
 		if [[ $a =~ ([^-]+)-([^-]+)(-debs)? ]]; then
 			distro=${BASH_REMATCH[1]}
@@ -108,6 +277,21 @@ else
 			distro=$DISTRO
 			arch=$ARCH
 		fi
+
+		if [ -n "$DISTRO" ] && [ "$distro" != "$DISTRO" ]; then
+			ici_warn "Skipping artifact $a: $distro != $DISTRO"
+			continue
+		fi
+		if [ -n "$ARCH" ] && [ "$arch" != "$ARCH" ]; then
+			ici_warn "Skipping artifact $a: $arch != $ARCH"
+			continue
+		fi
+
+		msg="Fetching artifact \"$a\" from https://github.com/$REPO/actions/runs/$RUN_ID"
+		ici_timed "$(ici_colorize CYAN BOLD "$msg")" gh --repo "$REPO" run download --name "$a" --dir "$INCOMING_DIR" "$RUN_ID"
+
 		import "$distro" "$arch"
 	done
 fi
+
+ici_exit $FAILURE
