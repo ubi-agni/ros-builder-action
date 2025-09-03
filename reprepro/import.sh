@@ -29,6 +29,42 @@ function deb_field_identical() {
 	else echo "  $1 differs: $f1 != $f2"; return 1; fi
 }
 
+# extract files into /tmp/new and /tmp/old and compare folders recursively
+function content_compatible {
+	# shellcheck disable=SC2034
+	local new_file=$1; shift
+	# shellcheck disable=SC2034
+	local old_file=$1; shift
+
+	# extract files
+	for d in new old; do
+		# compose cmdline
+		local cmdline=()
+		local file="${d}_file"
+		# iterate over all arguments and append them to cmdline
+		for arg in "$@"; do
+			case "$arg" in
+				"{file}") arg="${!file}" ;;
+				"{folder}") arg="/tmp/$d" ;;
+			esac
+			cmdline+=("$arg")
+		done
+
+		# perform actual extraction
+		rm -rf /tmp/$d && \
+		mkdir -p /tmp/$d && \
+		ici_quiet "${cmdline[@]}" || return 1
+	done
+
+	# recursively compare folders
+	diffs=$(diff --brief --recursive /tmp/new /tmp/old | sed 's|/tmp/.../|/|g;s|^|  |') || return 1
+	printf "%s" "$diffs" # report all diffs
+
+	# ignore changelog files for compatibility check
+	# shellcheck disable=SC2143  # suggestion breaks the logic
+	[ -z "$(echo "$diffs" | grep -vE "changelog")" ]
+}
+
 function compatible() {
 	# save current stdout and then redirect it to /tmp/diffs
 	exec 3>&1; exec >> /tmp/diffs
@@ -42,24 +78,14 @@ function compatible() {
 			for field in architecture version; do
 				if ! deb_field_identical "$field" "$1" "$2"; then return 1; fi
 			done
-			# extract deb files to /tmp/new resp. /tmp/old and compare extracted files
-			for d in new old; do rm -rf /tmp/$d && mkdir -p /tmp/$d; done
-			dpkg-deb -x "$1" /tmp/new
-			dpkg-deb -x "$2" /tmp/old
-			diffs=$(ici_filter_out "changelog" diff --brief --recursive /tmp/new /tmp/old | sed 's|/tmp/.../|/|g;s|^|  |')
-			if [ -n "$diffs" ]; then echo "$diffs"; return 1; fi
-			true;;
-
+			content_compatible "$1" "$2" dpkg-deb -x "{file}" "{folder}"
+			;;
 		*.orig.tar.gz)
-			# extract files to /tmp/new resp. /tmp/old and compare extracted files
-			for d in new old; do rm -rf /tmp/$d && mkdir -p /tmp/$d; done
-			tar -xzf "$1" -C /tmp/new
-			tar -xzf "$2" -C /tmp/old
-			diffs=$(ici_filter_out "changelog" diff --brief --recursive /tmp/new /tmp/old | sed 's|/tmp/.../|/|g;s|^|  |')
-			if [ -n "$diffs" ]; then echo "$diffs"; return 1; fi
-			true;;
+			content_compatible "$1" "$2" tar -xf "{file}" -C "{folder}"
+			;;
 		*) echo "  $(basename "$1") differs from $2"
-			false;;
+			false
+			;;
 	esac
 }
 
