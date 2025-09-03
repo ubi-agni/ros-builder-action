@@ -6,6 +6,8 @@ DIR_THIS="$(dirname "${BASH_SOURCE[0]}")"
 source ~/.reprepro.env
 if [ ! -d ~/fastapi.venv ]; then
 	python3 -m venv ~/fastapi.venv
+	# shellcheck disable=SC1090
+	source ~/fastapi.venv/bin/activate
 	pip install "fastapi[standard]" starlette sse_starlette colorama
 fi
 # shellcheck disable=SC1090
