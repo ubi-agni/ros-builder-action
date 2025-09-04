@@ -95,7 +95,7 @@ function ici_backtrace {
 function ici_trace {
   if [ "$TRACE" = true ]; then
     ici_log
-    ici_color_output MAGENTA "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
+    ici_color_output MAGENTA "${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
   fi
 }
 
