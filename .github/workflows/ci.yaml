@@ -76,6 +76,7 @@ jobs:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
       ARCH: ${{ matrix.ARCH }}
       ROS_SOURCES: .github/workflows/${{ matrix.ROS_SOURCES }}.repos
+      EXTRA_ROSDEP_SOURCES: rosdep.yaml
       INSTALL_TO_CHROOT: ${{ matrix.BUILD_TIMEOUT > 0 }}  # slow down for timeout test
       VERBOSE: ${{ matrix.VERBOSE && matrix.VERBOSE || false }}
       BUILD_TIMEOUT: ${{ matrix.BUILD_TIMEOUT && matrix.BUILD_TIMEOUT || 15 }}

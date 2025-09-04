@@ -1,3 +1,7 @@
+python3-catkin-pkg-modules:
+  debian: [python3-catkin-pkg]
+  ubuntu: [python3-catkin-pkg]
+
 # this package does not exist (and shouldn't, because it was moved to moveit-resources)
 # but it's still referenced as conflicting with moveit_resources
 prbt_ikfast_manipulator_plugin:
