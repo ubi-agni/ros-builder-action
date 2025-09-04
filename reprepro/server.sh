@@ -17,7 +17,12 @@ source ~/fastapi.venv/bin/activate
 /usr/lib/gnupg2/gpg-preset-passphrase -v --preset "$GPG_KEY" <<EOF
 $GPG_PW
 EOF
-unset GPG_KEY
 unset GPG_PW
+unset GPG_KEY
+
+# Ensure that we can sign files
+touch /tmp/gpg-test-file
+gpg --clear-sign /tmp/gpg-test-file || exit 1
+rm /tmp/gpg-test-file /tmp/gpg-test-file.asc
 
 fastapi run "$DIR_THIS/server.py"
