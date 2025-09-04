@@ -29,8 +29,8 @@ jobs:
           git fetch --no-tags --depth=1 origin ${{ github.base_ref }}
           git checkout ${{ github.base_ref }}
           git checkout HEAD@{1}
-      - name: determine new packages
-        run: python3 src/scripts/pkg_diffs.py "${{ github.base_ref }}"
+      - name: Determine added packages
+        run: python3 src/scripts/pkg_diffs.py "${{ github.base_ref }}" | tee /tmp/diff.repos
       - name: Build new packages
         uses: ./
         env:
