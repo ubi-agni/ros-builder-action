@@ -32,12 +32,15 @@ echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-
 DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT_QUIET[@]}" ici_apt_install \
 	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng python3-pip python3-rosdep libxml2-utils libarchive-tools \
 	python3-colcon-package-information python3-colcon-package-selection python3-colcon-ros python3-colcon-cmake \
-	python3-stdeb python3-all dh-python build-essential
+	debhelper python3-all dh-python build-essential
 
+export PIP_BREAK_SYSTEM_PACKAGES=1
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
 ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
 # Install patched vcstool to allow for treeless clones
 ici_timed "Install vcstool" ici_asroot pip install -U git+https://github.com/rhaschke/vcstool.git@master
+# Install latest stdeb
+ici_timed "Install stdeb" ici_asroot pip install -U git+https://github.com/astraw/stdeb@master
 
 # Remove ros2 package repository, now that rosdep and colcon are installed
 # This repo might have newer versions, e.g. of colcon, than the ones to be built
