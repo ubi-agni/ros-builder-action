@@ -34,6 +34,7 @@ DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT
 	python3-colcon-package-information python3-colcon-package-selection python3-colcon-ros python3-colcon-cmake \
 	python3-stdeb python3-all dh-python build-essential
 
+export PIP_BREAK_SYSTEM_PACKAGES=1
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
 ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
 # Install patched vcstool to allow for treeless clones
