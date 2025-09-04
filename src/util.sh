@@ -66,7 +66,7 @@ function ici_colorize() {
       esac
       shift
    done
-   echo -e "${color:-}$*${reset:-}"
+   printf "%s%s%s" "${color:-}" "$@" "${reset:-}"
 }
 
 function ici_color_output {

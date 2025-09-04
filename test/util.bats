@@ -72,6 +72,17 @@ EOF
 	assert_output "$expected"
 }
 
+@test "ici_colorize" {
+	run ici_colorize RED "some text"
+	assert_output $'\e[31msome text\e[0m'
+
+	run ici_colorize RED ""
+	assert_output $'\e[31m\e[0m'
+
+	run ici_colorize "" "some text"
+	assert_output 'some text'
+}
+
 function test_filtering_helper {
 	local exit_code=$1
 	local expected_components=$2

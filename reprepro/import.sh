@@ -127,9 +127,7 @@ function report_result {
 	"$@" # report main result via given command
 	# append /tmp/diffs if non-empty
 	if [ -s /tmp/diffs ]; then
-		printf "%s" "$(ici_ansi "$color")"
-		cat /tmp/diffs
-		printf "%s\n" "$(ici_ansi RESET)"
+		ici_color_output "$color" "$(cat /tmp/diffs)"
 	else
 		ici_color_output GREEN "  no differences"
 	fi
