@@ -481,18 +481,11 @@ function ici_quiet {
     return "$err"
 }
 
-# show full output on failure, otherwise filtered stdout
+# filter both, stdout and stderr with given cmd and pattern
 function ici_filter_helper {
     local cmd=$1; shift
-    local filter=$1; shift
-    local out; out=$(mktemp)
-    "$@" | $cmd "$filter" | ici_redirect cat || true
-    local err=${PIPESTATUS[0]}
-    if [ "$err" -ne 0 ]; then
-        ici_redirect cat "$out"
-    fi
-    rm -f "$out"
-    return "$err"
+    local pattern=$1; shift
+    "$@" 2>&1 | $cmd "$pattern"
 }
 
 function ici_filter {

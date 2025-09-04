@@ -20,7 +20,7 @@ function setup {
 	source "${SRC_PATH}/prepare.sh"
 }
 
-@test "restrict_src_to_packages" {
+@test restrict_src_to_packages {
 	# redirect original output from tee inside restrict_src_to_packages
 	function ici_asroot {
 		cat - > /tmp/actual
@@ -47,7 +47,7 @@ EOF
 	assert_output "$expected"
 }
 
-@test "url_from_deb_source" {
+@test url_from_deb_source {
 	run -0 url_from_deb_source "deb http://archive.ubuntu.com/ubuntu focal main universe"
 	assert_output "http://archive.ubuntu.com/ubuntu/dists/focal"
 
@@ -65,7 +65,7 @@ EOF
 	run -1 url_from_deb_source "deb [option1=val1 option2=val2] http://archive.ubuntu.com/ubuntu"
 }
 
-@test "validate_deb_sources_good" {
+@test validate_deb_sources_good {
 	local src
 	for src in \
 		"deb http://archive.ubuntu.com/ubuntu focal" \
@@ -81,7 +81,7 @@ EOF
 		assert_output ""
 	done
 }
-@test "validate_deb_sources_invalid" {
+@test validate_deb_sources_invalid {
 	local orig="http://archive.ubuntu.com/ubuntu"
 	local src=$orig
 	validate_deb_sources src # modification of src variable fails with subshell use!
