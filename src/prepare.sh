@@ -88,10 +88,11 @@ function create_chroot {
 
 
   local tmp; tmp=$(mktemp "/tmp/ros-builder-XXXXXX.sh")
+  # shellcheck disable=SC2001
   cat <<- EOF > "$tmp"
+  set -x  # bash debug mode
   mkdir -p /etc/apt/keyrings
-  curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /etc/apt/keyrings/ros-archive-keyring.gpg
-  $INSTALL_GPG_KEYS
+  $(echo "$INSTALL_GPG_KEYS" | sed 's/sudo //')
   echo "Acquire::http::Proxy \"http://127.0.0.1:3142\";" > tee /etc/apt/apt.conf.d/01acng
 EOF
 
@@ -104,13 +105,12 @@ EOF
   local chroot_folder="/var/cache/sbuild-chroot"
   # shellcheck disable=SC2016
   ici_cmd ici_asroot mmdebstrap \
-    --variant=buildd --include=apt,apt-utils,ccache,ca-certificates,curl,build-essential,debhelper,fakeroot,cmake,git,python3-rosdep,python3-catkin-pkg \
+    --variant=buildd --include=apt,apt-utils,ccache,ca-certificates,curl,build-essential,debhelper,fakeroot,cmake,git \
     --customize-hook="upload $tmp $tmp" \
     --customize-hook="chroot \$1 chmod 755 $tmp" \
     --customize-hook="chroot \$1 sh -c $tmp" \
     "$DEB_DISTRO" "$chroot_folder" \
-    "deb $DISTRIBUTION_REPO $DEB_DISTRO main universe" \
-    "deb [signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $DEB_DISTRO main"
+    "deb $DISTRIBUTION_REPO $DEB_DISTRO main universe"
 
   ici_log
   ici_color_output BOLD "Write schroot config"
