@@ -137,6 +137,8 @@ function import_file {
 	local file=$1
 	local component="main"
 
+	trap 'err=$?; if [ $err -ne 0 ]; then ici_warn "Failed importing $file"; FAILURE=1; fi; trap - RETURN' RETURN
+
 	# Rename *.ddeb files into *.deb and target component main-dbg
 	if [[ $file == *.ddeb ]]; then
 		file=${file%.ddeb} # remove .ddeb suffix
@@ -211,7 +213,7 @@ function import {
 	if [ "$arch" == "amd64" ]; then
 		ici_start_fold "$(ici_colorize BLUE BOLD "Importing source packages")"
 		for f in "$INCOMING_DIR"/*.dsc; do
-			import_file "$f" || FAILURE=1
+			import_file "$f"
 		done
 		ici_end_fold
 	fi
@@ -219,7 +221,7 @@ function import {
 	# Import packages
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing binary packages")"
 	for f in "$INCOMING_DIR"/*.deb; do
-		import_file "$f" || FAILURE=1
+		import_file "$f"
 	done
 	ici_end_fold
 
@@ -234,7 +236,7 @@ function import {
 	# Rename, Import, and Cleanup ddeb files (if existing)
 	ici_start_fold "$(ici_colorize BLUE BOLD "Importing debug packages")"
 	for f in "$INCOMING_DIR"/*.ddeb; do
-		import_file "$f" || FAILURE=1
+		import_file "$f"
 	done
 	(cd "$INCOMING_DIR" || ici_exit 1; rm -f ./*.deb)
 	ici_end_fold
