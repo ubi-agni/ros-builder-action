@@ -83,9 +83,9 @@ jobs:
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
       EXTRA_DEB_SOURCES: >-
-          "${{ inputs.CONTINUE_BUILD &&
-               format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
-                      inputs.DEB_DISTRO) || '' }}"
+          ${{ inputs.CONTINUE_BUILD &&
+              format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
+                     inputs.DEB_DISTRO) || '' }}
       EXTRA_ROSDEP_SOURCES: |
         rosdep.yaml
         https://ros.packages.techfak.net/ros-one.yaml
@@ -109,9 +109,9 @@ jobs:
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
       EXTRA_DEB_SOURCES: >-
-          "${{ inputs.CONTINUE_BUILD &&
-               format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
-                      inputs.DEB_DISTRO) || '' }}"
+          ${{ inputs.CONTINUE_BUILD &&
+              format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
+                     inputs.DEB_DISTRO) || '' }}
       EXTRA_ROSDEP_SOURCES: |
         rosdep.yaml
         https://ros.packages.techfak.net/ros-one.yaml
@@ -135,9 +135,9 @@ jobs:
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
       EXTRA_DEB_SOURCES: >-
-          "${{ inputs.CONTINUE_BUILD &&
-               format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
-                      inputs.DEB_DISTRO) || '' }}"
+          ${{ inputs.CONTINUE_BUILD &&
+              format('deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net {0}-testing main',
+                     inputs.DEB_DISTRO) || '' }}
       EXTRA_ROSDEP_SOURCES: |
         rosdep.yaml
         https://ros.packages.techfak.net/ros-one.yaml
