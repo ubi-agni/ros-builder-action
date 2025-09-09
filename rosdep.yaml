@@ -36,6 +36,10 @@ python-serial: # needed for libuvc_camera
   debian: [python3-serial]
   ubuntu: [python3-serial]
 
+python3-catkin-sphinx:
+  debian: [python3-catkin-sphinx]
+  ubuntu: [python3-catkin-sphinx]
+
 orocos_kdl: # needed for robot_calibration, pr2_head_action, ...
   debian: [liborocos-kdl-dev]
   ubuntu: [liborocos-kdl-dev]
