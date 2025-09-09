@@ -22,7 +22,7 @@ RUN \
         # Qt6 packages for Jammy
         $(test "$ROS_DISTRO" = "one" && echo "qt6-base-dev qt6-base-dev-tools libqt6opengl6-dev") \
         # Preferred build tools
-        clang clang-format-12 clang-tidy clang-tools ccache && \
+        clang clang-format clang-tidy clang-tools ccache && \
     #
     # Download MoveIt sources, so that we can fetch all necessary dependencies
     mkdir -p /tmp/src && \
@@ -30,7 +30,7 @@ RUN \
     vcs import --recursive --shallow --input /tmp/src/moveit/.github/workflows/upstream.rosinstall /tmp/src && \
     #
     # Download all dependencies of MoveIt
-    rosdep update $(test "${ROS_DISTRO}" = "melodic" && echo "--include-eol-distros") && \
+    rosdep update $(test "${ROS_DISTRO}" != "one" && echo "--include-eol-distros") && \
     DEBIAN_FRONTEND=noninteractive \
     rosdep install -y --from-paths /tmp/src --ignore-src --rosdistro ${ROS_DISTRO} --as-root=apt:false && \
     # Remove the source code from this container

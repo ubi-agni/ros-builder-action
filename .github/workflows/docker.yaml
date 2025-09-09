@@ -77,7 +77,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [jammy, noble]
+        DEB_DISTRO: [jammy]
 
     uses: ./.github/workflows/docker.build.yaml
     secrets: inherit

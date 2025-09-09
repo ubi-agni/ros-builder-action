@@ -7,7 +7,7 @@ function deb_pkg_name {
   echo "ros-$ROS_DISTRO-$(echo "$1" | tr '_' '-')$version"
 }
 
-function register_local_pkgs_with_rosdep {
+function register_new_pkgs_with_rosdep {
   #shellcheck disable=SC2086
   local total="${#PKG_NAMES[@]}"
   local idx
@@ -17,17 +17,17 @@ function register_local_pkgs_with_rosdep {
       continue
     fi
     local pkg="${PKG_NAMES[$idx]}"
-    cat << EOF >> "$DEBS_PATH/local.yaml"
+    cat << EOF >> "$DEBS_PATH/rosdep.yaml"
 $pkg:
   ubuntu: [$(deb_pkg_name "$pkg")]
   debian: [$(deb_pkg_name "$pkg")]
 EOF
   done
 
-  if [ -f "$DEBS_PATH/local.yaml" ]; then
-    "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/local.yaml"
+  if [ -f "$DEBS_PATH/rosdep.yaml" ]; then
+    "$SRC_PATH/scripts/yaml_remove_duplicates.py" "$DEBS_PATH/rosdep.yaml"
 
-    echo "yaml file://$DEBS_PATH/local.yaml $ROS_DISTRO" | \
+    echo "yaml file://$DEBS_PATH/rosdep.yaml $ROS_DISTRO" | \
       ici_asroot tee /etc/ros/rosdep/sources.list.d/01-local.list
 
     ici_cmd rosdep update
@@ -142,7 +142,44 @@ function source_link {
   echo "[$version]($url)"
 }
 
-function get_release_version {
+function pkg_exists {
+  local name="$1"
+  local candidate; candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+  [ "$candidate" = "(none)" ] && candidate=""
+
+  # if nothing found but a debian control files exists for that package
+  if [ -z "$candidate" ] && grep "Source: $name" debian/control &> /dev/null; then
+    # check all defined packages
+    while read -r name; do
+      candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+      if [ -z "$candidate" ]; then
+        break
+      fi
+    done < <(grep -oP "Package: \K(.*)" debian/control)
+  fi
+
+  local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
+  local pkg_version="${2%"$DEB_DISTRO"}"
+
+  if [ -n "$candidate" ] && ! dpkg --compare-versions "$available" "<=" "$pkg_version" ; then
+    gha_warning "$name: existing version newer: $available > $pkg_version"
+  fi
+  if [ "$SKIP_EXISTING" == "true" ] && [ -n "$candidate" ] && \
+     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py"; then
+    local build_stamp="${candidate#*"$DEB_DISTRO".}" # timestamp of last build
+    local git_stamp; git_stamp=$(git log -1 --format="%cd" --date=format:'%Y%m%d.%H%M') # timestamp of last commit
+    if [ "$git_stamp" \> "$build_stamp" ]; then
+      echo "Building version $pkg_version (git stamp $git_stamp > build stamp $build_stamp)"
+      return 1
+    fi
+    echo "Skipped (existing version $candidate >= $pkg_version)"
+    return 0
+  fi
+  echo "Building version $pkg_version (old: $candidate)"
+  return 1
+}
+
+function get_package_release_version {
   local version
   local offset="0"
 
@@ -155,24 +192,6 @@ function get_release_version {
   fi
 
   echo "$version-$offset$DEB_DISTRO"
-}
-
-function pkg_exists {
-  local pkg_version="${2%"$DEB_DISTRO"}"
-  local candidate; candidate=$(LANG=C apt-cache policy "$1" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
-  [ "$candidate" = "(none)" ] && candidate=""
-  local available="${candidate%"$DEB_DISTRO"*}"  # extract version number
-
-  if [ -n "$candidate" ] && ! dpkg --compare-versions "$available" "<=" "$pkg_version" ; then
-    gha_warning "$1: existing version newer: $available > $pkg_version"
-  fi
-  if [ "$SKIP_EXISTING" == "true" ] && [ -n "$candidate" ] && \
-     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py"; then
-    echo "Skipped (existing version $candidate >= $pkg_version)"
-    return 0
-  fi
-  echo "Building version $pkg_version (old: $candidate)"
-  return 1
 }
 
 function build_pkg {
@@ -191,8 +210,7 @@ function build_pkg {
 
   # Get + Check release version
   # <release version>-<git offset><debian distro>
-  version="$(get_release_version)" || return 5
-
+  version="$(get_package_release_version)" || return 5
   pkg_exists "$(deb_pkg_name "$pkg_name")" "$version" && return
 
   # Check availability of all required packages (bloom-generate waits for input on rosdep issues)
@@ -221,8 +239,7 @@ function build_pkg {
   # Update release version (with appended timestamp)
   version_stamped="$version.$(date +%Y%m%d.%H%M)" # append build timestamp (following ROS scheme)
   debchange -v "$version_stamped" \
-    --preserve --force-distribution "$DEB_DISTRO" \
-    --urgency high -m "Append timestamp when binarydeb was built." || return 3
+    --preserve -m "Append timestamp when binarydeb was built." || return 3
 
   local version_link; version_link=$(source_link "${version%"$DEB_DISTRO"}") || true
   rm -rf .git
@@ -241,7 +258,7 @@ function build_pkg {
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
-  BUILT_PACKAGES+=("$(deb_pkg_name "$pkg_name"): $version_link")
+  BUILT_PACKAGES+=("$((idx+1))/$total $(deb_pkg_name "$pkg_name"): $version_link")
 
   if [ "$INSTALL_TO_CHROOT" == "true" ]; then
     ici_color_output BOLD "Install package within chroot"
@@ -260,6 +277,85 @@ EOF
   log=$(ls -1t "$DEBS_PATH/$(deb_pkg_name "${pkg_name}" "$version_stamped")_"*.build | grep -P '(?<!Z)\.build' | head -1)
   mv "$(readlink -f "$log")" "${log/.build/.log}" # rename actual log file
   rm "$log" # remove symlink
+
+  ici_label update_repo
+}
+
+function get_git_release_version {
+  local version
+  local sha
+  local offset="0"
+
+  git rev-parse --is-inside-work-tree &> /dev/null || return 1
+
+  # Get version from preceding tag, stripping any prefix or suffix not contributing to x.y.z version string
+  version=$(git describe --tags --abbrev=0 2>/dev/null | sed -E 's@^.*?[^0-9]([0-9]+\.[0-9]+\.[0-9]+).*$@\1@')
+  if [ -n "$version" ]; then
+    # Get sha from this tag
+    sha=$(git rev-list --tags --max-count=1)
+  else # no tag available
+    # extract sha + version from latest version-like commit message instead
+    version=$(git log --pretty=format:'%h %s' | grep -E "^.*?[^0-9]([0-9]+\.[0-9]+\.[0-9]+).*$" | head -n 1)
+    sha=$(echo "$version" | awk '{print $1}')
+    version=$(echo "$version"  | sed -E 's@^.*?[^0-9]([0-9]+\.[0-9]+\.[0-9]+).*$@\1@')
+  fi
+  # commit offset from version to HEAD
+  offset="$(git rev-list --count "$sha"..HEAD)"
+
+  echo "$version-$offset$DEB_DISTRO"
+}
+
+function sbuild_pkg {
+  local old_path=$PWD
+  local pkg_name=$1
+  local pkg_path=$2
+  local opts
+  local version
+  local version_stamped
+
+  cd "$pkg_path" || return 1
+  trap 'cd "$old_path"' RETURN # cleanup on return
+  test -f debian/control || return 5
+  deb_pkg_name="$(grep -oP "^Source:\s*\K.*" debian/control)"
+
+  # Get + Check release version
+  version=$(get_git_release_version) || return 5
+  pkg_exists "$deb_pkg_name" "$version" && return
+
+  rm -f debian/changelog
+  # Create changelog with Updated release version (appending timestamp)
+  version_stamped="$version.$(date +%Y%m%d.%H%M)" # append build timestamp (following ROS scheme)
+  debchange --create --package "$deb_pkg_name" -v "$version_stamped" \
+    --preserve -m "$deb_pkg_name ${version%"$DEB_DISTRO"} release" || return 3
+
+  local version_link; version_link=$(source_link "${version%"$DEB_DISTRO"}") || true
+  rm -rf .git
+
+  # Fetch sbuild options from .repos yaml file
+  opts=""
+  if [ -f "$WS_SOURCE" ]; then
+    opts=$(yq ".sbuild_options.\"$pkg_name\".$ARCH" "$WS_SOURCE")
+    if [ "$opts" == "null" ]; then opts=$(yq ".sbuild_options.\"$pkg_name\"" "$WS_SOURCE"); fi
+    if [ "$opts" == "null" ]; then opts=""; fi
+  fi
+  if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
+
+  ici_log
+  SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
+  ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
+
+  "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
+  BUILT_PACKAGES+=("$((idx+1))/$total $deb_pkg_name: $version_link")
+
+  if [ "$INSTALL_TO_CHROOT" == "true" ]; then
+    ici_color_output BOLD "Install package within chroot"
+    # shellcheck disable=SC2012
+    cat <<- EOF | "${APT_QUIET[@]}" ici_pipe_into_schroot sbuild-rw
+      DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y \$(ls -1 -t /build/repo/"$(deb_pkg_name "$pkg_name")"*.deb | head -1)
+EOF
+  fi
+  # Move .dsc + .tar.gz files from workspace folder to $DEBS_PATH for deployment
+  mv ../*.dsc ../*.tar.gz "$DEBS_PATH"
 
   ici_label update_repo
 }
@@ -306,7 +402,7 @@ function build_python_pkg {
 
   ici_label "${SBUILD_QUIET[@]}" python3 setup.py --command-packages=stdeb.command sdist_dsc --debian-version "$debian_version" bdist_deb || return 4
 
-  BUILT_PACKAGES+=("$deb_pkg_name: $version_link")
+  BUILT_PACKAGES+=("$((idx+1))/$total $deb_pkg_name: $version_link")
 
   # Move created files to $DEBS_PATH for deployment
   mv deb_dist/*.dsc deb_dist/*.tar.?z deb_dist/*.deb deb_dist/*.changes deb_dist/*.buildinfo "$DEBS_PATH"
@@ -341,9 +437,15 @@ function build_source {
   while read -r name folder unused; do
     PKG_NAMES+=("$name")
     PKG_FOLDERS+=("$folder")
-  done < <(colcon list --topological-order $COLCON_PKG_SELECTION || kill $$)
+  done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
 
-  ici_timed "Register new packages with rosdep" register_local_pkgs_with_rosdep
+  # early return if PKG_NAMES is empty
+  if [ ${#PKG_NAMES[@]} -eq 0 ]; then
+    cd "$old_path" || ici_exit 1
+    return
+  fi
+
+  ici_timed "Register new packages with rosdep" register_new_pkgs_with_rosdep
   ici_timed update_repo
 
   local msg_prefix=""
@@ -361,10 +463,20 @@ function build_source {
     elif [ -f "${PKG_FOLDERS[$idx]}/setup.py" ]; then
       build_python_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
     else
-      ici_warn "No package.xml or setup.py found"
-      exit_code=0
+      # fetch debian dir from release folder
+      for dir in "$DEB_DISTRO/debian" "debian"; do
+        if [ -d "$old_path/release/${PKG_FOLDERS[$idx]}/$dir" ]; then
+          cp -r --dereference "$old_path/release/${PKG_FOLDERS[$idx]}/$dir" "${PKG_FOLDERS[$idx]}"/debian
+          break
+        fi
+      done
+      if [ -d "${PKG_FOLDERS[$idx]}/debian" ]; then
+        sbuild_pkg "${PKG_NAMES[$idx]}" "${PKG_FOLDERS[$idx]}" || exit_code=$?
+      else
+        ici_warn "No package.xml or setup.py found"; exit_code=0
+      fi
     fi
-    trap - RETURN # remove return trap
+    trap - RETURN # remove return trap defined in build_*_pkg()
     rm -rf "${PKG_FOLDERS[$idx]}"  # free disk space
 
     if [ "$exit_code" != 0 ] ; then

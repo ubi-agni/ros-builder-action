@@ -78,7 +78,7 @@ jobs:
       ROS_SOURCES: .github/workflows/${{ matrix.ROS_SOURCES }}.repos
       INSTALL_TO_CHROOT: ${{ matrix.BUILD_TIMEOUT > 0 }}  # slow down for timeout test
       VERBOSE: ${{ matrix.VERBOSE && matrix.VERBOSE || false }}
-      BUILD_TIMEOUT: ${{ matrix.BUILD_TIMEOUT && matrix.BUILD_TIMEOUT || 10 }}
+      BUILD_TIMEOUT: ${{ matrix.BUILD_TIMEOUT && matrix.BUILD_TIMEOUT || 15 }}
       CONTINUE_ON_ERROR: ${{ matrix.CONTINUE_ON_ERROR && matrix.CONTINUE_ON_ERROR || false }}
       DOWNLOAD_DEBS: false
       DEBS_ARTIFACT_NAME: ${{ matrix.DEBS && matrix.DEB_DISTRO || 'skip' }}

@@ -88,7 +88,7 @@ variable               | type   | default   | semantics
 `SSH_PRIVATE_KEY`      | secret  |                      | ssh private key for pushing to an external repo
 |<td colspan=2>**Debugging options**</td>
 `VERBOSE`              | string  |          | verboseness for all (value true) or selected steps (bloom sbuild apt ccache)
-`TRACE`                | boolean | false    | Enable function tracing
+`TRACE`                | boolean | false    | Enable debug output
 `DEBUG_BASH`           | boolean | false    | Enable bash debugging (`set -x`) and tracing
 
 ### Where to deploy?

@@ -65,7 +65,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .github/docker/${{ inputs.CONTEXT }}
-          build-args: ROS_DISTRO=${{ inputs.ROS_DISTRO }} DEB_DISTRO=${{ inputs.DEB_DISTRO }}
+          build-args: |
+            ROS_DISTRO=${{ inputs.ROS_DISTRO }}
+            DEB_DISTRO=${{ inputs.DEB_DISTRO }}
           push: true
           no-cache: ${{ steps.apt.outputs.no_cache || github.event_name == 'workflow_dispatch' }}
           cache-from: type=registry,ref=${{ env.IMAGE }}

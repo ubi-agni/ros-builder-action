@@ -1,0 +1,9 @@
+Document: sdformat
+Title: SDFormat C++ API reference
+Author: OSRF Team
+Abstract: Describe the SDFormatd C++ API.
+Section: Programming/C++
+
+Format: HTML
+Index: /usr/share/doc/sdformat-doc/html/index.html
+Files: /usr/share/doc/sdformat-doc/html/*

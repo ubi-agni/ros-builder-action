@@ -67,10 +67,10 @@ esac
 # set ROS environment variables
 case $ROS_DISTRO in
 	noetic|one)
-		export export ROS_VERSION=1
+		export ROS_VERSION=1
 		;;
 	*)
-		export export ROS_VERSION=2
+		export ROS_VERSION=2
 		;;
 esac
 export ROS_PYTHON_VERSION=3

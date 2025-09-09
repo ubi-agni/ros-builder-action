@@ -1,7 +1,31 @@
 name: nightly
+run-name: ${{ (github.event_name == 'schedule') && 'nightly ' || '' }}${{ inputs.ROS_SOURCES }}
 
 on:
   workflow_dispatch:
+    inputs:
+      ROS_SOURCES:
+        type: string
+        description: 'ROS sources to compile:'
+        required: false
+      COLCON_PKG_SELECTION:
+        type: string
+        description: 'colcon package selection:'
+        required: false
+      ENFORCE_REBUILD:
+        type: boolean
+        description: Enforce rebuilding existing packages?
+        required: true
+        default: false
+      DEPLOY:
+        type: boolean
+        description: Deploy to reprepro server?
+        required: true
+        default: true
+      VERBOSE:
+        type: string
+        description: "verbose steps (sbuild/bloom):"
+        required: false
   schedule:
     # 8 PM UTC every day
     - cron: "0 20 * * *"
@@ -23,23 +47,35 @@ jobs:
     with:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
       ARCH: ${{ matrix.ARCH }}
-      ROS_SOURCES: ros-one.repos
+      ROS_SOURCES: ${{ inputs.ROS_SOURCES || 'gazebo.repos ros-one.repos' }}
       INSTALL_GPG_KEYS: |
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
-        sudo mkdir -p /etc/ros/rosdep/sources.list.d
-        echo "yaml https://ros.packages.techfak.net/ros-one.yaml ${{ matrix.DEB_DISTRO }}" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
       EXTRA_DEB_SOURCES: "deb [signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net ${{matrix.DEB_DISTRO}}-testing main"
+      EXTRA_ROSDEP_SOURCES: |
+        rosdep.yaml
+        https://ros.packages.techfak.net/ros-one.yaml
       # proceed from existing debs artifact if run_attempt > 1
       DOWNLOAD_DEBS: ${{ github.run_attempt != '1' }}
       DEBS_ARTIFACT_NAME: ${{ matrix.DEB_DISTRO }}-${{ matrix.ARCH }}-debs
-      SKIP_EXISTING: true
+      SKIP_EXISTING: ${{ ! inputs.ENFORCE_REBUILD }}
       SKIP_KNOWN_FAILING: true
       CONTINUE_ON_ERROR: true
       INSTALL_TO_CHROOT: false
+      COLCON_PKG_SELECTION: ${{ inputs.COLCON_PKG_SELECTION }}
+      VERBOSE: ${{ inputs.VERBOSE || vars.VERBOSE || '' }}
 
   deploy:
     needs: build
-    if: ${{ !cancelled() && vars.DEPLOY_URL }}
+    # deploy needs: DEPLOY_URL defined
+    # allow manual trigger with in additional run attempts
+    # by default, only deploy main branch
+    if: |
+      vars.DEPLOY_URL &&
+      (
+        github.run_attempt > 1 ||
+        (!cancelled() &&
+          (inputs.DEPLOY || github.ref == 'refs/head/main'))
+      )
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:

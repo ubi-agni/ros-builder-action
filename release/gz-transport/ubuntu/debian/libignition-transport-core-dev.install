@@ -1,0 +1,8 @@
+usr/include/*/transport[0-99]/*/transport.hh
+usr/include/*/transport[0-99]/*/transport/*.h
+usr/include/*/transport[0-99]/*/transport/*.hh
+usr/include/*/transport[0-99]/*/transport/detail/*.hh
+usr/lib/*/lib*-transport[0-99].so
+usr/lib/*/pkgconfig/*-transport[0-99].pc
+usr/lib/*/cmake/*-transport[0-99]/*-transport*
+usr/share/*/*-transport*/*-transport[0-9].tag.xml

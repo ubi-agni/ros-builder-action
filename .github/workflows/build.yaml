@@ -119,13 +119,13 @@ on:
 # This variable context originates from the _calling_ workflow. Finally, a hard-coded default is given.
 # https://docs.github.com/en/actions/learn-github-actions/variables#defining-configuration-variables-for-multiple-workflows
 env:
-  DEB_DISTRO: ${{ inputs.DEB_DISTRO || vars.DEB_DISTRO || 'jammy' }}
-  ROS_DISTRO: ${{ inputs.ROS_DISTRO || vars.ROS_DISTRO || 'one' }}
-  ROS_SOURCES: ${{ inputs.ROS_SOURCES || vars.ROS_SOURCES || '*.repos' }}
+  DEB_DISTRO: ${{ inputs.DEB_DISTRO || 'noble' }}
+  ROS_DISTRO: ${{ inputs.ROS_DISTRO || 'one' }}
+  ROS_SOURCES: ${{ inputs.ROS_SOURCES || '*.repos' }}
 
   EXTRA_DEB_SOURCES: ${{ inputs.EXTRA_DEB_SOURCES || vars.EXTRA_DEB_SOURCES }}
   INSTALL_GPG_KEYS: ${{ inputs.INSTALL_GPG_KEYS || vars.INSTALL_GPG_KEYS }}
-  EXTRA_ROSDEP_SOURCES: ${{ inputs.EXTRA_ROSDEP_SOURCES || vars.EXTRA_ROSDEP_SOURCES }}
+  EXTRA_ROSDEP_SOURCES: ${{ inputs.EXTRA_ROSDEP_SOURCES }}
 
   DEBS_PATH: ${{ inputs.DEBS_PATH || vars.DEBS_PATH || '~/debs' }}
 
@@ -150,12 +150,12 @@ jobs:
         if: inputs.DOWNLOAD_DEBS && (inputs.CONTINUE_FROM_PKG != 'DONE')
         continue-on-error: true
         with:
-          name: debs
+          name: ${{ inputs.DEBS_ARTIFACT_NAME || 'debs' }}
           path: ${{ env.DEBS_PATH }}
 
       - name: Determine CCACHE_ID
         id: ccache-id
-        run: echo "CCACHE_ID=ccache-${DEB_DISTRO}-$(dpkg --print-architecture)-${ROS_SOURCES}" | tee -a "$GITHUB_OUTPUT"
+        run: echo "CCACHE_ID=ccache-${DEB_DISTRO}-$(dpkg --print-architecture):$(echo $ROS_SOURCES | tr ' ' '+')" | tee -a "$GITHUB_OUTPUT"
       - name: Restore ccache
         id: restore-ccache
         if: runner.environment == 'github-hosted'

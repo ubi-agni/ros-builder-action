@@ -1,0 +1,27 @@
+Source: ignition-cmake2
+Maintainer: Jose Luis Rivero <jrivero@osrfoundation.org>
+Section: science
+Priority: optional
+Build-Depends: cmake,
+               pkg-config,
+               debhelper (>= 11)
+Vcs-Browser: https://github.com/gazebosim/gz-cmake
+Vcs-Git: https://github.com/gazebosim/gz-cmake.git
+Standards-Version: 4.5.1
+Homepage: http://gazebosim.org/
+
+Package: libignition-cmake2-dev
+Architecture: any
+Section: libdevel
+Depends: cmake, ${misc:Depends}
+Breaks: libignition-cmake-dev (<= 2.10.0-2)
+Replaces: libignition-cmake-dev (<= 2.10.0-2)
+Provides: libignition-cmake-dev (= ${binary:Version})
+Multi-Arch: same
+Description: Gazebo CMake Library - Development files
+ CMake modules to be used by the Gazebo projects.
+ .
+ This package is required to build Gazebo projects, as well as to link your
+ third party projects against them. It provides modules that are used to find
+ dependencies of Gazebo projects and generate cmake targets for consumers of
+ Gazebo projects to link against.

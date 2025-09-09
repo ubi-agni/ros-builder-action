@@ -1,0 +1,45 @@
+Source: ignition-msgs5
+Standards-Version: 3.9.5
+Maintainer: Jose Luis Rivero <jrivero@osrfoundation.org>
+Section: science
+Priority: optional
+Build-Depends: cmake,
+               pkg-config,
+               debhelper (>= 11),
+               doxygen,
+               libprotoc-dev,
+               libprotobuf-dev (>= 2.3.0),
+               libtinyxml2-dev,
+               libignition-cmake2-dev,
+               libignition-math6-dev,
+               libignition-tools-dev,
+               protobuf-compiler,
+Vcs-Browser: https://github.com/gazebosim/gz-msgs
+Vcs-Git: https://github.com/gazebosim/gz-msgs
+Homepage: http://gazebosim.org/
+
+Package: libignition-msgs5
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: Protobuf messages for Gazebo applications - Shared library
+ This library provides a set of google protobuf messages that are typically used
+ in Gazebo applications.
+
+Package: libignition-msgs5-dev
+Architecture: any
+Section: libdevel
+Depends: libprotobuf-dev (>= 2.3.0),
+         libprotoc-dev,
+         protobuf-compiler,
+         libtinyxml2-dev,
+         libignition-cmake2-dev,
+         libignition-math6-dev,
+         libignition-msgs5 (= ${binary:Version}),
+         ${misc:Depends}
+Multi-Arch: same
+Description: Protobuf messages for Gazebo applications - Development files
+ This library provides a set of google protobuf messages that are typically used
+ in Gazebo applications.

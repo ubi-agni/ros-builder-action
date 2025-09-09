@@ -49,7 +49,7 @@ function ici_log {
 
 function ici_ansi {
   local var="ANSI_$1"
-  echo "\e[${!var}m"
+  echo -e "\e[${!var}m"
 }
 
 function ici_colorize() {
@@ -66,7 +66,7 @@ function ici_colorize() {
       esac
       shift
    done
-   echo -e "${color:-}$*${reset:-}"
+   printf "%s%s%s" "${color:-}" "$@" "${reset:-}"
 }
 
 function ici_color_output {
@@ -95,7 +95,7 @@ function ici_backtrace {
 function ici_trace {
   if [ "$TRACE" = true ]; then
     ici_log
-    ici_color_output MAGENTA "TRACE:${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
+    ici_color_output MAGENTA "${BASH_SOURCE[2]#$SRC_PATH/}:${BASH_LINENO[1]} ${FUNCNAME[1]} $*"
   fi
 }
 
@@ -452,6 +452,10 @@ function ici_get_log_cmd {
                 post=" | grep -E '$2' "
                 shift 1
                 ;;
+            ici_filter_out)
+                post=" | grep -vE '$2' "
+                shift 1
+                ;;
             ici_quiet)
                 post=" > /dev/null "
                 ;;
@@ -477,17 +481,18 @@ function ici_quiet {
     return "$err"
 }
 
-# show full output on failure, otherwise filtered stdout
+# filter both, stdout and stderr with given cmd and pattern
+function ici_filter_helper {
+    local cmd=$1; shift
+    local pattern=$1; shift
+    "$@" 2>&1 | $cmd "$pattern"
+}
+
 function ici_filter {
-    local filter=$1; shift
-    local out; out=$(mktemp)
-    "$@" | grep -E "$filter" | ici_redirect cat || true
-    local err=${PIPESTATUS[0]}
-    if [ "$err" -ne 0 ]; then
-        ici_redirect cat "$out"
-    fi
-    rm -f "$out"
-    return "$err"
+    ici_filter_helper "grep -E" "$@"
+}
+function ici_filter_out {
+    ici_filter_helper "grep -vE" "$@"
 }
 
 # append new line(s) to a variable
@@ -655,7 +660,7 @@ function ici_apt_install {
 function gha_cmd {
     local cmd=$1; shift
     # turn newlines into %0A, carriage returns into %0D, and % into %25
-    echo -e "::$cmd::$*" | sed -e 's/%/%25/g' -e 's/\r/%0D/g' -e 's/\n/%0A/g'
+    ici_log "::$cmd::$*" | sed -e 's/%/%25/g' -e 's/\r/%0D/g' -e 's/\n/%0A/g'
 }
 
 function gha_error {

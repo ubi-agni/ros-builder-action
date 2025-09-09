@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+.PHONY: override_dh_auto_configure \
+        override_dh_strip \
+        override_dh_auto_test
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	    -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+# Tests are broken without a installed copy of sdformat.
+# see: https://github.com/gazebosim/sdformat/issue/35
+override_dh_auto_test:
+	true
+
+override_dh_strip:
+	dh_strip -a --dbg-package=libsdformat9-dbg

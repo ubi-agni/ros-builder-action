@@ -1,0 +1,196 @@
+Source: ignition-common3
+Standards-Version: 3.9.8
+Maintainer: Jose Luis Rivero <jrivero@osrfoundation.org>
+Section: science
+Priority: optional
+Build-Depends: cmake,
+               pkg-config,
+               debhelper (>= 9),
+               doxygen,
+               libfreeimage-dev,
+               libignition-cmake2-dev (>= 2.14.0),
+               libignition-math6-dev,
+               libtinyxml2-dev,
+               uuid-dev,
+               libgts-dev,
+               libavdevice-dev,
+               libavformat-dev,
+               libavcodec-dev,
+               libswscale-dev,
+               libavutil-dev
+Vcs-Browser: https://github.com/gazebosim/gz-common
+Vcs-Git: https://github.com/gazebosim/gz-common
+Homepage: http://gazebosim.org/
+
+Package: libignition-common3
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo Common classes and functions for robot apps - Shared library
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ Main shared library
+
+Package: libignition-common3-core-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-cmake2-dev (>= 2.14.0),
+         uuid-dev,
+         libignition-common3 (= ${binary:Version}),
+         ${misc:Depends}
+Breaks: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (core) - Development files
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ Core development files
+
+Package: libignition-common3-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-common3-core-dev (= ${binary:Version}),
+         libignition-common3-av-dev (= ${binary:Version}),
+         libignition-common3-events-dev (= ${binary:Version}),
+         libignition-common3-graphics-dev (= ${binary:Version}),
+         libignition-common3-profiler-dev (= ${binary:Version}),
+         ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo Common classes and functions for robot apps - Metapackage
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ Metapackage for development
+
+Package: libignition-common3-av
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: libignition-common3 (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3 (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (AV) - Shared library
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ AV component of the library
+
+Package: libignition-common3-av-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-cmake2-dev (>= 2.14.0),
+         libignition-common3-core-dev (= ${binary:Version}),
+         libavdevice-dev,
+         libavformat-dev,
+         libavcodec-dev,
+         libswscale-dev,
+         libavutil-dev,
+         libignition-common3-av (= ${binary:Version}),
+         ${misc:Depends}
+Breaks: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (AV) - Development files
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ AV component of the library, development files
+
+Package: libignition-common3-events
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: libignition-common3 (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3 (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (Events) - Shared library
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ Events component of the library
+
+Package: libignition-common3-events-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-cmake2-dev (>= 2.14.0),
+         libignition-common3-core-dev (= ${binary:Version}),
+         libignition-math6-dev,
+         libignition-common3-events (= ${binary:Version}),
+         ${misc:Depends}
+Breaks: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (Events) - Development files
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ Events component of the library, development files
+
+Package: libignition-common3-graphics
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: libignition-common3 (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3 (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (Graphics) - Shared library
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ Graphics component of the library
+
+Package: libignition-common3-graphics-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-cmake2-dev (>= 2.14.0),
+         libignition-common3-core-dev (= ${binary:Version}),
+         libignition-math6-dev,
+         libtinyxml2-dev,
+         libgts-dev,
+         libignition-common3-graphics (= ${binary:Version}),
+         ${misc:Depends}
+Breaks: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (Graphics) - Development files
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ Graphics component of the library, development files
+
+Package: libignition-common3-profiler
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: libignition-common3 (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3 (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (Profiler) - Shared library
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ Profiler component of the library
+
+Package: libignition-common3-profiler-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-cmake2-dev (>= 2.14.0),
+         libignition-common3-core-dev (= ${binary:Version}),
+         libignition-common3-profiler (= ${binary:Version}),
+         ${misc:Depends}
+Breaks: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Replaces: libignition-common3-dev (<< 3.0.0~pre5+hg20190228r1b2df90990)
+Multi-Arch: same
+Description: Gazebo Common classes and functions (profiler) - Development files
+ Gazebo Common is a component in the Gazebo framework, a set of libraries
+ designed to rapidly develop robot applications.
+ .
+ profiler component of the library, development files

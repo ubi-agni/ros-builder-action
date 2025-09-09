@@ -9,21 +9,17 @@ prbt_ikfast_manipulator_plugin:
 mongodb:
   ubuntu: []
 
-libfltk-dev:
-  debian:
-    bookworm: [libfltk1.3-dev]
+gazebo:
+  ubuntu: [gazebo11]
+
+libgazebo-dev:
+  ubuntu: [libgazebo11-dev]
 
 gazebo11:
-  debian:
-    bookworm: [gazebo11]
+  ubuntu: [gazebo11]
 
 libgazebo11-dev:
-  debian:
-    bookworm: [libgazebo11-dev]
-
-log4cxx:
-  debian:
-    bookworm: [liblog4cxx-dev]
+  ubuntu: [libgazebo11-dev]
 
 libuvc:
   ubuntu: [libuvc-dev]

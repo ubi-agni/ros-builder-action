@@ -160,21 +160,25 @@ $EXTRA_SBUILD_CONFIG
 EOF
 }
 
-function load_local_yaml {
-  while IFS= read -r line; do
-    local url; url=$(url_from_deb_source "$line")
-    if curl -sfL "$url/local.yaml" -o /tmp/local.yaml ; then
-      echo "$url/local.yaml"
-      cat /tmp/local.yaml >> "$DEBS_PATH/local.yaml"
-    fi
-  done <<< "$EXTRA_DEB_SOURCES"
-}
-
-function declare_extra_rosdep_sources {
+function declare_rosdep_sources {
+  local REMOTE_ROSDEP_SOURCES=()
+  # copy package definitions from $EXTRA_ROSDEP_SOURCES into rosdep.yaml
   for source in $EXTRA_ROSDEP_SOURCES; do
-    [ ! -f "$GITHUB_WORKSPACE/$source" ] || source="file://$GITHUB_WORKSPACE/$source"
+    if [ -f "$GITHUB_WORKSPACE/$source" ]; then
+      # rosdep definitions from repo files will be deployed via rosdep.yaml
+      ici_color_output BOLD CYAN "From $source:"
+      # shellcheck disable=SC2002
+      cat "$GITHUB_WORKSPACE/$source" | tee -a "$DEBS_PATH/rosdep.yaml"
+      ici_log
+    else
+      # remote definitions will be just included for resolution
+      REMOTE_ROSDEP_SOURCES+=("$source")
+    fi
+  done
+
+  for source in "${REMOTE_ROSDEP_SOURCES[@]}"; do
     echo "yaml $source $ROS_DISTRO"
-  done | ici_asroot tee /etc/ros/rosdep/sources.list.d/02-remote.list
+  done | ici_asroot tee -a /etc/ros/rosdep/sources.list.d/02-remote.list
 }
 
 function update_repo {

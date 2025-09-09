@@ -1,0 +1,9 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ignition_fuel_tools
+Upstream-Contact: gazebo-list@gazebosim.org
+Source: https://github.com/gazebosim/gz-fuel-tools
+
+Files: *
+Copyright: 2019 Open Source Robotics Foundation
+License: Apache
+ See '/usr/share/common-licenses/Apache-2.0'.

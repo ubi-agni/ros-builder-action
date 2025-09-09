@@ -1,9 +1,11 @@
 # /usr/bin/env python3
 
+import sys
 import os
 import git
 import yaml
 import argparse
+import glob
 
 
 def load_from_commit(repo_path, sha, files):
@@ -12,7 +14,12 @@ def load_from_commit(repo_path, sha, files):
     content = dict()
     for file in files:
         file_content = commit.tree / file
-        content.update(yaml.safe_load(file_content.data_stream.read()))
+        new = yaml.safe_load(file_content.data_stream.read())
+        # add new content to top-level keys
+        for key, val in new.items():
+            if key not in content:
+                content[key] = dict()
+            content[key].update(val)
     return content
 
 
@@ -27,9 +34,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Determine changed packages")
     parser.add_argument("sha", help="commit SHA to compare with")
     parser.add_argument(
-        "files", nargs="*", default=["ros-one.repos"], help=".repos files to consider"
+        "files", nargs="*", default=["*.repos"], help=".repos files to consider"
     )
     args = parser.parse_args()
+    # resolve glob patterns in args.files
+    args.files = [f for pattern in args.files for f in glob.glob(pattern)]
 
     old = load_from_commit(os.getcwd(), args.sha, args.files)
     new = load_from_commit(os.getcwd(), "HEAD", args.files)
@@ -39,5 +48,4 @@ if __name__ == "__main__":
         if key in new["repositories"] and is_same(new["repositories"][key], val):
             del new["repositories"][key]
 
-    with open("/tmp/diff.repos", "w") as f:
-        yaml.dump(new, f)
+    yaml.dump(new, sys.stdout)

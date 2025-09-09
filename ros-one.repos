@@ -73,8 +73,8 @@ repositories:
     version: master
   axis_camera:
     type: git
-    url: https://github.com/ros-drivers/axis_camera.git
-    version: noetic-devel
+    url: https://github.com/ros-o/axis_camera.git
+    version: obese-devel
   backward_ros:
     type: git
     url: https://github.com/pal-robotics/backward_ros.git
@@ -124,7 +124,7 @@ repositories:
     version: obese-devel
   catkin_grpc:
     type: git
-    url: https://github.com/CogRob/catkin_grpc.git
+    url: https://github.com/rhaschke/catkin_grpc.git
     version: master
   catkin_virtualenv:
     type: git
@@ -326,6 +326,14 @@ repositories:
     type: git
     url: https://github.com/crigroup/handeye.git
     version: master
+  hector_slam:
+    type: git
+    url: https://github.com/tu-darmstadt-ros-pkg/hector_slam.git
+    version: noetic-devel
+  pointcloud_to_laserscan:
+    type: git
+    url: https://github.com/ros-perception/pointcloud_to_laserscan.git
+    version: lunar-devel
   hpp-fcl:
     type: git
     url: https://github.com/humanoid-path-planner/hpp-fcl.git
@@ -386,6 +394,10 @@ repositories:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_common_msgs.git
     version: master
+  jsk_control:
+    type: git
+    url: https://github.com/ros-o/jsk_control.git
+    version: obese-devel
   jsk_model_tools:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_model_tools.git
@@ -645,7 +657,7 @@ repositories:
   plotjuggler_ros:
     type: git
     url: https://github.com/PlotJuggler/plotjuggler-ros-plugins.git
-    version: main
+    version: 2.2.0
   pluginlib:
     type: git
     url: https://github.com/ros-o/pluginlib.git
@@ -666,6 +678,10 @@ repositories:
     type: git
     url: https://github.com/pr2/pr2_ethercat_drivers.git
     version: kinetic-devel
+  pr2_gripper_sensor:
+    type: git
+    url: https://github.com/PR2/pr2_gripper_sensor
+    version: hydro-devel
   pr2_kinematics:
     type: git
     url: https://github.com/PR2/pr2_kinematics.git
@@ -702,10 +718,6 @@ repositories:
     type: git
     url: https://github.com/moveit/py_binding_tools.git
     version: main
-  pybind11_catkin:
-    type: git
-    url: https://github.com/rhaschke/pybind11_catkin.git
-    version: master
   python_qt_binding:
     type: git
     url: https://github.com/ros-o/python_qt_binding.git
@@ -774,10 +786,18 @@ repositories:
     type: git
     url: https://github.com/ros/ros.git
     version: noetic-devel
+  ROS-TCP-Endpoint:
+    type: git
+    url: https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
+    version: dev-ros
   ros_babel_fish:
     type: git
     url: https://github.com/ros-o/ros_babel_fish.git
     version: obese-devel
+  ros_canopen:
+    type: git
+    url: https://github.com/ros-industrial/ros_canopen.git
+    version: melodic-devel
   ros_comm:
     type: git
     url: https://github.com/ros-o/ros_comm.git
@@ -958,6 +978,10 @@ repositories:
     type: git
     url: https://github.com/ros-visualization/rqt_pose_view.git
     version: master
+  rqt_pr2_dashboard:
+    type: git
+    url: https://github.com/PR2/rqt_pr2_dashboard.git
+    version: kinetic-devel
   rqt_publisher:
     type: git
     url: https://github.com/ros-visualization/rqt_publisher.git
@@ -1029,7 +1053,7 @@ repositories:
   rviz:
     type: git
     url: https://github.com/ros-visualization/rviz.git
-    version: noetic-devel
+    version: main
   rviz_visual_tools:
     type: git
     url: https://github.com/ros-o/rviz_visual_tools.git
@@ -1078,10 +1102,22 @@ repositories:
     type: git
     url: https://github.com/ros-teleop/teleop_tools.git
     version: noetic-devel
+  teleop_twist_joy:
+    type: git
+    url: https://github.com/ros-teleop/teleop_twist_joy.git
+    version: indigo-devel
   teleop_twist_keyboard:
     type: git
     url: https://github.com/ros-teleop/teleop_twist_keyboard.git
     version: master
+  twist_mux_msgs:
+    type: git
+    url: https://github.com/ros-teleop/twist_mux_msgs.git
+    version: melodic-devel
+  twist_mux:
+    type: git
+    url: https://github.com/ros-teleop/twist_mux.git
+    version: noetic-devel
   trac_ik:
     type: git
     url: https://github.com/ros-o/trac_ik.git
@@ -1182,6 +1218,10 @@ repositories:
     type: git
     url: https://github.com/ros/xacro.git
     version: noetic-devel
+  zbar_ros:
+    type: git
+    url: https://github.com/ros-drivers/zbar_ros.git
+    version: melodic-devel
 
 sbuild_options:
   eigenpy:
@@ -1196,16 +1236,11 @@ known_failures:
   "*/noble":
     - librealsense2
     - realsense_ros/*
-    - gazebo_ros_pkgs/*  # Gazebo classic not available anymore
-    - qbdevice-ros/qb_device_gazebo
-    - qbhand-ros/qb_hand_gazebo
-    - franka_ros/franka_gazebo
-    - pr2_simulator/*
     - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
     - moveit_calibration/*  # missing numpy/arrayobject.h
   "arm64/*":
     - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
+    - pr2_gripper_sensor/*  # relies on rosrt
     - prosilica_*  # cmake error: No SOURCES given to target: PvAPI
-    - gazebo_ros_pkgs/*  # Gazebo not available on arm64
     - multisense_ros/*  # Eigen issue
