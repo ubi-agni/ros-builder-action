@@ -19,7 +19,7 @@ env:
 jobs:
   build:
     name: "${{ inputs.DEB_DISTRO }}-${{ inputs.ARCH }}"
-    runs-on: ${{ inputs.ARCH  == 'x64' && 'ubuntu-22.04' || (inputs.ARCH == 'arm64' && 'ubuntu-22.04-arm' || inputs.ARCH) }}
+    runs-on: ${{ inputs.ARCH  == 'x64' && 'ubuntu-latest' || (inputs.ARCH == 'arm64' && 'ubuntu-22.04-arm' || inputs.ARCH) }}
 
     steps:
       - run: pip install gitpython

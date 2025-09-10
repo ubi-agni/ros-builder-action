@@ -14,11 +14,6 @@ ici_append INSTALL_HOST_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.
 ici_append EXTRA_HOST_SOURCES "deb http://ppa.launchpad.net/v-launchpad-jochen-sprickerhof-de/sbuild/ubuntu jammy main"
 ici_cmd restrict_src_to_packages "release o=v-launchpad-jochen-sprickerhof-de" "mmdebstrap sbuild"
 
-# ROS for python3-rosdep, python3-colcon-*
-ros_key_file="/etc/apt/keyrings/ros-archive-keyring.gpg"
-ici_append INSTALL_HOST_GPG_KEYS "sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o $ros_key_file"
-ici_append EXTRA_HOST_SOURCES "deb [signed-by=$ros_key_file] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main"
-
 # Configure sources
 ici_hook INSTALL_HOST_GPG_KEYS
 ici_timed "Configure EXTRA_HOST_SOURCES" configure_extra_host_sources
@@ -30,19 +25,18 @@ echo apt-cacher-ng apt-cacher-ng/tunnelenable boolean true | ici_asroot debconf-
 
 # Install packages on host
 DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT_QUIET[@]}" ici_apt_install \
-	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng python3-pip python3-rosdep libxml2-utils libarchive-tools \
-	python3-colcon-package-information python3-colcon-package-selection python3-colcon-ros python3-colcon-cmake \
-	python3-stdeb python3-all dh-python build-essential
+	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng python3-pip libxml2-utils libarchive-tools \
+	debhelper python3-all dh-python build-essential
 
+export PIP_BREAK_SYSTEM_PACKAGES=1
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
 ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
 # Install patched vcstool to allow for treeless clones
 ici_timed "Install vcstool" ici_asroot pip install -U git+https://github.com/rhaschke/vcstool.git@master
-
-# Remove ros2 package repository, now that rosdep and colcon are installed
-# This repo might have newer versions, e.g. of colcon, than the ones to be built
-ici_asroot sed -i '/packages.ros.org\/ros2\/ubuntu/d' "$REPOS_LIST_FILE"
-ici_timed "Update apt package list" ici_asroot apt-get update
+# Install latest stdeb
+ici_timed "Install stdeb" ici_asroot pip install -U git+https://github.com/astraw/stdeb@master
+# Install colcon and rosdep from pypi
+ici_timed "Install rosdep and colcon" ici_asroot pip install -U rosdep colcon-package-information colcon-package-selection colcon-ros colcon-cmake
 
 # remove existing rosdep config to avoid conflicts with rosdep init
 ici_asroot rm -f /etc/ros/rosdep/sources.list.d/20-default.list
