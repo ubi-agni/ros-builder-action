@@ -486,6 +486,7 @@ function ici_filter_helper {
     local cmd=$1; shift
     local pattern=$1; shift
     "$@" 2>&1 | $cmd "$pattern"
+    return "${PIPESTATUS[0]}"
 }
 
 function ici_filter {

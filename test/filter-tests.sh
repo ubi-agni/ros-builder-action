@@ -15,9 +15,11 @@ ici_setup
 
 # define methods used in test functions
 function run {
-	shift # ignore expected result
+	local expected_result=${1#-}; shift
 	"$@"
+	local result=$?
 	echo
+	[ "$result" -eq "$expected_result" ] || ici_warn "Expected result: $expected_result, got $result"
 }
 
 function assert_output {
@@ -38,5 +40,6 @@ test ici_filter_true
 test ici_filter_false
 test ici_filter_out_true
 test ici_filter_out_false
+test ici_filter_none
 
 ici_teardown

@@ -131,6 +131,9 @@ function test_filtering_helper {
 @test ici_filter_out_false {
 	test_filtering_helper 1 "good error neutral" ici_filter_out "bad"
 }
+@test ici_filter_none {
+	test_filtering_helper 0 "" ici_filter "none"
+}
 
 # bats test_tags=folding
 @test folding_success {
