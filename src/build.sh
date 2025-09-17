@@ -219,6 +219,10 @@ function build_pkg {
 
   trap 'rm -f ../*.dsc ../*.tar.gz; cd "$old_path"' RETURN # cleanup on build failure
 
+  # Reenable FETCHCONTENT from external sources (disabled by debhelper)
+  # https://sources.debian.org/src/debhelper/13.26/debian/changelog#L710
+  sed -i "/dh_auto_configure --/ a \	\	-DFETCHCONTENT_FULLY_DISCONNECTED=OFF \\\\" debian/rules
+
   # Enable CATKIN_INSTALL_INTO_PREFIX_ROOT for catkin package
   if [ "$pkg_name" = "catkin" ]; then
     sed -i 's@-DCATKIN_BUILD_BINARY_PACKAGE="1"@-DCATKIN_INSTALL_INTO_PREFIX_ROOT="1"@' debian/rules
