@@ -396,8 +396,8 @@ repositories:
     version: master
   jsk_control:
     type: git
-    url: https://github.com/ros-o/jsk_control.git
-    version: obese-devel
+    url: https://github.com/jsk-ros-pkg/jsk_control.git
+    version: master
   jsk_model_tools:
     type: git
     url: https://github.com/jsk-ros-pkg/jsk_model_tools.git
