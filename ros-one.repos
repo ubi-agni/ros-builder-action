@@ -330,10 +330,6 @@ repositories:
     type: git
     url: https://github.com/tu-darmstadt-ros-pkg/hector_slam.git
     version: noetic-devel
-  pointcloud_to_laserscan:
-    type: git
-    url: https://github.com/ros-perception/pointcloud_to_laserscan.git
-    version: lunar-devel
   hpp-fcl:
     type: git
     url: https://github.com/humanoid-path-planner/hpp-fcl.git
@@ -642,6 +638,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/perception_pcl.git
     version: obese-devel
+  pid_tuning:
+    type: git
+    url: https://github.com/We-R22/pid_tuning
+    version: main
   pinocchio:
     type: git
     url: https://github.com/stack-of-tasks/pinocchio.git
@@ -666,6 +666,10 @@ repositories:
     type: git
     url: https://github.com/ctu-vras/point_cloud_transport.git
     version: master
+  pointcloud_to_laserscan:
+    type: git
+    url: https://github.com/ros-perception/pointcloud_to_laserscan.git
+    version: lunar-devel
   pr2_common:
     type: git
     url: https://github.com/pr2/pr2_common.git
