@@ -260,7 +260,7 @@ repositories:
     version: master
   foxglove_sdk:
     type: git
-    url: https://github.com/foxglove/foxglove-sdk
+    url: https://github.com/foxglove/foxglove-sdk.git
     version: main
   gazebo_ros_pkgs:
     type: git
@@ -914,6 +914,10 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/rosserial.git
     version: noetic-devel
+  rosx_introspection:
+    type: git
+    url: https://github.com/facontidavide/rosx_introspection
+    version: master
   rqt:
     type: git
     url: https://github.com/ros-o/rqt.git
