@@ -259,9 +259,8 @@ repositories:
     url: https://github.com/ros-drivers/freenect_stack.git
     version: master
   foxglove_msgs:
-    type: git
-    url: https://github.com/foxglove/foxglove-sdk.git
-    version: main
+    type: tar
+    url: http://packages.ros.org/ros/ubuntu/pool/main/r/ros-noetic-foxglove-msgs/ros-noetic-foxglove-msgs_2.3.0.orig.tar.gz
   gazebo_ros_pkgs:
     type: git
     url: https://github.com/ros-simulation/gazebo_ros_pkgs.git
