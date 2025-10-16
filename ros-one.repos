@@ -264,8 +264,8 @@ repositories:
     version: main
   foxglove_msgs:
     type: git
-    url: https://github.com/chef-kyle/foxglove-sdk.git
-    version: patch-1
+    url: https://github.com/ros2-gbp/foxglove_bridge-release.git
+    version: release/rolling/foxglove_msgs
   gazebo_ros_pkgs:
     type: git
     url: https://github.com/ros-simulation/gazebo_ros_pkgs.git
