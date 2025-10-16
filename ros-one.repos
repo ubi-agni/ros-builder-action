@@ -260,8 +260,12 @@ repositories:
     version: master
   foxglove_bridge:
     type: git
-    url: https://github.com/foxglove/ros-foxglove-bridge
+    url: https://github.com/foxglove/ros-foxglove-bridge.git
     version: main
+  foxglove_msgs:
+    type: git
+    url: https://github.com/chef-kyle/foxglove-sdk.git
+    version: patch-1
   gazebo_ros_pkgs:
     type: git
     url: https://github.com/ros-simulation/gazebo_ros_pkgs.git
