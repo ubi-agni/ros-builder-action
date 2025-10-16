@@ -258,9 +258,9 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/freenect_stack.git
     version: master
-  foxglove_sdk:
+  foxglove_bridge:
     type: git
-    url: https://github.com/foxglove/foxglove-sdk.git
+    url: https://github.com/foxglove/ros-foxglove-bridge
     version: main
   gazebo_ros_pkgs:
     type: git
