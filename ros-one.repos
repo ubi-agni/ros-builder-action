@@ -258,6 +258,14 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/freenect_stack.git
     version: master
+  foxglove_bridge:
+    type: git
+    url: https://github.com/foxglove/ros-foxglove-bridge.git
+    version: main
+  foxglove_msgs:
+    type: git
+    url: https://github.com/ros2-gbp/foxglove_bridge-release.git
+    version: release/rolling/foxglove_msgs
   gazebo_ros_pkgs:
     type: git
     url: https://github.com/ros-simulation/gazebo_ros_pkgs.git
@@ -914,6 +922,10 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/rosserial.git
     version: noetic-devel
+  rosx_introspection:
+    type: git
+    url: https://github.com/facontidavide/rosx_introspection
+    version: master
   rqt:
     type: git
     url: https://github.com/ros-o/rqt.git
