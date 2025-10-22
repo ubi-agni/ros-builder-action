@@ -124,7 +124,7 @@ repositories:
     version: master
   catkin:
     type: git
-    url: https://github.com/ros-o/catkin.git
+    url: https://github.com/ubi-agni/catkin.git
     version: obese-devel
   catkin_grpc:
     type: git
