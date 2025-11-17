@@ -1062,6 +1062,10 @@ repositories:
     type: git
     url: https://github.com/ros-visualization/rqt_web.git
     version: master
+  rtab_map:
+    type: git
+    url: https://github.com/introlab/rtabmap.git
+    version: noetic-devel
   ruckig:
     type: git
     url: https://github.com/pantor/ruckig.git
