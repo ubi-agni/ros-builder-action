@@ -334,6 +334,10 @@ repositories:
     type: git
     url: https://github.com/PickNikRobotics/graph_msgs.git
     version: jade-devel
+  gtsam:
+    type: git
+    url: https://github.com/borglab/gtsam
+    version: develop
   handeye:
     type: git
     url: https://github.com/crigroup/handeye.git
