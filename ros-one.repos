@@ -470,6 +470,10 @@ repositories:
     type: git
     url: https://github.com/ros-gbp/libg2o-release.git
     version: upstream
+  libpointmatcher:
+    type: git
+    url: https://github.com/norlab-ulaval/libpointmatcher
+    version: master
   librealsense2:
     type: git
     url: https://github.com/ros-o/librealsense.git
