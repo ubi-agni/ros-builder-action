@@ -148,8 +148,8 @@ repositories:
     version: master
   codec_image_transport:
     type: git
-    url: https://github.com/yoshito-n-students/codec_image_transport.git
-    version: noetic-devel
+    url: https://github.com/ros-o/codec_image_transport.git
+    version: obese-devel
   collada_urdf:
     type: git
     url: https://github.com/ros-o/collada_urdf.git
