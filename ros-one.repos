@@ -338,6 +338,10 @@ repositories:
     type: git
     url: https://github.com/PickNikRobotics/graph_msgs.git
     version: jade-devel
+  gtsam:
+    type: git
+    url: https://github.com/borglab/gtsam
+    version: develop
   handeye:
     type: git
     url: https://github.com/crigroup/handeye.git
@@ -474,6 +478,14 @@ repositories:
     type: git
     url: https://github.com/ros-gbp/libg2o-release.git
     version: upstream
+  libnabo:
+    type: git
+    url: https://github.com/norlab-ulaval/libnabo.git
+    version: master
+  libpointmatcher:
+    type: git
+    url: https://github.com/norlab-ulaval/libpointmatcher
+    version: master
   librealsense2:
     type: git
     url: https://github.com/ros-o/librealsense.git
@@ -1066,6 +1078,10 @@ repositories:
     type: git
     url: https://github.com/ros-visualization/rqt_web.git
     version: master
+  rtab_map:
+    type: git
+    url: https://github.com/introlab/rtabmap.git
+    version: noetic-devel
   ruckig:
     type: git
     url: https://github.com/pantor/ruckig.git
