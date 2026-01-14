@@ -613,7 +613,7 @@ repositories:
   ompl:
     type: git
     url: https://github.com/ompl/ompl.git
-    version: main
+    version: 401ed93efd9ed188d57bdfdc7c3192d0594f2497
   open_karto:
     type: git
     url: https://github.com/ros-perception/open_karto.git
