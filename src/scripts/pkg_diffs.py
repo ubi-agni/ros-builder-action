@@ -13,7 +13,10 @@ def load_from_commit(repo_path, sha, files):
     commit = repo.commit(sha)
     content = dict()
     for file in files:
-        file_content = commit.tree / file
+        try:
+            file_content = commit.tree / file
+        except KeyError:
+            continue
         new = yaml.safe_load(file_content.data_stream.read())
         # add new content to top-level keys
         for key, val in new.items():
