@@ -99,7 +99,7 @@ jobs:
 
   stage-2:
     needs: stage-1
-    if: needs.stage-1.result == 'success' || ${{ inputs.CONTINUE_ON_ERROR }}
+    if: needs.stage-1.result == 'success' || inputs.CONTINUE_ON_ERROR
     uses: ./.github/workflows/build.yaml
     with:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
@@ -125,7 +125,7 @@ jobs:
 
   stage-3:
     needs: stage-2
-    if: needs.stage-2.result == 'success' || ${{ inputs.CONTINUE_ON_ERROR }}
+    if: needs.stage-2.result == 'success' || inputs.CONTINUE_ON_ERROR
     uses: ./.github/workflows/build.yaml
     with:
       DEB_DISTRO: ${{ inputs.DEB_DISTRO }}
