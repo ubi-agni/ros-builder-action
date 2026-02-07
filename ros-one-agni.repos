@@ -1,0 +1,13 @@
+repositories:
+  tactile_filters:
+    type: git
+    url: https://github.com/ubi-agni/tactile_filters.git
+    version: master
+  tactile_toolbox:
+    type: git
+    url: https://github.com/ubi-agni/tactile_toolbox.git
+    version: obese-devel
+  human_hand_description:
+    type: git
+    url: https://github.com/ubi-agni/human_hand.git
+    version: master
