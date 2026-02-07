@@ -1170,6 +1170,14 @@ repositories:
     type: git
     url: https://github.com/ros/urdf_tutorial.git
     version: master
+  urdfdom_headers:
+    type: git
+    url: https://github.com/ros/urdfdom_headers.git
+    version: 2.1.0
+  urdfdom:
+    type: git
+    url: https://github.com/ros/urdfdom.git
+    version: rolling
   urdfdom_py:
     type: git
     url: https://github.com/ros/urdf_parser_py.git

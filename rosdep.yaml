@@ -43,7 +43,3 @@ python3-catkin-sphinx:
 orocos_kdl: # needed for robot_calibration, pr2_head_action, ...
   debian: [liborocos-kdl-dev]
   ubuntu: [liborocos-kdl-dev]
-
-urdfdom:
-  debian: [liburdfdom-dev]
-  ubuntu: [liburdfdom-dev]
