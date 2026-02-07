@@ -31,6 +31,10 @@ repositories:
     type: git
     url: https://github.com/ros-o/gz-transport.git
     version: ign-transport8
+  catkin:
+    type: git
+    url: https://github.com/ros-o/catkin.git
+    version: obese-devel
   pybind11_catkin:
     type: git
     url: https://github.com/rhaschke/pybind11_catkin.git
