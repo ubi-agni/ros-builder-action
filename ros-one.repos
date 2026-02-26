@@ -1184,8 +1184,8 @@ repositories:
     version: obese-devel
   usb_cam:
     type: git
-    url: https://github.com/ros-o/usb_cam.git
-    version: obese-devel
+    url: https://github.com/ros-drivers/usb_cam.git
+    version: develop
   video_stream_opencv:
     type: git
     url: https://github.com/ros-o/video_stream_opencv.git
