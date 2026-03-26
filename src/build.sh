@@ -293,20 +293,19 @@ function get_git_release_version {
   git rev-parse --is-inside-work-tree &> /dev/null || return 1
 
   # Get version from preceding tag, stripping any prefix or suffix not contributing to x.y.z version string
-  version=$(git describe --tags --abbrev=0 2>/dev/null | sed -E 's@^.*?[^0-9]([0-9]+\.[0-9]+\.[0-9]+).*$@\1@')
+  version=$(git describe --tags --long 2>/dev/null | sed -E 's@^.*?[^0-9]([0-9]+\.[0-9]+\.[0-9]+).*(-[0-9]+)-g[0-9a-f]+$@\1\2@')
   if [ -n "$version" ]; then
-    # Get sha from this tag
-    sha=$(git rev-list --tags --max-count=1)
+    echo "$version$DEB_DISTRO"
   else # no tag available
     # extract sha + version from latest version-like commit message instead
     version=$(git log --pretty=format:'%h %s' | grep -E "^.*?[^0-9]([0-9]+\.[0-9]+\.[0-9]+).*$" | head -n 1)
     sha=$(echo "$version" | awk '{print $1}')
     version=$(echo "$version"  | sed -E 's@^.*?[^0-9]([0-9]+\.[0-9]+\.[0-9]+).*$@\1@')
-  fi
-  # commit offset from version to HEAD
-  offset="$(git rev-list --count "$sha"..HEAD)"
+    # commit offset from version to HEAD
+    offset="$(git rev-list --count "$sha"..HEAD)"
 
-  echo "$version-$offset$DEB_DISTRO"
+    echo "$version-$offset$DEB_DISTRO"
+  fi
 }
 
 function sbuild_pkg {
