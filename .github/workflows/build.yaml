@@ -143,10 +143,10 @@ jobs:
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Download debs from previous run
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         if: inputs.DOWNLOAD_DEBS && (inputs.CONTINUE_FROM_PKG != 'DONE')
         continue-on-error: true
         with:
@@ -159,7 +159,7 @@ jobs:
       - name: Restore ccache
         id: restore-ccache
         if: runner.environment == 'github-hosted'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-id.outputs.CCACHE_ID }}
@@ -192,14 +192,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Store ccache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: always() && (runner.environment == 'github-hosted')
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.restore-ccache.outputs.cache-primary-key }}
 
       - name: Upload debs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         # always upload except if name is skip (i.e. also on timeout or cancel)
         if: always() && (inputs.DEBS_ARTIFACT_NAME != 'skip') && (inputs.CONTINUE_FROM_PKG != 'DONE')
         with:

@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - run: pip install gitpython
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: fetch ${{ github.base_ref }}
         run: |
           git fetch --no-tags --depth=1 origin ${{ github.base_ref }}

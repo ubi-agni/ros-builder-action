@@ -16,5 +16,5 @@ inputs:
 runs:
   # We need to go through JS to allow folding output generated from the shell script
   # composite actions would create own foldings for each step
-  using: 'node20'
+  using: 'node24'
   main: 'main.js'
