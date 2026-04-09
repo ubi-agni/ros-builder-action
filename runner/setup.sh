@@ -14,9 +14,6 @@ echo disable = true >> "$CCACHE_DIR"/ccache.conf
 sudo apt update
 sudo apt install build-essential:native screen git
 
-sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_arm64 -O /usr/bin/yq
-sudo chmod +x /usr/bin/yq
-
 cp "$DIR_THIS"/cleanup.sh ~/cleanup.sh
 
 mkdir ~/gha

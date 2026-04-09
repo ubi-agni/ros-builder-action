@@ -115,11 +115,12 @@ function prepare_ws {
   if [ "$SKIP_KNOWN_FAILING" = true ] ; then
     # mark all folders of known-to-fail packages with COLCON_IGNORE
     for key in "*/*" "*/$DEB_DISTRO" "$ARCH/*" "$ARCH/$DEB_DISTRO"; do
+      # shellcheck disable=SC2016
       while IFS= read -r failure; do
         while IFS= read -r -d '' pkg_path; do
           touch "$pkg_path/COLCON_IGNORE"
         done <   <(find "$ws_path" -type d -wholename "*/$failure" -print0)
-      done < <(yq ".known_failures.${key}[]" "$WS_SOURCE" 2> /dev/null)
+      done < <(yq --raw-output --arg k "$key" '(.known_failures[$k] // [])[]' "$WS_SOURCE")
     done
   fi
 }

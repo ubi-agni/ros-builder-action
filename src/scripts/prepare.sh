@@ -31,6 +31,8 @@ DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT
 export PIP_BREAK_SYSTEM_PACKAGES=1
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
 ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
+# Install yq supporting --arg option
+ici_timed "Install yq" ici_asroot pip install yq
 # Install patched vcstool to allow for treeless clones
 ici_timed "Install vcstool" ici_asroot pip install -U git+https://github.com/rhaschke/vcstool.git@master
 # Install latest stdeb
