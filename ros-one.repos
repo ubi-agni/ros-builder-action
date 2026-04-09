@@ -1255,12 +1255,12 @@ known_failures:
   "*/jammy":
   "*/noble":
     - librealsense2
-    - realsense_ros/*
+    - realsense_ros
     - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
-    - moveit_calibration/*  # missing numpy/arrayobject.h
+    - moveit_calibration  # missing numpy/arrayobject.h
   "arm64/*":
     - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
-    - pr2_gripper_sensor/*  # relies on rosrt
+    - pr2_gripper_sensor  # relies on rosrt
     - prosilica_*  # cmake error: No SOURCES given to target: PvAPI
-    - multisense_ros/*  # Eigen issue
+    - multisense_ros  # Eigen issue
