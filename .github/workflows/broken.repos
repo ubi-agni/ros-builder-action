@@ -1,8 +1,8 @@
 repositories:
   catkin:
     type: git
-    url: https://github.com/ubi-agni/catkin
-    version: noetic-devel
+    url: https://github.com/ros-o/catkin
+    version: obese-devel
   gencpp:
     type: git
     url: https://github.com/ros-o/gencpp.git
