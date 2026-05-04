@@ -150,6 +150,7 @@ function configure_sbuildrc {
   'PIP_CACHE_DIR' => '/build/cache/pip',
   'PIP_TOOLS_CACHE_DIR' => '/build/cache/pip'
 };
+my \$dsc_dir;
 \$path = '/usr/lib/ccache:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games';
 \$dsc_dir = "package";
 \$build_path = "/build/package/";
