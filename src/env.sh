@@ -76,6 +76,7 @@ esac
 export ROS_PYTHON_VERSION=3
 
 
+set -x
 if debian-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION=debian
 	export DISTRIBUTION_REPO=http://deb.debian.org/debian
