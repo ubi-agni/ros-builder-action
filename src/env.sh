@@ -81,7 +81,7 @@ if debian-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION_REPO=http://deb.debian.org/debian
 	ici_append INSTALL_HOST_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 F8D2585B8783D481"
 
-elif ubuntu-distro-info --all | grep -q "$DEB_DISTRO"; then
+elif ubuntu-distro-info --all | grep -q "$DEB_DISTRO" || [ "$DEB_DISTRO" = "resolute" ]; then
 	export DISTRIBUTION=ubuntu
 	case "$(dpkg --print-architecture)" in
 		amd64)
