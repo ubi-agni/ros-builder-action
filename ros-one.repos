@@ -340,7 +340,7 @@ repositories:
     version: jade-devel
   grid_map:
     type: git
-    url: https://github.com/TobinHall/grid_map
+    url: https://github.com/ros-o/grid_map
     version: obese-devel
   handeye:
     type: git
