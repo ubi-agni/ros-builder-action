@@ -1263,6 +1263,7 @@ known_failures:
     - pr2_ethercat_drivers/ethercat_hardware  # deprecation of boost/timer.hpp
     - pr2_robot/pr2_ethercat
     - moveit_calibration  # missing numpy/arrayobject.h
+    - jsk_recognition/sound_classification # pkg_resources not found
   "arm64/*":
     - ros_realtime/rosrt  # multiple definition of boost::atomic_signal_fence
     - pr2_gripper_sensor  # relies on rosrt
