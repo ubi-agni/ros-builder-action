@@ -662,6 +662,14 @@ repositories:
     type: git
     url: https://github.com/stack-of-tasks/pinocchio.git
     version: devel
+  play_motion:
+    type: git
+    url: https://github.com/ros-o/play_motion
+    version: obese-devel
+  play_motion_builder:
+    type: git
+    url: https://github.com/ros-o/play_motion_builder.git
+    version: obese-devel
   plotjuggler:
     type: git
     url: https://github.com/facontidavide/PlotJuggler.git
