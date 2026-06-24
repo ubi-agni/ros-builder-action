@@ -1254,6 +1254,14 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/zbar_ros.git
     version: melodic-devel
+  wrpps_ros:
+    type: git
+    url: https://github.com/tork-a/wrpps_ros.git
+    version: master
+  FA-I-sensor:
+    type: git
+    url: https://github.com/RoboticMaterials/FA-I-sensor.git
+    version: master
 
 sbuild_options:
   eigenpy:
