@@ -50,6 +50,6 @@ jobs:
           SKIP_EXISTING: ${{ vars.SKIP_EXISTING || false }}
           SKIP_KNOWN_FAILING: true
           INSTALL_TO_CHROOT: false
-          VERBOSE: ${{ vars.VERBOSE || '' }}
+          VERBOSE: bloom sbuild
           DOWNLOAD_DEBS: false
           DEBS_ARTIFACT_NAME: ${{ inputs.DEB_DISTRO }}-${{ inputs.ARCH }}-debs
