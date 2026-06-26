@@ -32,6 +32,12 @@ octomap:
   debian: [liboctomap-dev]
   ubuntu: [liboctomap-dev]
 
+python-dlib:
+  debian:
+    pip: [dlib]
+  ubuntu:
+    pip: [dlib]
+
 python-serial: # needed for libuvc_camera
   debian: [python3-serial]
   ubuntu: [python3-serial]
