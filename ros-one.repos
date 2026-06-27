@@ -338,6 +338,10 @@ repositories:
     type: git
     url: https://github.com/PickNikRobotics/graph_msgs.git
     version: jade-devel
+  grid_map:
+    type: git
+    url: https://github.com/ros-o/grid_map
+    version: obese-devel
   handeye:
     type: git
     url: https://github.com/crigroup/handeye.git
