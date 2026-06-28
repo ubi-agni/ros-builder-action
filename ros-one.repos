@@ -673,15 +673,15 @@ repositories:
   plotjuggler:
     type: git
     url: https://github.com/facontidavide/PlotJuggler.git
-    version: afa2f5525596ea95894023f1f60d45a97c7aca45 # latest ROS1 compatible version
+    version: main
   plotjuggler_msgs:
     type: git
     url: https://github.com/facontidavide/plotjuggler_msgs.git
-    version: 0.2.1
+    version: main
   plotjuggler_ros:
     type: git
     url: https://github.com/PlotJuggler/plotjuggler-ros-plugins.git
-    version: 2.2.0
+    version: ros1_noetic
   pluginlib:
     type: git
     url: https://github.com/ros-o/pluginlib.git
