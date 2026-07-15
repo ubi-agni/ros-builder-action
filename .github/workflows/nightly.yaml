@@ -41,7 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        DEB_DISTRO: [jammy, noble]
+        DEB_DISTRO: [jammy, noble, resolue]
         ARCH: [x64, arm64]
     uses: ./.github/workflows/build.yaml
     with:
