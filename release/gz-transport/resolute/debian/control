@@ -1,0 +1,84 @@
+Source: ignition-transport8
+Standards-Version: 3.9.4
+Maintainer: Jose Luis Rivero <jrivero@osrfoundation.org>
+Section: science
+Priority: extra
+Build-Depends: cmake,
+               cppzmq-dev,
+               pkg-config,
+               debhelper (>= 11),
+               doxygen,
+               python3,
+               ruby-ronn,
+               libprotoc-dev,
+               libprotobuf-dev,
+               libignition-msgs5-dev,
+               libignition-cmake2-dev,
+               libignition-tools-dev,
+               protobuf-compiler,
+               uuid-dev,
+               libzmq3-dev (>= 3.0.0),
+               libsqlite3-dev
+Vcs-Browser: https://github.org/gazebosim/gz-transport
+Vcs-Git: https://github.org/gazebosim/gz-transport
+Homepage: https://github.com/gazebosim/gz-transport
+
+Package: libignition-transport8-core-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-transport8 (= ${binary:Version}),
+         cppzmq-dev,
+         uuid-dev,
+         libzmq3-dev (>= 3.0.0),
+         libignition-msgs5-dev,
+         libignition-cmake2-dev,
+         libignition-tools-dev,
+         ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo transport Library - Core Dev files
+
+Package: libignition-transport8
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo Transport Library - Shared library
+
+Package: libignition-transport8-log-dev
+Architecture: any
+Section: libdevel
+Depends: libsqlite3-dev,
+         libignition-cmake2-dev,
+         libignition-transport8-core-dev (= ${binary:Version}),
+         libignition-transport8-log (= ${binary:Version}),
+         ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo transport Library - Core Dev
+
+Package: libignition-transport8-log
+Architecture: any
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo Transport Library - Log Shared library
+
+Package: libignition-transport8-dev
+Architecture: any
+Section: libdevel
+Depends: libignition-transport8-core-dev (= ${binary:Version}),
+         libignition-transport8-log-dev (= ${binary:Version}),
+         ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo transport Library - Metapackage
+
+Package: libignition-transport8-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends:
+     libignition-transport8 (= ${binary:Version}),
+     ${misc:Depends}
+Multi-Arch: same
+Description: Gazebo transport Library - Debugging symbols
