@@ -105,7 +105,7 @@ EOF
   local chroot_folder="/var/cache/sbuild-chroot"
   # shellcheck disable=SC2016
   ici_cmd ici_asroot mmdebstrap \
-    --variant=buildd --include=apt,apt-utils,ccache,ca-certificates,curl,build-essential,debhelper,fakeroot,cmake,git \
+    --variant=buildd --include=apt,apt-utils,ccache,ca-certificates,curl,build-essential,debhelper,fakeroot,cmake,git,python3-build \
     --customize-hook="upload $tmp $tmp" \
     --customize-hook="chroot \$1 chmod 755 $tmp" \
     --customize-hook="chroot \$1 sh -c $tmp" \
