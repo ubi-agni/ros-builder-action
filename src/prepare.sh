@@ -148,7 +148,8 @@ function configure_sbuildrc {
   'CCACHE_DIR' => '/build/ccache',
   'ROS_HOME' => '/build/cache/ros',
   'PIP_CACHE_DIR' => '/build/cache/pip',
-  'PIP_TOOLS_CACHE_DIR' => '/build/cache/pip'
+  'PIP_TOOLS_CACHE_DIR' => '/build/cache/pip',
+  'CMAKE_POLICY_VERSION_MINIMUM' => '3.16'
 };
 my \$dsc_dir;
 \$path = '/usr/lib/ccache:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games';
