@@ -23,7 +23,7 @@ function process {
 	case $f in
 		*jammy.*) distros="jammy" ;;
 		*noble.*) distros="noble" ;;
-		*noble.*) distros="resolute" ;;
+		*resolute.*) distros="resolute" ;;
 		*)
 			if [ -z "$distros" ]; then
 				echo "Unknown distro"
