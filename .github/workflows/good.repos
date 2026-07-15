@@ -1,8 +1,8 @@
 repositories:
   catkin:
     type: git
-    url: https://github.com/ros-o/catkin.git
-    version: obese-devel
+    url: https://github.com/ubi-agni/catkin.git
+    version: python-build+pip-install
   catkin_tools:
     type: git
     url: https://github.com/catkin/catkin_tools
