@@ -124,8 +124,8 @@ repositories:
     version: master
   catkin:
     type: git
-    url: https://github.com/ubi-agni/catkin.git
-    version: python-build+pip-install
+    url: https://github.com/ros-o/catkin.git
+    version: modernize-python
   catkin_grpc:
     type: git
     url: https://github.com/CogRob/catkin_grpc.git

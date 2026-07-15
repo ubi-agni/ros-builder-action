@@ -33,8 +33,8 @@ repositories:
     version: ign-transport8
   catkin:
     type: git
-    url: https://github.com/ubi-agni/catkin.git
-    version: python-build+pip-install
+    url: https://github.com/ros-o/catkin.git
+    version: modernize-python
   pybind11_catkin:
     type: git
     url: https://github.com/rhaschke/pybind11_catkin.git
