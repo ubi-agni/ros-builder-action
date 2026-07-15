@@ -9,7 +9,7 @@ function process {
 	case "$f" in
 		*_arm64.deb) args="-A arm64" ;;
 		*_amd64.deb) args="-A amd64" ;;
-		*_all.deb) distros="jammy noble";;
+		*_all.deb) distros="jammy noble resolute";;
 		*)
 			echo "Unknown arch"
 			exit 1
@@ -23,6 +23,7 @@ function process {
 	case $f in
 		*jammy.*) distros="jammy" ;;
 		*noble.*) distros="noble" ;;
+		*resolute.*) distros="resolute" ;;
 		*)
 			if [ -z "$distros" ]; then
 				echo "Unknown distro"

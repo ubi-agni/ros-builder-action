@@ -13,7 +13,7 @@ if [ -r ~/.reprepro.env ]; then
 fi
 
 # Sanity checks
-[ -z "$DISTRO" ] && DISTRO=(jammy noble)
+[ -z "$DISTRO" ] && DISTRO=(jammy noble resolute)
 [ -z "$ARCH" ] && ARCH=(amd64 arm64)
 
 FAILURE=0
