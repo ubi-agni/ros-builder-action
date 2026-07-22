@@ -132,8 +132,8 @@ repositories:
     version: master
   catkin_virtualenv:
     type: git
-    url: https://github.com/locusrobotics/catkin_virtualenv.git
-    version: master
+    url: https://github.com/ros-o/catkin_virtualenv.git
+    version: obese-devel
   class_loader:
     type: git
     url: https://github.com/ros-o/class_loader.git
@@ -444,16 +444,16 @@ repositories:
     version: obese-devel
   laser_assembler:
     type: git
-    url: https://github.com/ros-perception/laser_assembler.git
-    version: noetic-devel
+    url: https://github.com/ros-o/laser_assembler.git
+    version: obese-devel
   laser_filtering:
     type: git
     url: https://github.com/DLu/laser_filtering.git
     version: noetic
   laser_filters:
     type: git
-    url: https://github.com/ros-perception/laser_filters.git
-    version: noetic-devel
+    url: https://github.com/ros-o/laser_filters.git
+    version: obese-devel
   laser_geometry:
     type: git
     url: https://github.com/ros-o/laser_geometry.git
@@ -468,8 +468,8 @@ repositories:
     version: noetic-devel
   libfranka:
     type: git
-    url: https://github.com/rhaschke/libfranka.git
-    version: master
+    url: https://github.com/ros-o/libfranka.git
+    version: fer-roso
   libg2o:
     type: git
     url: https://github.com/ros-gbp/libg2o-release.git
@@ -584,8 +584,8 @@ repositories:
     version: obese-devel
   navigation:
     type: git
-    url: https://github.com/ros-planning/navigation.git
-    version: noetic-devel
+    url: https://github.com/ros-o/navigation.git
+    version: obese-devel
   navigation_msgs:
     type: git
     url: https://github.com/ros-planning/navigation_msgs.git
@@ -920,8 +920,8 @@ repositories:
     version: master
   rospack:
     type: git
-    url: https://github.com/ros/rospack.git
-    version: noetic-devel
+    url: https://github.com/ros-o/rospack.git
+    version: obese-devel
   rosparam_shortcuts:
     type: git
     url: https://github.com/ros-o/rosparam_shortcuts.git
@@ -1160,8 +1160,8 @@ repositories:
     version: master
   universal_robot:
     type: git
-    url: https://github.com/ros-industrial/universal_robot.git
-    version: noetic-devel
+    url: https://github.com/ros-o/universal_robot.git
+    version: obese-devel
   ur_msgs:
     type: git
     url: https://github.com/ros-industrial/ur_msgs.git
