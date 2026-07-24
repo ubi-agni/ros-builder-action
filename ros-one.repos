@@ -288,7 +288,7 @@ repositories:
     version: kinetic-devel
   genmsg:
     type: git
-    url: https://github.com/isys-vision/genmsg.git
+    url: https://github.com/ros-o/genmsg.git
     version: obese-devel
   genmypy:
     type: git
