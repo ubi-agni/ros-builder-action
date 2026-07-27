@@ -7,6 +7,10 @@ repositories:
     type: git
     url: https://github.com/catkin/catkin_tools
     version: main
+  catkin-pkg:
+    type: git
+    url: https://github.com/ros-infrastructure/catkin_pkg.git
+    version: master
   colcon-alias:
     type: git
     url: https://github.com/colcon/colcon-alias.git
@@ -118,4 +122,8 @@ repositories:
   colcon-zsh:
     type: git
     url: https://github.com/colcon/colcon-zsh.git
+    version: master
+  rosdep:
+    type: git
+    url: https://github.com/ros-infrastructure/rosdep.git
     version: master
