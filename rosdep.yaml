@@ -53,3 +53,9 @@ orocos_kdl: # needed for robot_calibration, pr2_head_action, ...
 urdfdom:
   debian: [liburdfdom-dev]
   ubuntu: [liburdfdom-dev]
+
+python3-catkin-pkg-modules:
+  ubuntu: [python3-catkin-pkg]
+
+python3-rosdep-modules:
+  ubuntu: [python3-rosdep]
