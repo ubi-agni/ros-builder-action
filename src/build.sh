@@ -427,9 +427,42 @@ function known_to_fail {
   return 1
 }
 
+# Check the optional `architectures` list of a .repos file for the target architecture
+function source_supports_arch {
+  local src=$1
+  [ -f "$src" ] || return 0  # only local files can declare architectures
+  local archs; archs=$(yq --raw-output '(.architectures // [])[]' "$src" 2> /dev/null) || return 0
+  [ -z "$archs" ] && return 0
+  grep -qx "$ARCH" <<< "$archs"
+}
+
+# colcon package selection for a source: COLCON_PKG_SELECTION if given,
+# otherwise the source's default for the target architecture (package_selection.<arch>),
+# otherwise none, i.e. all packages
+function source_pkg_selection {
+  local src=$1
+  local selection=$COLCON_PKG_SELECTION
+  if [ -z "$selection" ] && [ -f "$src" ]; then
+    # shellcheck disable=SC2016
+    selection=$(yq --raw-output --arg a "$ARCH" '.package_selection[$a] // empty' "$src" 2> /dev/null) || selection=""
+  fi
+  # resume option must be applied on top of the selection, not replace it
+  if [ -n "$CONTINUE_FROM_PKG" ]; then
+    selection="$selection --packages-start $CONTINUE_FROM_PKG"
+  fi
+  echo "$selection"
+}
+
 function build_source {
   local old_path=$PWD
   local ws_path="$PWD/ws"
+
+  if ! source_supports_arch "$1"; then
+    ici_log "$(ici_colorize YELLOW "Skipping $1: not declared for architecture $ARCH")"
+    return
+  fi
+  local selection; selection=$(source_pkg_selection "$1")
+  if [ -n "$selection" ]; then ici_log "Package selection: $selection"; fi
 
   ici_timed "$(ici_colorize BLUE BOLD "Setup workspace for $1")" prepare_ws "$ws_path" "$1"
   cd "$ws_path" || ici_exit 1
@@ -441,7 +474,7 @@ function build_source {
   while read -r name folder unused; do
     PKG_NAMES+=("$name")
     PKG_FOLDERS+=("$folder")
-  done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
+  done < <(colcon list --topological-order $selection)
 
   # early return if PKG_NAMES is empty
   if [ ${#PKG_NAMES[@]} -eq 0 ]; then

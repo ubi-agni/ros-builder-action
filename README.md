@@ -25,8 +25,10 @@ A subset of packages can be selected via [colcon package selection options](http
 
 `ARCH` selects the target architecture: `x64`, `arm64`, or `armhf`. Any other value is interpreted as the label of a (self-hosted) runner, building for its native architecture.
 `arm64` and `armhf` packages are built on GitHub's hosted arm64 runners. If the runner's CPU cannot execute 32-bit ARM code natively, the `armhf` build chroot runs emulated via qemu, which is considerably slower.
-For this reason, consider building only a subset of packages for `armhf`.
+For this reason, only a subset of packages is built for `armhf`, see `package_selection` below.
 
+A `.repos` file can restrict the architectures its sources are built for via a top-level list, e.g. `architectures: [amd64, arm64]` in [`gazebo.repos`](./gazebo.repos). For other architectures, this source is skipped as a whole.
+A `.repos` file can also define a default package selection per architecture, which is used if `COLCON_PKG_SELECTION` is empty, e.g. `package_selection: {armhf: --packages-up-to ros_base}` in [`ros-one.repos`](./ros-one.repos). Architectures not listed there build all packages of the file.
 Architecture-specific settings in `.repos` files use Debian architecture names (`amd64`, `arm64`, `armhf`), e.g. as keys of `sbuild_options.<pkg>` or `known_failures` (`armhf/*`, `armhf/noble`).
 
 ### Where to start building from?
