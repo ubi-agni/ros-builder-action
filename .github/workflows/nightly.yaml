@@ -42,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         DEB_DISTRO: [jammy, noble]
-        ARCH: [x64, arm64]
+        ARCH: [x64, arm64, armhf]
     uses: ./.github/workflows/build.yaml
     with:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}

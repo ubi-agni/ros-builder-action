@@ -27,6 +27,7 @@ on:
         options:
           - x64
           - arm64
+          - armhf
 
       # source selection
       ROS_SOURCES:
