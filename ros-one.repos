@@ -1267,8 +1267,10 @@ sbuild_options:
   eigenpy:
     amd64: --jobs=2
     arm64: --jobs=1
+    armhf: --jobs=1
   pinocchio:
     arm64: --jobs=1
+    armhf: --jobs=1
 
 known_failures:
   "*/*":

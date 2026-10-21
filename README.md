@@ -21,6 +21,14 @@ A subset of packages can be selected via [colcon package selection options](http
 - To rebuild a single package (only use if ABI/API hasn't changed):  
   `--packages-select <pkg ...>`
 
+### Which architecture?
+
+`ARCH` selects the target architecture: `x64`, `arm64`, or `armhf`. Any other value is interpreted as the label of a (self-hosted) runner, building for its native architecture.
+`arm64` and `armhf` packages are built on GitHub's hosted arm64 runners. If the runner's CPU cannot execute 32-bit ARM code natively, the `armhf` build chroot runs emulated via qemu, which is considerably slower.
+For this reason, consider building only a subset of packages for `armhf`.
+
+Architecture-specific settings in `.repos` files use Debian architecture names (`amd64`, `arm64`, `armhf`), e.g. as keys of `sbuild_options.<pkg>` or `known_failures` (`armhf/*`, `armhf/noble`).
+
 ### Where to start building from?
 
 Building a complete ROS distro from scratch takes a lot of time, often more than the 6 hours allowed by default GHA runners. For this reason, it is possible to continue a build either from a previous build (downloading an existing `debs` artifact) or from an existing repository. For the former, set the input `DOWNLOAD_DEBS=true`, for the latter add the deploy repository to `EXTRA_DEB_SOURCES`. Note that this variable supports shell variable expansion, i.e. you can use `$DEB_DISTRO` and/or `$ROS_DISTRO` to generically specify the deploy repository across different builds.
@@ -64,6 +72,7 @@ variable               | type   | default   | semantics
 -----------------------|--------|-----------|---------------------------------------------------------------------
 `ROS_DISTRO`           | string | one       | ROS distribution codename to compile for
 `DEB_DISTRO`           | string | jammy     | The Debian/Ubuntu distribution codename to compile for.
+`ARCH`                 | string | x64       | [Target architecture](#which-architecture) or label of a self-hosted runner
 `ROS_SOURCES`          | string | `*.repos` | [ROS sources to compile](#what-to-build)
 `COLCON_PKG_SELECTION` | string |           | [colcon package selectio argument(s)](#pkg-selection-examples)
 |<td colspan=2>**Workflow control**</td>

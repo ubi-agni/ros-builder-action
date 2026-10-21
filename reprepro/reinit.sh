@@ -9,6 +9,7 @@ function process {
 	case "$f" in
 		*_arm64.deb) args="-A arm64" ;;
 		*_amd64.deb) args="-A amd64" ;;
+		*_armhf.deb) args="-A armhf" ;;
 		*_all.deb) distros="jammy noble";;
 		*)
 			echo "Unknown arch"

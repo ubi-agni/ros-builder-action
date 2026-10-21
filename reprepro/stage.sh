@@ -14,7 +14,7 @@ fi
 
 # Sanity checks
 [ -z "$DISTRO" ] && DISTRO=(jammy noble)
-[ -z "$ARCH" ] && ARCH=(amd64 arm64)
+[ -z "$ARCH" ] && ARCH=(amd64 arm64 armhf)
 
 FAILURE=0
 FILTER="Exporting indices|Deleting files no longer referenced|replacing .* with equal version"
