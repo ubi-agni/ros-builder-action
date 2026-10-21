@@ -7,7 +7,15 @@ set -euo pipefail # exit script on errors
 ## target names
 export ROS_DISTRO=${ROS_DISTRO:-one}
 export DEB_DISTRO=${DEB_DISTRO:-$(lsb_release -cs)}
-export ARCH=${ARCH:-$(dpkg --print-architecture)}
+export HOST_ARCH; HOST_ARCH=$(dpkg --print-architecture)
+# Target architecture (Debian naming). Workflows pass GitHub's runner arch names (x64)
+# or labels of self-hosted runners, which denote a native build.
+case "${ARCH:-}" in
+	x64) ARCH=amd64 ;;
+	amd64|arm64|armhf) ;;
+	*) ARCH=$HOST_ARCH ;;
+esac
+export ARCH
 
 ## package repository options
 export INSTALL_GPG_KEYS=${INSTALL_GPG_KEYS:-} # hook to install GPG keys
@@ -83,7 +91,7 @@ if debian-distro-info --all | grep -q "$DEB_DISTRO"; then
 
 elif ubuntu-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION=ubuntu
-	case "$(dpkg --print-architecture)" in
+	case "$ARCH" in
 		amd64)
 			export DISTRIBUTION_REPO=http://archive.ubuntu.com/ubuntu
 			;;
@@ -91,7 +99,7 @@ elif ubuntu-distro-info --all | grep -q "$DEB_DISTRO"; then
 			export DISTRIBUTION_REPO=http://ports.ubuntu.com/ubuntu-ports
 			;;
 		*)
-			gha_error "Unknown architecture: $(dpkg --print-architecture)"
+			gha_error "Unknown architecture: $ARCH"
 			ici_exit 1
 			;;
 	esac

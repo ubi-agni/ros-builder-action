@@ -145,14 +145,14 @@ function source_link {
 
 function pkg_exists {
   local name="$1"
-  local candidate; candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+  local candidate; candidate=$(LANG=C with_target_apt apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
   [ "$candidate" = "(none)" ] && candidate=""
 
   # if nothing found but a debian control files exists for that package
   if [ -z "$candidate" ] && grep "Source: $name" debian/control &> /dev/null; then
     # check all defined packages
     while read -r name; do
-      candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+      candidate=$(LANG=C with_target_apt apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
       if [ -z "$candidate" ]; then
         break
       fi
@@ -166,7 +166,7 @@ function pkg_exists {
     gha_warning "$name: existing version newer: $available > $pkg_version"
   fi
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$candidate" ] && \
-     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py"; then
+     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! with_target_apt "$SRC_PATH/scripts/upstream_rebuilds.py"; then
     local build_stamp="${candidate#*"$DEB_DISTRO".}" # timestamp of last build
     local git_stamp; git_stamp=$(git log -1 --format="%cd" --date=format:'%Y%m%d.%H%M') # timestamp of last commit
     if [ "$git_stamp" \> "$build_stamp" ]; then
@@ -259,7 +259,7 @@ function build_pkg {
   if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
 
   ici_log
-  SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
+  SBUILD_OPTS="--verbose --chroot=sbuild --arch=$ARCH --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
@@ -345,7 +345,7 @@ function sbuild_pkg {
   if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
 
   ici_log
-  SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
+  SBUILD_OPTS="--verbose --chroot=sbuild --arch=$ARCH --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1

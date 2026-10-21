@@ -73,6 +73,50 @@ function validate_deb_sources {
 
 REPOS_LIST_FILE="/etc/apt/sources.list.d/ros-builder-repos.list"
 DEBS_LIST_FILE="/etc/apt/sources.list.d/ros-builder-debs.list"
+# apt config to query package versions of the target architecture on a foreign host
+TARGET_APT_CONFIG=""
+if [ "$ARCH" != "$HOST_ARCH" ]; then
+  TARGET_APT_CONFIG="/etc/apt/ros-builder-$ARCH.conf"
+fi
+
+# run given command with apt operating on the target architecture
+function with_target_apt {
+  if [ -n "$TARGET_APT_CONFIG" ]; then
+    APT_CONFIG="$TARGET_APT_CONFIG" "$@"
+  else
+    "$@"
+  fi
+}
+
+function configure_target_apt {
+  [ -z "$TARGET_APT_CONFIG" ] && return
+  # Use the host's sources, but separate package lists for the target architecture.
+  # Adding $ARCH as foreign architecture to the host's apt instead doesn't work:
+  # Architecture: all packages cannot be queried as pkg:$ARCH and
+  # unqualified names would resolve to the host's architecture.
+  local lists="/var/lib/apt/lists-$ARCH"
+  local cache="/var/cache/apt-$ARCH"
+  ici_asroot mkdir -p "$lists/partial" "$cache/archives/partial"
+  cat <<- EOF | ici_asroot tee "$TARGET_APT_CONFIG"
+APT::Architecture "$ARCH";
+APT::Architectures { "$ARCH"; };
+Dir::State::Lists "$lists";
+Dir::Cache "$cache";
+EOF
+  with_target_apt ici_asroot apt-get update
+}
+
+function enable_foreign_arch_execution {
+  [ "$ARCH" == "$HOST_ARCH" ] && return
+  if arch-test "$ARCH"; then
+    ici_log "$(ici_colorize GREEN "Host can execute $ARCH natively")"
+    return
+  fi
+  ici_asroot update-binfmts --enable
+  arch-test "$ARCH" || ici_exit 1 gha_error "Cannot execute $ARCH binaries, even with qemu"
+  ici_log "$(ici_colorize YELLOW "Executing $ARCH binaries via qemu emulation")"
+}
+
 function configure_extra_host_sources {
   ici_asroot rm -f "$REPOS_LIST_FILE"
   while IFS= read -r line; do
@@ -109,6 +153,7 @@ EOF
     --customize-hook="upload $tmp $tmp" \
     --customize-hook="chroot \$1 chmod 755 $tmp" \
     --customize-hook="chroot \$1 sh -c $tmp" \
+    --arch="$ARCH" \
     "$DEB_DISTRO" "$chroot_folder" \
     "deb $DISTRIBUTION_REPO $DEB_DISTRO main universe"
 
@@ -122,6 +167,7 @@ profile=sbuild
 type=directory
 directory=$chroot_folder
 union-type=overlay
+$( [ "$ARCH" == armhf ] && echo "personality=linux32" )
 EOF
   # sbuild-rw: writable sbuild
   sed -e 's#\(union-type\)=overlay#\1=none#' -e 's#\[sbuild\]#[sbuild-rw]#'\
@@ -189,6 +235,6 @@ function update_repo {
   apt-ftparchive release  . > Release
   cd "$old_path" || return 1
 
-  ici_asroot apt-get update -qq -o Dir::Etc::sourcelist="$DEBS_LIST_FILE" \
+  with_target_apt ici_asroot apt-get update -qq -o Dir::Etc::sourcelist="$DEBS_LIST_FILE" \
         -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
 }
