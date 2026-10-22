@@ -7,7 +7,8 @@ set -euo pipefail # exit script on errors
 ## target names
 export ROS_DISTRO=${ROS_DISTRO:-one}
 export DEB_DISTRO=${DEB_DISTRO:-$(lsb_release -cs)}
-export HOST_ARCH; HOST_ARCH=$(dpkg --print-architecture)
+# shellcheck disable=SC2155
+export HOST_ARCH=$(dpkg --print-architecture)
 # Target architecture (Debian naming). Workflows pass GitHub's runner arch names (x64)
 # or labels of self-hosted runners, which denote a native build.
 case "${ARCH:-}" in

@@ -112,6 +112,7 @@ function enable_foreign_arch_execution {
     ici_log "$(ici_colorize GREEN "Host can execute $ARCH natively")"
     return
   fi
+  DEBIAN_FRONTEND=noninteractive ici_cmd "${APT_QUIET[@]}" ici_apt_install qemu-user-static binfmt-support
   ici_asroot update-binfmts --enable
   arch-test "$ARCH" || ici_exit 1 gha_error "Cannot execute $ARCH binaries, even with qemu"
   ici_log "$(ici_colorize YELLOW "Executing $ARCH binaries via qemu emulation")"

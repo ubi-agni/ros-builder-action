@@ -24,7 +24,7 @@ A subset of packages can be selected via [colcon package selection options](http
 ### Which architecture?
 
 `ARCH` selects the target architecture: `x64`, `arm64`, or `armhf`. Any other value is interpreted as the label of a (self-hosted) runner, building for its native architecture.
-`arm64` and `armhf` packages are built on GitHub's hosted arm64 runners. If the runner's CPU cannot execute 32-bit ARM code natively, the `armhf` build chroot runs emulated via qemu, which is considerably slower.
+`arm64` and `armhf` packages are built on GitHub's hosted arm64 runners, which execute 32-bit ARM code natively. On hosts that cannot (e.g. x64 or self-hosted runners), the `armhf` build chroot runs emulated via qemu, which is considerably slower.
 For this reason, only a subset of packages is built for `armhf`, see `package_selection` below.
 
 A `.repos` file can restrict the architectures its sources are built for via a top-level list, e.g. `architectures: [amd64, arm64]` in [`gazebo.repos`](./gazebo.repos). For other architectures, this source is skipped as a whole.

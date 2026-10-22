@@ -67,7 +67,7 @@ jobs:
           - { DEB_DISTRO: bookworm, DEBS: true, VERBOSE: bloom }
           - { DEB_DISTRO: noble, VERBOSE: true }
           - { DEB_DISTRO: jammy, ARCH: arm64, BUILD_TIMEOUT: 4, ROS_SOURCES: good, DEBS: true, EXPECT_EXIT_CODE: 130 }
-          - { DEB_DISTRO: jammy, ARCH: armhf, BUILD_TIMEOUT: 60, ROS_SOURCES: good }
+          - { DEB_DISTRO: jammy, ARCH: armhf, ROS_SOURCES: good }
           # add failing jobs
           - { DEB_DISTRO: focal, ARCH: x64, ROS_SOURCES: broken, EXPECT_EXIT_CODE: 2, CONTINUE_ON_ERROR: false, DEBS: true }
           - { DEB_DISTRO: focal, ARCH: x64, ROS_SOURCES: broken, EXPECT_EXIT_CODE: 1, CONTINUE_ON_ERROR: true, COLCON_PKG_SELECTION: '--packages-up-to rostime' }
@@ -77,7 +77,7 @@ jobs:
       DEB_DISTRO: ${{ matrix.DEB_DISTRO }}
       ARCH: ${{ matrix.ARCH }}
       ROS_SOURCES: .github/workflows/${{ matrix.ROS_SOURCES }}.repos
-      INSTALL_TO_CHROOT: ${{ matrix.EXPECT_EXIT_CODE == 130 }}  # slow down for timeout test
+      INSTALL_TO_CHROOT: ${{ matrix.BUILD_TIMEOUT > 0 }}  # slow down for timeout test
       VERBOSE: ${{ matrix.VERBOSE && matrix.VERBOSE || false }}
       BUILD_TIMEOUT: ${{ matrix.BUILD_TIMEOUT && matrix.BUILD_TIMEOUT || 15 }}
       CONTINUE_ON_ERROR: ${{ matrix.CONTINUE_ON_ERROR && matrix.CONTINUE_ON_ERROR || false }}

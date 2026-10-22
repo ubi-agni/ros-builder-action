@@ -29,8 +29,7 @@ DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT
 	debhelper python3-all dh-python build-essential
 
 if [ "$ARCH" != "$HOST_ARCH" ]; then
-	DEBIAN_FRONTEND=noninteractive ici_timed "Install packages for $ARCH emulation" ici_cmd "${APT_QUIET[@]}" ici_apt_install \
-		arch-test qemu-user-static binfmt-support
+	DEBIAN_FRONTEND=noninteractive ici_timed "Install arch-test" ici_cmd "${APT_QUIET[@]}" ici_apt_install arch-test
 	ici_timed "Check execution of $ARCH binaries" enable_foreign_arch_execution
 	ici_timed "Configure apt for $ARCH" configure_target_apt
 fi
