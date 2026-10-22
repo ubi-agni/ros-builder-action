@@ -20,8 +20,8 @@ def load_from_commit(repo_path, sha, files):
         new = yaml.safe_load(file_content.data_stream.read())
         # add new content to top-level keys
         for key, val in new.items():
-            if not isinstance(val, dict):
-                continue  # e.g. architectures: only meaningful per source file
+            if key in ("architectures", "package_selection"):
+                continue  # these describe a whole .repos file, not the merged diff
             if key not in content:
                 content[key] = dict()
             content[key].update(val)
