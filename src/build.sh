@@ -145,14 +145,14 @@ function source_link {
 
 function pkg_exists {
   local name="$1"
-  local candidate; candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+  local candidate; candidate=$(LANG=C with_target_apt apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
   [ "$candidate" = "(none)" ] && candidate=""
 
   # if nothing found but a debian control files exists for that package
   if [ -z "$candidate" ] && grep "Source: $name" debian/control &> /dev/null; then
     # check all defined packages
     while read -r name; do
-      candidate=$(LANG=C apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
+      candidate=$(LANG=C with_target_apt apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
       if [ -z "$candidate" ]; then
         break
       fi
@@ -166,7 +166,7 @@ function pkg_exists {
     gha_warning "$name: existing version newer: $available > $pkg_version"
   fi
   if [ "$SKIP_EXISTING" == "true" ] && [ -n "$candidate" ] && \
-     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! "$SRC_PATH/scripts/upstream_rebuilds.py"; then
+     dpkg --compare-versions "$available" ">=" "$pkg_version" && ! with_target_apt "$SRC_PATH/scripts/upstream_rebuilds.py"; then
     local build_stamp="${candidate#*"$DEB_DISTRO".}" # timestamp of last build
     local git_stamp; git_stamp=$(git log -1 --format="%cd" --date=format:'%Y%m%d.%H%M') # timestamp of last commit
     if [ "$git_stamp" \> "$build_stamp" ]; then
@@ -259,7 +259,7 @@ function build_pkg {
   if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
 
   ici_log
-  SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
+  SBUILD_OPTS="--verbose --chroot=sbuild --arch=$ARCH --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
@@ -345,7 +345,7 @@ function sbuild_pkg {
   if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
 
   ici_log
-  SBUILD_OPTS="--verbose --chroot=sbuild --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
+  SBUILD_OPTS="--verbose --chroot=sbuild --arch=$ARCH --no-clean-source --no-run-lintian --dist=$DEB_DISTRO $opts"
   ici_label "${SBUILD_QUIET[@]}" ici_asroot -E -H -u "$USER" bash -lc "sbuild $SBUILD_OPTS" || return 4
 
   "${CCACHE_QUIET[@]}" ici_label ccache -sv || return 1
@@ -427,9 +427,42 @@ function known_to_fail {
   return 1
 }
 
+# Check the optional `architectures` list of a .repos file for the target architecture
+function source_supports_arch {
+  local src=$1
+  [ -f "$src" ] || return 0  # only local files can declare architectures
+  local archs; archs=$(yq --raw-output '(.architectures // [])[]' "$src" 2> /dev/null) || return 0
+  [ -z "$archs" ] && return 0
+  grep -qx "$ARCH" <<< "$archs"
+}
+
+# colcon package selection for a source: COLCON_PKG_SELECTION if given,
+# otherwise the source's default for the target architecture (package_selection.<arch>),
+# otherwise none, i.e. all packages
+function source_pkg_selection {
+  local src=$1
+  local selection=$COLCON_PKG_SELECTION
+  if [ -z "$selection" ] && [ -f "$src" ]; then
+    # shellcheck disable=SC2016
+    selection=$(yq --raw-output --arg a "$ARCH" '.package_selection[$a] // empty' "$src" 2> /dev/null) || selection=""
+  fi
+  # resume option must be applied on top of the selection, not replace it
+  if [ -n "$CONTINUE_FROM_PKG" ]; then
+    selection="$selection --packages-start $CONTINUE_FROM_PKG"
+  fi
+  echo "$selection"
+}
+
 function build_source {
   local old_path=$PWD
   local ws_path="$PWD/ws"
+
+  if ! source_supports_arch "$1"; then
+    ici_log "$(ici_colorize YELLOW "Skipping $1: not declared for architecture $ARCH")"
+    return
+  fi
+  local selection; selection=$(source_pkg_selection "$1")
+  if [ -n "$selection" ]; then ici_log "Package selection: $selection"; fi
 
   ici_timed "$(ici_colorize BLUE BOLD "Setup workspace for $1")" prepare_ws "$ws_path" "$1"
   cd "$ws_path" || ici_exit 1
@@ -441,7 +474,7 @@ function build_source {
   while read -r name folder unused; do
     PKG_NAMES+=("$name")
     PKG_FOLDERS+=("$folder")
-  done < <(colcon list --topological-order $COLCON_PKG_SELECTION)
+  done < <(colcon list --topological-order $selection)
 
   # early return if PKG_NAMES is empty
   if [ ${#PKG_NAMES[@]} -eq 0 ]; then

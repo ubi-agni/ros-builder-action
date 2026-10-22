@@ -1263,12 +1263,19 @@ repositories:
     url: https://github.com/RoboticMaterials/FA-I-sensor.git
     version: master
 
+# default COLCON_PKG_SELECTION per architecture (if not given explicitly)
+# architectures not listed here (amd64, arm64) build all packages
+package_selection:
+  armhf: --packages-up-to ros_base tf tf2_ros image_common image_transport rosbridge_suite
+
 sbuild_options:
   eigenpy:
     amd64: --jobs=2
     arm64: --jobs=1
+    armhf: --jobs=1
   pinocchio:
     arm64: --jobs=1
+    armhf: --jobs=1
 
 known_failures:
   "*/*":

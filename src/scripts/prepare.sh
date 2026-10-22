@@ -28,6 +28,12 @@ DEBIAN_FRONTEND=noninteractive ici_timed "Install build packages" ici_cmd "${APT
 	mmdebstrap sbuild schroot devscripts ccache apt-cacher-ng python3-pip libxml2-utils libarchive-tools \
 	debhelper python3-all dh-python build-essential
 
+if [ "$ARCH" != "$HOST_ARCH" ]; then
+	DEBIAN_FRONTEND=noninteractive ici_timed "Install arch-test" ici_cmd "${APT_QUIET[@]}" ici_apt_install arch-test
+	ici_timed "Check execution of $ARCH binaries" enable_foreign_arch_execution
+	ici_timed "Configure apt for $ARCH" configure_target_apt
+fi
+
 export PIP_BREAK_SYSTEM_PACKAGES=1
 # Install patched bloom to handle ROS "one" distro key when resolving python and ROS version
 ici_timed "Install bloom" ici_asroot pip install -U git+https://github.com/rhaschke/bloom.git@ros-one
