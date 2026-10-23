@@ -67,7 +67,7 @@ jobs:
   deploy:
     needs: build
     # deploy needs: DEPLOY_URL defined
-    # allow manual trigger with in additional run attempts
+    # allow manual trigger by additional run attempts
     # by default, only deploy main branch
     if: |
       vars.DEPLOY_URL &&
@@ -76,7 +76,6 @@ jobs:
         (!cancelled() &&
           (inputs.DEPLOY || github.ref == 'refs/heads/main'))
       )
-    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
