@@ -10,8 +10,8 @@ ici_cmd validate_deb_sources EXTRA_DEB_SOURCES
 
 ## Add required apt gpg keys and sources
 # Jochen's ppa for mmdebstrap, sbuild
-ici_append INSTALL_HOST_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D8A3751519274DEF"
-ici_append EXTRA_HOST_SOURCES "deb http://ppa.launchpad.net/v-launchpad-jochen-sprickerhof-de/sbuild/ubuntu jammy main"
+ici_append INSTALL_HOST_GPG_KEYS "curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xD8A3751519274DEF' | gpg --dearmor | sudo tee /etc/apt/keyrings/sprickerhof.gpg > /dev/null"
+ici_append EXTRA_HOST_SOURCES "deb [signed-by=/etc/apt/keyrings/sprickerhof.gpg] http://ppa.launchpad.net/v-launchpad-jochen-sprickerhof-de/sbuild/ubuntu $(lsb_release -cs) main"
 ici_cmd restrict_src_to_packages "release o=v-launchpad-jochen-sprickerhof-de" "mmdebstrap sbuild"
 
 # Configure sources

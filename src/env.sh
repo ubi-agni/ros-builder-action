@@ -88,7 +88,7 @@ export ROS_PYTHON_VERSION=3
 if debian-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION=debian
 	export DISTRIBUTION_REPO=http://deb.debian.org/debian
-	ici_append INSTALL_HOST_GPG_KEYS "sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 F8D2585B8783D481"
+	ici_append INSTALL_HOST_GPG_KEYS "sudo gpg --no-default-keyring --keyring /etc/apt/trusted.gpg.d/custom.gpg --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 F8D2585B8783D481"
 
 elif ubuntu-distro-info --all | grep -q "$DEB_DISTRO"; then
 	export DISTRIBUTION=ubuntu
