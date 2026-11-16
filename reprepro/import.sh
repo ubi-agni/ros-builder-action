@@ -93,6 +93,7 @@ function compatible() {
 }
 
 # filter files and checksums section from .dsc file ($1) and write to specified folder ($2)
+# shellcheck disable=SC2329
 function dsc_filter() {
 	# shellcheck disable=SC2317
 	awk '/^Files:/ {f=1; next} f && NF==3 {next} f && NF!=3 {f=0} {print}' "$1" | \
