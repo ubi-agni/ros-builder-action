@@ -82,7 +82,7 @@ jobs:
       DEBUG_BASH: ${{ secrets.ACTIONS_STEP_DEBUG && 'true' || 'false' }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Download debs artifact
         uses: actions/download-artifact@v8
