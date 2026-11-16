@@ -151,6 +151,7 @@ EOF
   # shellcheck disable=SC2016
   ici_cmd ici_asroot mmdebstrap \
     --variant=buildd --include=apt,apt-utils,ccache,ca-certificates,curl,build-essential,debhelper,fakeroot,cmake,git \
+    --keyring=/usr/share/keyrings/ \
     --customize-hook="upload $tmp $tmp" \
     --customize-hook="chroot \$1 chmod 755 $tmp" \
     --customize-hook="chroot \$1 sh -c $tmp" \
