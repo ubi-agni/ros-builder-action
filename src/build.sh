@@ -252,8 +252,8 @@ function build_pkg {
   # Fetch sbuild options from .repos yaml file
   opts=""
   if [ -f "$WS_SOURCE" ]; then
-    opts=$(yq ".sbuild_options.\"$pkg_name\".$ARCH | select(type == \"string\")" "$WS_SOURCE")
-    if [ -z "$opts" ]; then opts=$(yq ".sbuild_options.\"$pkg_name\" | select(type == \"string\")" "$WS_SOURCE"); fi
+    opts=$(yq ".sbuild_options.\"$pkg_name\".$ARCH | select(type == \"string\")" "$WS_SOURCE" 2> /dev/null)
+    if [ -z "$opts" ]; then opts=$(yq ".sbuild_options.\"$pkg_name\" | select(type == \"string\")" "$WS_SOURCE" 2> /dev/null); fi
   fi
   if [ -n "$opts" ]; then opts="$EXTRA_SBUILD_OPTS $opts"; fi
 
