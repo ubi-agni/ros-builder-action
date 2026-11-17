@@ -148,7 +148,7 @@ function pkg_exists {
   local candidate; candidate=$(LANG=C with_target_apt apt-cache policy "$name" | sed -n "s#^\s*Candidate:\s\(.*\)#\1#p")
   [ "$candidate" = "(none)" ] && candidate=""
 
-  # if nothing found but a debian control files exists for that package
+  # if nothing found but a debian control file exists for that package
   if [ -z "$candidate" ] && grep "Source: $name" debian/control &> /dev/null; then
     # check all defined packages
     while read -r name; do
