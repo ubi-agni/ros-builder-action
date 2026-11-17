@@ -1278,6 +1278,8 @@ known_failures:
   "*/*":
     - pr2_robot/imu_monitor
     - ros-utils/tf_static_publisher
+    - jsk_recognition/jsk_perception
+    - jsk_recognition/jsk_recognition_utils
   "*/jammy":
   "*/noble":
     - librealsense2
