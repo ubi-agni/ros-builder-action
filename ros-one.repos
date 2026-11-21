@@ -334,6 +334,10 @@ repositories:
     type: git
     url: https://github.com/ament/googletest.git
     version: rolling
+  gps_umd:
+    type: git
+    url: https://github.com/swri-robotics/gps_umd.git
+    version: master
   graph_msgs:
     type: git
     url: https://github.com/PickNikRobotics/graph_msgs.git
